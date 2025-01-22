@@ -1,9 +1,12 @@
 import numpy as np
+import h5py
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
+from sklearn.metrics import accuracy_score
+import pickle
 
 # initialisation de vecteur contenant le donné X et la reférence y
-X,y = make_blobs(n_samples=100, n_features=2, centers=2, random_state=0)
+X,y = make_blobs(n_samples=1000, n_features=2, centers=2, random_state=0)
 # ici ce ne sont pas des vrais donné et on a initialiser un vecteur (100,2) 
 # alors que les réponse sont un vecteur (100,1) donc ont garde que la première colone
 y = y.reshape((y.shape[0], 1))
@@ -12,21 +15,26 @@ y = y.reshape((y.shape[0], 1))
 class Neurone: 
     # Sert a l'initialisation du vecteur des paramétre sur les entrée
     # et la constante
-    def __init__(self,X,y):
-        self.W = np.random.randn(X.shape[1], 1)
-        self.b = np.random.randn(1)
+    def __init__(self,X=None,y=None):
+        self.W = None
+        self.b = None
         self.L = []
-        self.neurone(X,y)
+        if X is not None and y is not None:
+            self.W = np.random.randn(X.shape[1], 1)
+            self.b = np.random.randn(1)
+            self.train(X, y)
 
     # definit le modèle donc la fonction linéaire
     # puis transforme la sortie linéaire en un pourcentage
     def model(self,X):
         Z = X.dot(self.W)+self.b
-        A = 1/(1+np.exp(-Z))
+        A = 1/(1+np.exp(-Z)) 
         return A
 
     #On definit la fonction de coût donc log loss ici
     def log_loss(self,A,y):
+        epsilon = 1e-15
+        A = np.clip(A, epsilon, 1 - epsilon)
         return 1/len(y) * np.sum(-y*np.log(A) - (1-y)*np.log(1-A))
 
     #On definit nos gradient
@@ -40,34 +48,88 @@ class Neurone:
         self.W = self.W-learning_rate*dW
         self.b = self.b-learning_rate*db
 
-    def neurone(self,X, y,learning_rate=0.1, nb_iter=100):
+    def train(self,X, y,learning_rate=0.1, nb_iter=10000):
         #boucle d'update
         for _ in range(nb_iter):
             A = self.model(X)
             self.L.append(self.log_loss(A, y))
             dW,db = self.gradients(A,X,y)
             self.update(dW, db, learning_rate)
+    
+    def predict(self, X):
+        A = self.model(X)
+        return A >= 0.5
+
+    def save(self, filename):
+        with open(filename, 'wb') as f:
+            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L}, f)
+        print(f"Modèle sauvegardé dans {filename}")
+
+    # Charger les paramètres (poids, biais et historique de perte)
+    def load(self, filename):
+        with open(filename, 'rb') as f:
+            data = pickle.load(f)
+            self.W = data['W']
+            self.b = data['b']
+            self.L = data['L']
+        print(f"Modèle chargé depuis {filename}")
 
 
-"""#qq test basic
-W,b = initialisation(X)
-A = model(X,W,b)
-L = log_loss(A,y) 
-dW,db = gradients(A,X,y)
-W,b = update(dW, db, W, b, 2)
 
 
-assert(X.shape == (100, 2)) 
-assert(y.shape == (100, 1))
-assert(A.shape == (100, 1))
-assert(dW.shape == (2, 1))
-assert(db.shape == ())
-print("log loss:", L)
+def load_data():
+    train_dataset = h5py.File('C:/Users/accio/Documents/IA/IA_Resaux_de_neurone/Training/datasets/trainset.hdf5', "r")
+    X_train = np.array(train_dataset["X_train"][:]) # your train set features
+    y_train = np.array(train_dataset["Y_train"][:]) # your train set labels
+
+    test_dataset = h5py.File('C:/Users/accio/Documents/IA/IA_Resaux_de_neurone/Training/datasets/testset.hdf5', "r")
+    X_test = np.array(test_dataset["X_test"][:]) # your test set features
+    y_test = np.array(test_dataset["Y_test"][:]) # your test set labels
+    
+    return X_train, y_train, X_test, y_test
+
+def normalized(X):
+    return X/255
+
+X_train, y_train, X_test, y_test = load_data()
+X_train=normalized(X_train)
+X_test=normalized(X_test)
+
 """
-neu = Neurone(X,y)
+# Vérification des dimensions
+print("X_train shape:", X_train.shape)
+print("y_train shape:", y_train.shape)
+print("X_test shape:", X_test.shape)
+print("y_test shape:", y_test.shape)
+"""
+X_train = X_train.reshape(X_train.shape[0], -1)
+X_test = X_test.reshape(X_test.shape[0], -1)
+# Reshape des labels
+y_train = y_train.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
 
-plt.plot(neu.L)
-plt.show()
+"""
+# Vérification des dimensions
+print("X_train shape:", X_train.shape)
+print("y_train shape:", y_train.shape)
+print("X_test shape:", X_test.shape)
+print("y_test shape:", y_test.shape)
+"""
 
-#plt.scatter(X[:,0], X[:,1], c=y, cmap="summer")
+"""
+First training
+
+chien_chat = Neurone(X_train, y_train)
+chien_chat.save("Training/saves/save_chien_chat.pkl")
+"""
+chien_chat = Neurone()
+chien_chat.load("Training/saves/save_chien_chat.pkl")
+chien_chat.train(X_train, y_train, 1e-15, 10000)
+chien_chat.save("Training/saves/save_chien_chat.pkl")
+pred_chien_chat = chien_chat.predict(X_train)
+print(accuracy_score(y_train, pred_chien_chat))
+#plt.plot(chien_chat.L)
 #plt.show()
+
+pred_chien_chat_test = chien_chat.predict(X_test)
+print(accuracy_score(y_test, pred_chien_chat_test))
