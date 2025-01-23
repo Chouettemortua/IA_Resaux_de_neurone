@@ -5,12 +5,6 @@ from sklearn.datasets import make_blobs
 from sklearn.metrics import accuracy_score
 import pickle
 
-# initialisation de vecteur contenant le donné X et la reférence y
-X,y = make_blobs(n_samples=1000, n_features=2, centers=2, random_state=0)
-# ici ce ne sont pas des vrais donné et on a initialiser un vecteur (100,2) 
-# alors que les réponse sont un vecteur (100,1) donc ont garde que la première colone
-y = y.reshape((y.shape[0], 1))
-
 
 class Neurone: 
     # Sert a l'initialisation du vecteur des paramétre sur les entrée
@@ -48,7 +42,7 @@ class Neurone:
         self.W = self.W-learning_rate*dW
         self.b = self.b-learning_rate*db
 
-    def train(self,X, y,learning_rate=0.1, nb_iter=10000):
+    def train(self,X, y,learning_rate=0.1, nb_iter=100):
         #boucle d'update
         for _ in range(nb_iter):
             A = self.model(X)
@@ -78,11 +72,11 @@ class Neurone:
 
 
 def load_data():
-    train_dataset = h5py.File('C:/Users/accio/Documents/IA/IA_Resaux_de_neurone/Training/datasets/trainset.hdf5', "r")
+    train_dataset = h5py.File('Training/datasets/trainset.hdf5', "r")
     X_train = np.array(train_dataset["X_train"][:]) # your train set features
     y_train = np.array(train_dataset["Y_train"][:]) # your train set labels
 
-    test_dataset = h5py.File('C:/Users/accio/Documents/IA/IA_Resaux_de_neurone/Training/datasets/testset.hdf5', "r")
+    test_dataset = h5py.File('Training/datasets/testset.hdf5', "r")
     X_test = np.array(test_dataset["X_test"][:]) # your test set features
     y_test = np.array(test_dataset["Y_test"][:]) # your test set labels
     
@@ -114,22 +108,32 @@ print("X_train shape:", X_train.shape)
 print("y_train shape:", y_train.shape)
 print("X_test shape:", X_test.shape)
 print("y_test shape:", y_test.shape)
+X_train shape: (1000, 4096)
+y_train shape: (1000, 1)
+X_test shape: (200, 4096)
+y_test shape: (200, 1)
 """
 
+
 """
-First training
+#First training
 
 chien_chat = Neurone(X_train, y_train)
-chien_chat.save("Training/saves/save_chien_chat.pkl")
+chien_chat.save("Training/saves/save_chien_chat2.pkl")
 """
 chien_chat = Neurone()
-chien_chat.load("Training/saves/save_chien_chat.pkl")
-#chien_chat.train(X_train, y_train, 1e-15, 10000)
-#chien_chat.save("Training/saves/save_chien_chat.pkl")
+chien_chat.load("Training/saves/save_chien_chat2.pkl")
+chien_chat.train(X_train, y_train, 1e-20, 1000)
+chien_chat.save("Training/saves/save_chien_chat2.pkl")
 pred_chien_chat = chien_chat.predict(X_train)
 print(accuracy_score(y_train, pred_chien_chat))
-#plt.plot(chien_chat.L)
-#plt.show()
+
+plt.plot(chien_chat.L)
+plt.title("Courbe de perte")
+plt.xlabel("Itérations")
+plt.ylabel("Loss")
+plt.savefig("Training/saves/loss_curve.png")  # Sauvegarde dans un fichier
+print("Courbe de perte sauvegardée dans Training/saves/loss_curve.png")
 
 pred_chien_chat_test = chien_chat.predict(X_test)
 print(accuracy_score(y_test, pred_chien_chat_test))
