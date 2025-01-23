@@ -119,12 +119,12 @@ y_test shape: (200, 1)
 #First training
 
 chien_chat = Neurone(X_train, y_train)
-chien_chat.save("Training/saves/save_chien_chat2.pkl")
+chien_chat.save("Training/saves/save_chien_chat.pkl")
 """
 chien_chat = Neurone()
-chien_chat.load("Training/saves/save_chien_chat2.pkl")
-chien_chat.train(X_train, y_train, 1e-20, 1000)
-chien_chat.save("Training/saves/save_chien_chat2.pkl")
+chien_chat.load("Training/saves/save_chien_chat.pkl")
+#chien_chat.train(X_train, y_train, 1e-20, 1000)
+chien_chat.save("Training/saves/save_chien_chat.pkl")
 pred_chien_chat = chien_chat.predict(X_train)
 print(accuracy_score(y_train, pred_chien_chat))
 
