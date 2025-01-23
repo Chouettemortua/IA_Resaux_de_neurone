@@ -9,14 +9,14 @@ import pickle
 class Neurone: 
     # Sert a l'initialisation du vecteur des paramétre sur les entrée
     # et la constante
-    def __init__(self,X=None,y=None):
+    def __init__(self,X=None,y=None, learning_rate=0.1, nb_iter=100):
         self.W = None
         self.b = None
         self.L = []
         if X is not None and y is not None:
             self.W = np.random.randn(X.shape[1], 1)
             self.b = np.random.randn(1)
-            self.train(X, y)
+            self.train(X, y, learning_rate, nb_iter)
 
     # definit le modèle donc la fonction linéaire
     # puis transforme la sortie linéaire en un pourcentage
@@ -28,8 +28,7 @@ class Neurone:
     #On definit la fonction de coût donc log loss ici
     def log_loss(self,A,y):
         epsilon = 1e-15
-        A = np.clip(A, epsilon, 1 - epsilon)
-        return 1/len(y) * np.sum(-y*np.log(A) - (1-y)*np.log(1-A))
+        return 1/len(y) * np.sum(-y*np.log(A+epsilon) - (1-y)*np.log(1-A+epsilon))
 
     #On definit nos gradient
     def gradients(self,A,X,y):
@@ -115,16 +114,20 @@ y_test shape: (200, 1)
 """
 
 
-"""
-#First training
-
+chien_chat = None
+path = "Training/saves/save_chien_chat.pkl"
+#Nouveau neurone
 chien_chat = Neurone(X_train, y_train)
-chien_chat.save("Training/saves/save_chien_chat.pkl")
-"""
-chien_chat = Neurone()
-chien_chat.load("Training/saves/save_chien_chat.pkl")
-#chien_chat.train(X_train, y_train, 1e-20, 1000)
-chien_chat.save("Training/saves/save_chien_chat.pkl")
+chien_chat.save(path)
+
+#Neurone existant
+if chien_chat == None:
+    chien_chat = Neurone()
+    chien_chat.load(path)
+#celon si on veut entrainer ou non
+chien_chat.train(X_train, y_train, 1e-3, 1000)
+chien_chat.save(path)
+
 pred_chien_chat = chien_chat.predict(X_train)
 print(accuracy_score(y_train, pred_chien_chat))
 
