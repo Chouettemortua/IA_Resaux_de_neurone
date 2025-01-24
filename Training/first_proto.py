@@ -1,28 +1,30 @@
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs
 from sklearn.metrics import accuracy_score
 import pickle
+from tqdm import tqdm 
 
 
 class Neurone: 
 
     # Sert a l'initialisation du vecteur des paramétre sur les entrée
     # et la constante
-    def __init__(self, X=None, y=None, learning_rate=0.1, nb_iter=100):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=100):
 
         #Paramètre definisant mon neurone
         self.W = None
         self.b = None
         self.L = []
+        self.L_t = []
         self.acc = []
+        self.acc_t = []
 
         #si on fournit des paramètre on fait automatiquement un entrainement dessus
         if X is not None and y is not None:
             self.W = np.random.randn(X.shape[1], 1)
             self.b = np.random.randn(1)
-            self.train(X, y, learning_rate, nb_iter)
+            self.train(X, y, X_test, y_test, learning_rate, nb_iter)
 
 
     # definit le modèle donc la fonction linéaire
@@ -52,18 +54,22 @@ class Neurone:
         self.b = self.b-learning_rate*db
 
 
-    def train(self,X, y,learning_rate=0.1, nb_iter=100):
+    def train(self, X, y, X_test, y_test, learning_rate=0.1, nb_iter=100):
         #boucle d'update
-        for _ in range(nb_iter):
+        for i in tqdm(range(nb_iter)):
             #activation
             A = self.model(X)
 
-            #Calcule coût
-            self.L.append(self.log_loss(A, y))
+            if i%10==0 :
+                #Calcule coût
+                self.L.append(self.log_loss(A, y))
+                self.L_t.append(self.log_loss(self.model(X_test), y_test))
 
-            #Calcul accuracy
-            pred = self.predict(X)
-            self.acc.append(accuracy_score(y,pred))
+                #Calcul accuracy
+                pred = self.predict(X)
+                pred_t = self.predict(X_test)
+                self.acc.append(accuracy_score(y,pred))
+                self.acc_t.append(accuracy_score(y_test, pred_t))
 
             #Mise a jour
             dW,db = self.gradients(A,X,y)
@@ -79,7 +85,7 @@ class Neurone:
     #sauvegarde les parra dans un fichier
     def save(self, filename):
         with open(filename, 'wb') as f:
-            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L, 'acc':self.acc}, f)
+            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L, 'L_t': self.L_t, 'acc':self.acc, 'acc_t':self.acc_t}, f)
         print(f"Modèle sauvegardé dans {filename}")
 
     # Charger les paramètres (poids, biais et historique de perte, historique accuracy)
@@ -89,11 +95,13 @@ class Neurone:
             self.W = data['W']
             self.b = data['b']
             self.L = data['L']
+            self.L_t = data['L_t']
             self.acc = data['acc']
+            self.acc_t = data['acc_t']
         print(f"Modèle chargé depuis {filename}")
 
 
-def main(bool_c, bool_t):
+def main(bool_c, bool_t, path, path_c):
 
     def load_data():
         train_dataset = h5py.File('Training/datasets/trainset.hdf5', "r")
@@ -132,11 +140,9 @@ def main(bool_c, bool_t):
     X_test_r=X_test/X_train.max()
 
 
-    path = "Training/saves/save_chien_chat.pkl"
-
     #Nouveau neurone
     if bool_c == 0:
-        chien_chat = Neurone(X_train_r, y_train, 1e-3)
+        chien_chat = Neurone(X_train_r, y_train, X_test_r, y_test, 1e-2)
         chien_chat.save(path)
         
     #Neurone existant
@@ -146,7 +152,7 @@ def main(bool_c, bool_t):
 
     #celon si on veut entrainer ou non
     if bool_t == 1:
-        chien_chat.train(X_train_r, y_train, 1e-3, 1000)
+        chien_chat.train(X_train_r, y_train, X_test_r, y_test, 1e-2, 10000)
         chien_chat.save(path)
 
 
@@ -157,20 +163,27 @@ def main(bool_c, bool_t):
     print(accuracy_score(y_test, pred_chien_chat_test))
 
 
-    #création et stockage des courbes
-    plt.plot(chien_chat.L)
+    #création et stockage des courbesclear
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(chien_chat.L, label="train loss")
+    plt.plot(chien_chat.L_t, label="test loss")
+    plt.legend()
     plt.title("Courbe de perte")
     plt.xlabel("Itérations")
     plt.ylabel("Loss")
-    plt.savefig("Training/saves/loss_curve.png")  # Sauvegarde dans un fichier
-    print("Courbe de perte sauvegardée dans Training/saves/loss_curve.png")
 
-    plt.plot(chien_chat.acc)
+    plt.subplot(1,2,2)
+    plt.plot(chien_chat.acc, label="train acc")
+    plt.plot(chien_chat.acc_t, label="test acc")
+    plt.legend()
     plt.title("Courbe d'accuracy")
     plt.xlabel("Itérations")
     plt.ylabel("Acc")
-    plt.savefig("Training/saves/acc_curve.png")  # Sauvegarde dans un fichier
-    print("Courbe d'accuracy sauvegardée dans Training/saves/acc_curve.png")
+
+    plt.savefig(path_c)  # Sauvegarde dans un fichier
+    print("Courbes sauvegardée dans ", path_c)
 
 
-main(0, 1)
+main(0, 1, "Training/saves/save_chien_chat.pkl", "Training/saves/curve.png")
