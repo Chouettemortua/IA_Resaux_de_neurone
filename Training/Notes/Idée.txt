@@ -1,4 +1,8 @@
-Regarder des truc sur le fléau de la dimension
-Traivailler plot lib
-étudié un peu mieux l'utilité de la fonc aprés Z
-se renseigner sur le fetcher ingenering
+A faire :
+    Regarder des truc sur le fléau de la dimension
+    Traivailler plot lib
+    étudié un peu mieux l'utilité de la fonc aprés Z
+    se renseigner sur le fetcher ingenering
+
+25,26/01 : entrainement code IA
+27/01 : carte mentale idée TIPE 
