@@ -4,5 +4,18 @@ A faire :
     étudié un peu mieux l'utilité de la fonc aprés Z
     se renseigner sur le fetcher ingenering
 
+Data set idea (kagle, data.world):
+    Climat:
+        https://www.kaggle.com/datasets/ankushpanday1/global-warming-dataset-195-countries-1900-2023
+        https://www.kaggle.com/datasets/ayushcx/climate-change-indicators-data1900-2023
+    Weather:
+        https://www.kaggle.com/datasets/ochid7/predict-the-weather
+    Student:
+        https://www.kaggle.com/datasets/stealthtechnologies/predict-student-performance-dataset
+    Ai to identifie Ai:
+        https://www.kaggle.com/datasets/alessandrasala79/ai-vs-human-generated-dataset
+    sleep cycle:
+        https://www.kaggle.com/datasets/govindaramsriram/sleep-time-prediction
+
 25,26/01 : entrainement code IA
 27/01 : carte mentale idée TIPE 
