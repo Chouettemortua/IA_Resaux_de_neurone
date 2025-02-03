@@ -1,21 +1,57 @@
 A faire :
     Regarder des truc sur le fléau de la dimension
-    Traivailler plot lib
-    étudié un peu mieux l'utilité de la fonc aprés Z
-    se renseigner sur le fetcher ingenering
+    Travailler plot lib
+    étudié un peu mieux l'utilité de la fonc après Z
+    se renseigner sur le fetcher engineering
 
 Data set idea (kagle, data.world):
+
     Climat:
+
         https://www.kaggle.com/datasets/ankushpanday1/global-warming-dataset-195-countries-1900-2023
         https://www.kaggle.com/datasets/ayushcx/climate-change-indicators-data1900-2023
+	https://www.kaggle.com/datasets/samithsachidanandan/average-monthly-surface-temperature-1940-2024
+	https://www.kaggle.com/datasets/ashaychoudhary/europe-temperature-rise-dataset
+
+
     Weather:
+
         https://www.kaggle.com/datasets/ochid7/predict-the-weather
+
     Student:
+
         https://www.kaggle.com/datasets/stealthtechnologies/predict-student-performance-dataset
+
+
     Ai to identifie Ai:
+
         https://www.kaggle.com/datasets/alessandrasala79/ai-vs-human-generated-dataset
+
+
     sleep cycle:
+
         https://www.kaggle.com/datasets/govindaramsriram/sleep-time-prediction
+	https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset                -- old
+	https://www.kaggle.com/datasets/sacramentotechnology/sleep-deprivation-and-cognitive-performance
+
+	
+	adapter à la prédiction:
+		
+		Analyse quality sleep:
+			https://www.kaggle.com/datasets/uom190346a/sleep-and-health-metrics  
+			https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset  +sleep disorder
+			https://www.kaggle.com/datasets/arnavsmayan/fitness-tracker-dataset
+
+		à catégoriser:
+			https://www.kaggle.com/datasets/damirgadylyaev/more-than-4-years-of-steps-and-sleep-data-mi-band?select=02_Sleep.csv
+
+
 
 25,26/01 : entrainement code IA
+
 27/01 : carte mentale idée TIPE 
+
+03/02 : recherche de dataset plus mini analyse avec GPT, 
+	réflexion d'un choix parmi le 5 thème trouvé, 
+	likely sleep,
+	trie de data set sur kagle arret page 4.
