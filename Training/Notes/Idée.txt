@@ -39,7 +39,7 @@ Data set idea (kagle, data.world):
 		
 		Analyse quality sleep:
 			https://www.kaggle.com/datasets/uom190346a/sleep-and-health-metrics  
-			https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset  +sleep disorder
+			https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset  +sleep disorder the best for now
 			https://www.kaggle.com/datasets/arnavsmayan/fitness-tracker-dataset
 
 		à catégoriser:
@@ -55,3 +55,5 @@ Data set idea (kagle, data.world):
 	réflexion d'un choix parmi le 5 thème trouvé, 
 	likely sleep,
 	trie de data set sur kagle arret page 4.
+
+24/02 :

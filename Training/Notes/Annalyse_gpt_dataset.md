@@ -1,6 +1,57 @@
 ## Analyse des Datasets
 
-### 1. **Global Warming Dataset (Kaggle)**
+### 1. **Sleep Cycle Prediction Dataset (Kaggle)**
+
+**Lien**: [Sleep Cycle Prediction Dataset - Kaggle](https://www.kaggle.com/datasets/govindaramsriram/sleep-time-prediction)
+
+- **Description** : Ce dataset contient des données sur les habitudes de sommeil, utilisées pour prédire le temps de sommeil et la qualité du sommeil à partir de facteurs comme l'heure du coucher et les habitudes quotidiennes.
+- **Paramètres clés** :
+  - **Colonnes** : Heure du coucher, Heure du réveil, Durée de sommeil, Niveau d'activité, etc.
+  - **Fréquence des données** : Quotidienne.
+  - **Sources** : Les données proviennent probablement de dispositifs portables comme des montres connectées ou des applications de suivi du sommeil.
+  - **Complétude** : Il semble que la majorité des données soient complètes, mais **certains utilisateurs signalent des périodes sans données pour des utilisateurs spécifiques**, ce qui peut être lié à l'absence de capteurs portés certains jours.
+
+- **Examen des commentaires de la communauté** :
+  - Les utilisateurs ont remarqué qu'il y a **quelques utilisateurs sans données pendant des périodes prolongées**, ce qui pourrait être dû à l'absence d'utilisation d'un appareil de suivi du sommeil.
+  - **Conseil de nettoyage** : Il est conseillé de **supprimer les utilisateurs avec des données incomplètes** ou de les traiter en utilisant des techniques d'interpolation ou de remplissage pour les valeurs manquantes.
+
+---
+
+### 2. **Sleep Health and Lifestyle Dataset (Kaggle)**
+
+**Lien**: [Sleep Health and Lifestyle Dataset - Kaggle](https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset)
+
+- **Description** : Ce dataset contient des informations sur la santé du sommeil et le mode de vie des participants, y compris des variables comme les habitudes de sommeil, la qualité du sommeil, les habitudes alimentaires, et d'autres facteurs qui peuvent influencer le bien-être.
+- **Paramètres clés** :
+  - **Colonnes** : Identifiant, Âge, Sexe, Durée du sommeil, Qualité du sommeil, Fréquence des exercices, Consommation de caféine, Activité physique, etc.
+  - **Fréquence des données** : Les données sont principalement collectées à partir de questionnaires ou de suivis journaliers, donc elles peuvent être ponctuelles ou sur une période d'étude.
+  - **Sources** : Le dataset semble avoir été collecté dans le cadre d'un projet académique ou d'une enquête sur la santé.
+  - **Complétude** : Le dataset semble relativement complet, mais il est nécessaire de vérifier les **valeurs manquantes**, surtout dans les variables auto-déclarées.
+
+- **Examen des commentaires de la communauté** :
+  - Les utilisateurs ont commenté que **les valeurs manquantes peuvent être un problème**, notamment pour des variables telles que la qualité du sommeil et l'exercice, qui peuvent dépendre des réponses des participants.
+  - **Conseil de nettoyage** : Il est recommandé de traiter les valeurs manquantes avec des méthodes comme **l'imputation par moyenne** ou **l'interpolation** selon la situation.
+
+---
+
+### 3. **Sleep Deprivation and Cognitive Performance Dataset (Kaggle)**
+
+**Lien**: [Sleep Deprivation and Cognitive Performance Dataset - Kaggle](https://www.kaggle.com/datasets/sacramentotechnology/sleep-deprivation-and-cognitive-performance)
+
+- **Description** : Ce dataset explore les effets de la privation de sommeil sur la performance cognitive. Il comprend des mesures de performance cognitive sous différentes conditions de privation de sommeil.
+- **Paramètres clés** :
+  - **Colonnes** : Participant ID, Temps de sommeil, Performance cognitive (scores de tests), Niveau de privation de sommeil, etc.
+  - **Fréquence des données** : Les données sont collectées pendant des expériences de laboratoire, avec des mesures avant et après la privation de sommeil, souvent sur une base journalière.
+  - **Sources** : Ce dataset est probablement basé sur des études expérimentales menées dans un cadre contrôlé, tel que des laboratoires de psychologie cognitive.
+  - **Complétude** : Le dataset semble être complet pour les tests cognitifs, mais des **données manquantes** peuvent apparaître pour certains participants ou certaines mesures.
+
+- **Examen des commentaires de la communauté** :
+  - Les utilisateurs ont mentionné que certaines **valeurs manquantes** sont présentes, surtout dans les tests cognitifs où les participants peuvent ne pas avoir été en mesure de compléter tous les tests.
+  - **Conseil de nettoyage** : Il est suggéré de **supprimer les lignes avec des données manquantes** ou d'utiliser des techniques de **remplissage des valeurs manquantes** en fonction de la quantité de données disponibles pour chaque participant.
+
+---
+
+### 4. **Global Warming Dataset (Kaggle)**
 
 **Lien**: [Global Warming Dataset - Kaggle](https://www.kaggle.com/datasets/ankushpanday1/global-warming-dataset-195-countries-1900-2023)
 
@@ -17,7 +68,7 @@
 
 ---
 
-### 2. **Climate Change Indicators Dataset (Kaggle)**
+### 5. **Climate Change Indicators Dataset (Kaggle)**
 
 **Lien**: [Climate Change Indicators - Kaggle](https://www.kaggle.com/datasets/ayushcx/climate-change-indicators-data1900-2023)
 
@@ -35,7 +86,7 @@
 
 ---
 
-### 3. **Average Monthly Surface Temperature (1940-2024) Dataset (Kaggle)**
+### 6. **Average Monthly Surface Temperature (1940-2024) Dataset (Kaggle)**
 
 **Lien**: [Average Monthly Surface Temperature (1940-2024) Dataset - Kaggle](https://www.kaggle.com/datasets/samithsachidanandan/average-monthly-surface-temperature-1940-2024)
 
@@ -53,7 +104,7 @@
 
 ---
 
-### 4. **Europe Temperature Rise Dataset (Kaggle)**
+### 7. **Europe Temperature Rise Dataset (Kaggle)**
 
 **Lien**: [Europe Temperature Rise Dataset - Kaggle](https://www.kaggle.com/datasets/ashaychoudhary/europe-temperature-rise-dataset)
 
@@ -71,7 +122,7 @@
 
 ---
 
-### 5. **Weather Prediction Dataset (Kaggle)**
+### 8. **Weather Prediction Dataset (Kaggle)**
 
 **Lien**: [Weather Prediction Dataset - Kaggle](https://www.kaggle.com/datasets/ochid7/predict-the-weather)
 
@@ -88,7 +139,7 @@
 
 ---
 
-### 6. **AI vs Human-Generated Content Dataset (Kaggle)**
+### 9. **AI vs Human-Generated Content Dataset (Kaggle)**
 
 **Lien**: [AI vs Human-Generated Content - Kaggle](https://www.kaggle.com/datasets/alessandrasala79/ai-vs-human-generated-dataset)
 
@@ -105,53 +156,4 @@
 
 ---
 
-### 6. **Sleep Cycle Prediction Dataset (Kaggle)**
 
-**Lien**: [Sleep Cycle Prediction Dataset - Kaggle](https://www.kaggle.com/datasets/govindaramsriram/sleep-time-prediction)
-
-- **Description** : Ce dataset contient des données sur les habitudes de sommeil, utilisées pour prédire le temps de sommeil et la qualité du sommeil à partir de facteurs comme l'heure du coucher et les habitudes quotidiennes.
-- **Paramètres clés** :
-  - **Colonnes** : Heure du coucher, Heure du réveil, Durée de sommeil, Niveau d'activité, etc.
-  - **Fréquence des données** : Quotidienne.
-  - **Sources** : Les données proviennent probablement de dispositifs portables comme des montres connectées ou des applications de suivi du sommeil.
-  - **Complétude** : Il semble que la majorité des données soient complètes, mais **certains utilisateurs signalent des périodes sans données pour des utilisateurs spécifiques**, ce qui peut être lié à l'absence de capteurs portés certains jours.
-
-- **Examen des commentaires de la communauté** :
-  - Les utilisateurs ont remarqué qu'il y a **quelques utilisateurs sans données pendant des périodes prolongées**, ce qui pourrait être dû à l'absence d'utilisation d'un appareil de suivi du sommeil.
-  - **Conseil de nettoyage** : Il est conseillé de **supprimer les utilisateurs avec des données incomplètes** ou de les traiter en utilisant des techniques d'interpolation ou de remplissage pour les valeurs manquantes.
-
----
-
-### 7. **Sleep Health and Lifestyle Dataset (Kaggle)**
-
-**Lien**: [Sleep Health and Lifestyle Dataset - Kaggle](https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset)
-
-- **Description** : Ce dataset contient des informations sur la santé du sommeil et le mode de vie des participants, y compris des variables comme les habitudes de sommeil, la qualité du sommeil, les habitudes alimentaires, et d'autres facteurs qui peuvent influencer le bien-être.
-- **Paramètres clés** :
-  - **Colonnes** : Identifiant, Âge, Sexe, Durée du sommeil, Qualité du sommeil, Fréquence des exercices, Consommation de caféine, Activité physique, etc.
-  - **Fréquence des données** : Les données sont principalement collectées à partir de questionnaires ou de suivis journaliers, donc elles peuvent être ponctuelles ou sur une période d'étude.
-  - **Sources** : Le dataset semble avoir été collecté dans le cadre d'un projet académique ou d'une enquête sur la santé.
-  - **Complétude** : Le dataset semble relativement complet, mais il est nécessaire de vérifier les **valeurs manquantes**, surtout dans les variables auto-déclarées.
-
-- **Examen des commentaires de la communauté** :
-  - Les utilisateurs ont commenté que **les valeurs manquantes peuvent être un problème**, notamment pour des variables telles que la qualité du sommeil et l'exercice, qui peuvent dépendre des réponses des participants.
-  - **Conseil de nettoyage** : Il est recommandé de traiter les valeurs manquantes avec des méthodes comme **l'imputation par moyenne** ou **l'interpolation** selon la situation.
-
----
-
-### 8. **Sleep Deprivation and Cognitive Performance Dataset (Kaggle)**
-
-**Lien**: [Sleep Deprivation and Cognitive Performance Dataset - Kaggle](https://www.kaggle.com/datasets/sacramentotechnology/sleep-deprivation-and-cognitive-performance)
-
-- **Description** : Ce dataset explore les effets de la privation de sommeil sur la performance cognitive. Il comprend des mesures de performance cognitive sous différentes conditions de privation de sommeil.
-- **Paramètres clés** :
-  - **Colonnes** : Participant ID, Temps de sommeil, Performance cognitive (scores de tests), Niveau de privation de sommeil, etc.
-  - **Fréquence des données** : Les données sont collectées pendant des expériences de laboratoire, avec des mesures avant et après la privation de sommeil, souvent sur une base journalière.
-  - **Sources** : Ce dataset est probablement basé sur des études expérimentales menées dans un cadre contrôlé, tel que des laboratoires de psychologie cognitive.
-  - **Complétude** : Le dataset semble être complet pour les tests cognitifs, mais des **données manquantes** peuvent apparaître pour certains participants ou certaines mesures.
-
-- **Examen des commentaires de la communauté** :
-  - Les utilisateurs ont mentionné que certaines **valeurs manquantes** sont présentes, surtout dans les tests cognitifs où les participants peuvent ne pas avoir été en mesure de compléter tous les tests.
-  - **Conseil de nettoyage** : Il est suggéré de **supprimer les lignes avec des données manquantes** ou d'utiliser des techniques de **remplissage des valeurs manquantes** en fonction de la quantité de données disponibles pour chaque participant.
-
----
