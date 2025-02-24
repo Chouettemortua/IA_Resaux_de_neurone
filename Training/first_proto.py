@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import h5py
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
@@ -101,6 +102,11 @@ class Neurone:
         print(f"Modèle chargé depuis {filename}")
 
 
+class Resaux:
+    def __init__(self):
+        pass
+
+
 def main(bool_c, bool_t, path, path_c):
 
     def load_data():
@@ -186,4 +192,32 @@ def main(bool_c, bool_t, path, path_c):
     print("Courbes sauvegardée dans ", path_c)
 
 
-main(0, 1, "Training/saves/save_chien_chat.pkl", "Training/saves/curve.png")
+#main(0, 1, "Training/saves/save_chien_chat.pkl", "Training/saves/curve.png")
+
+def main_for_sleep_dat(bool_c, bool_t, path_n):
+
+    def load():
+        return pd.read_csv('/kaggle/input/sleep-health-and-lifestyle-dataset/Sleep_health_and_lifestyle_dataset.csv')
+
+    sleep_dat = load()
+    print(sleep_dat.shape)
+
+    """
+    #Nouveau neurone
+    if bool_c:
+        sleep = Neurone(X_train_r, y_train, X_test_r, y_test, 1e-2)
+        sleep.save(path_n)
+        
+    #Neurone existant
+    else:
+            sleep = Neurone()
+            sleep.load(path_n)
+
+    #celon si on veut entrainer ou non
+    if bool_t == 1:
+        sleep.train(X_train_r, y_train, X_test_r, y_test, 1e-2, 10000)
+        sleep.save(path_n)
+    """
+
+main_for_sleep_dat(False, False, "a path")
+
