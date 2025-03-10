@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
-import h5py
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 import pickle
 from tqdm import tqdm 
 
@@ -11,7 +12,7 @@ class Neurone:
 
     # Sert a l'initialisation du vecteur des paramétre sur les entrée
     # et la constante
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=100):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1):
 
         #Paramètre definisant mon neurone
         self.W = None
@@ -55,7 +56,7 @@ class Neurone:
         self.b = self.b-learning_rate*db
 
 
-    def train(self, X, y, X_test, y_test, learning_rate=0.1, nb_iter=100):
+    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=100):
         #boucle d'update
         for i in tqdm(range(nb_iter)):
             #activation
@@ -106,7 +107,7 @@ class Resaux:
     def __init__(self):
         pass
 
-
+"""
 def main(bool_c, bool_t, path, path_c):
 
     def load_data():
@@ -128,7 +129,7 @@ def main(bool_c, bool_t, path, path_c):
     y_train = y_train.reshape(-1, 1)
     y_test = y_test.reshape(-1, 1)
 
-    """
+  
     # Vérification des dimensions
     print("X_train shape:", X_train.shape)
     print("y_train shape:", y_train.shape)
@@ -139,7 +140,7 @@ def main(bool_c, bool_t, path, path_c):
     y_train shape: (1000, 1)
     X_test shape: (200, 4096)
     y_test shape: (200, 1)
-    """
+
 
 
     X_train_r=X_train/X_train.max()
@@ -190,34 +191,103 @@ def main(bool_c, bool_t, path, path_c):
 
     plt.savefig(path_c)  # Sauvegarde dans un fichier
     print("Courbes sauvegardée dans ", path_c)
-
+"""
 
 #main(0, 1, "Training/saves/save_chien_chat.pkl", "Training/saves/curve.png")
 
-def main_for_sleep_dat(bool_c, bool_t, path_n):
+def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
     def load():
-        return pd.read_csv('/kaggle/input/sleep-health-and-lifestyle-dataset/Sleep_health_and_lifestyle_dataset.csv')
+        return pd.read_csv('Training/datasets/Sleep_health_and_lifestyle_dataset.csv')
+    
+    def preprocess_data(df):
+        # Encodage des variables catégorielles
+        label_encoders = {}
+        for column in df.select_dtypes(include=['object']).columns:
+            le = LabelEncoder()
+            df[column] = le.fit_transform(df[column])
+            label_encoders[column] = le
 
-    sleep_dat = load()
-    print(sleep_dat.shape)
+        # Séparation des caractéristiques et de la cible
+        X = df.drop('Quality of Sleep', axis=1)
+        y = df['Quality of Sleep']
 
-    """
-    #Nouveau neurone
-    if bool_c:
-        sleep = Neurone(X_train_r, y_train, X_test_r, y_test, 1e-2)
-        sleep.save(path_n)
-        
-    #Neurone existant
-    else:
-            sleep = Neurone()
-            sleep.load(path_n)
+        # Normalisation des caractéristiques
+        scaler = StandardScaler()
+        X = scaler.fit_transform(X)
+        y=y.values.reshape(-1,1)
 
-    #celon si on veut entrainer ou non
-    if bool_t == 1:
-        sleep.train(X_train_r, y_train, X_test_r, y_test, 1e-2, 10000)
-        sleep.save(path_n)
-    """
+        """
+        # Afficher la composition des données après le prétraitement
+        print("Types de données après le prétraitement :")
+        print(pd.DataFrame(X).dtypes)
+        print("\nPremières lignes des données après le prétraitement :")
+        print(pd.DataFrame(X).head())
 
-main_for_sleep_dat(False, False, "a path")
+        # Afficher le format de y après le prétraitement
+        print("Format de y après le prétraitement :")
+        print(pd.DataFrame(y).dtypes)
+        print("\nPremières lignes de y après le prétraitement :")
+        print(pd.DataFrame(y).head())
+        """
+        return X, y, label_encoders, scaler
+    
+    def train_model(X_train,y_train,X_test,y_test):
+        #Nouveau neurone
+        if bool_c:
+            sleep = Neurone(X_train, y_train, X_test, y_test)
+            sleep.save(path_n)
+            
+        #Neurone existant
+        else:
+                sleep = Neurone()
+                sleep.load(path_n)
+
+        #celon si on veut entrainer ou non
+        if bool_t:
+            sleep.train(X_train, y_train, X_test, y_test, 1e-2, 10000)
+            sleep.save(path_n)
+        return sleep
+
+    df = load()
+    #print(df.shape)
+    #df.info()
+    X,y,label_encoders, scaler = preprocess_data(df)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    sleep = train_model(X_train, y_train,X_test, y_test)
+
+    # Prédictions
+    y_pred_train = sleep.predict(X_train)
+    y_pred_test = sleep.predict(X_test)
+
+    # Évaluation du modèle
+    print("Train Accuracy:", accuracy_score(y_train, y_pred_train))
+    print("Test Accuracy:", accuracy_score(y_test, y_pred_test))
+
+    #création et stockage des courbes
+    plt.figure(figsize=(12,4))
+
+    plt.subplot(1,2,1)
+    plt.plot(sleep.L, label="train loss")
+    plt.plot(sleep.L_t, label="test loss")
+    plt.legend()
+    plt.title("Courbe de perte")
+    plt.xlabel("Itérations")
+    plt.ylabel("Loss")
+
+    plt.subplot(1,2,2)
+    plt.plot(sleep.acc, label="train acc")
+    plt.plot(sleep.acc_t, label="test acc")
+    plt.legend()
+    plt.title("Courbe d'accuracy")
+    plt.xlabel("Itérations")
+    plt.ylabel("Acc")
+
+    plt.savefig(path_c)  # Sauvegarde dans un fichier
+    print("Courbes sauvegardée dans ", path_c)
+
+
+if __name__ == "__main__":
+    main_for_sleep_dat(True, True, "Training/saves/save_sleep.pkl", "Training/saves/curve_sleep.png")
 

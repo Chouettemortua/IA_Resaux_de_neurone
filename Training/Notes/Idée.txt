@@ -56,4 +56,6 @@ Data set idea (kagle, data.world):
 	likely sleep,
 	trie de data set sur kagle arret page 4.
 
-24/02 :
+24/02 :choix du data set -> fixé sur une IA qui determine la qualité du sommeil
+03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
+10/03 :
