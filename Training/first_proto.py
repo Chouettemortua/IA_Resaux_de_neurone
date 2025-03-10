@@ -1,96 +1,76 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.utils.class_weight import compute_class_weight
 import pickle
 from tqdm import tqdm 
 
 
 class Neurone: 
 
-    # Sert a l'initialisation du vecteur des paramétre sur les entrée
-    # et la constante
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1):
-
-        #Paramètre definisant mon neurone
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1, class_weights=None):
         self.W = None
         self.b = None
         self.L = []
         self.L_t = []
         self.acc = []
         self.acc_t = []
+        self.class_weights = class_weights
 
-        #si on fournit des paramètre on fait automatiquement un entrainement dessus
         if X is not None and y is not None:
             self.W = np.random.randn(X.shape[1], 1)
             self.b = np.random.randn(1)
+            print("Initial weights:", self.W)
+            print("Initial bias:", self.b)
             self.train(X, y, X_test, y_test, learning_rate, nb_iter)
 
-
-    # definit le modèle donc la fonction linéaire
-    # puis transforme la sortie linéaire en un pourcentage
-    def model(self,X):
-        Z = X.dot(self.W)+self.b
-        A = 1/(1+np.exp(-Z)) 
+    def model(self, X):
+        Z = X.dot(self.W) + self.b
+        A = 1 / (1 + np.exp(-Z)) 
         return A
 
-
-    #On definit la fonction de coût donc log loss ici
-    def log_loss(self,A,y):
+    def log_loss(self, A, y):
         epsilon = 1e-15
-        return 1/len(y) * np.sum(-y*np.log(A+epsilon) - (1-y)*np.log(1-A+epsilon))
+        if self.class_weights is not None:
+            weights = np.array([self.class_weights[int(label[0])] for label in y])
+            return np.sum(-weights * (y * np.log(A + epsilon) + (1 - y) * np.log(1 - A + epsilon))) / len(y)
+        else:
+            return np.sum(-y * np.log(A + epsilon) - (1 - y) * np.log(1 - A + epsilon)) / len(y)
 
+    def gradients(self, A, X, y):
+        dW = np.dot(X.T, A - y) / len(y)
+        db = np.sum(A - y) / len(y)
+        return dW, db
 
-    #On definit nos gradient
-    def gradients(self,A,X,y):
-        dW = 1/len(y) * np.dot(X.T,A-y)
-        db = 1/len(y) * np.sum(A-y)
-        return dW,db
+    def update(self, dW, db, learning_rate):
+        self.W -= learning_rate * dW
+        self.b -= learning_rate * db
 
-
-    #On definit la decente de gradient pour ajuster les paramètre
-    def update(self,dW, db, learning_rate):
-        self.W = self.W-learning_rate*dW
-        self.b = self.b-learning_rate*db
-
-
-    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=100):
-        #boucle d'update
+    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=100, partialsteps=10):
         for i in tqdm(range(nb_iter)):
-            #activation
             A = self.model(X)
 
-            if i%10==0 :
-                #Calcule coût
+            if i % partialsteps == 0:
                 self.L.append(self.log_loss(A, y))
                 self.L_t.append(self.log_loss(self.model(X_test), y_test))
+                self.acc.append(accuracy_score(y, self.predict(X)))
+                self.acc_t.append(accuracy_score(y_test, self.predict(X_test)))
 
-                #Calcul accuracy
-                pred = self.predict(X)
-                pred_t = self.predict(X_test)
-                self.acc.append(accuracy_score(y,pred))
-                self.acc_t.append(accuracy_score(y_test, pred_t))
-
-            #Mise a jour
-            dW,db = self.gradients(A,X,y)
+            dW, db = self.gradients(A, X, y)
             self.update(dW, db, learning_rate)
-    
 
-    #Calcul des prediction pour un set de donné
     def predict(self, X):
         A = self.model(X)
         return A >= 0.5
 
-
-    #sauvegarde les parra dans un fichier
     def save(self, filename):
         with open(filename, 'wb') as f:
-            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L, 'L_t': self.L_t, 'acc':self.acc, 'acc_t':self.acc_t}, f)
+            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L, 'L_t': self.L_t, 'acc': self.acc, 'acc_t': self.acc_t}, f)
         print(f"Modèle sauvegardé dans {filename}")
 
-    # Charger les paramètres (poids, biais et historique de perte, historique accuracy)
     def load(self, filename):
         with open(filename, 'rb') as f:
             data = pickle.load(f)
@@ -107,93 +87,6 @@ class Resaux:
     def __init__(self):
         pass
 
-"""
-def main(bool_c, bool_t, path, path_c):
-
-    def load_data():
-        train_dataset = h5py.File('Training/datasets/trainset.hdf5', "r")
-        X_train = np.array(train_dataset["X_train"][:]) # your train set features
-        y_train = np.array(train_dataset["Y_train"][:]) # your train set labels
-
-        test_dataset = h5py.File('Training/datasets/testset.hdf5', "r")
-        X_test = np.array(test_dataset["X_test"][:]) # your test set features
-        y_test = np.array(test_dataset["Y_test"][:]) # your test set labels
-        
-        return X_train, y_train, X_test, y_test
-
-    X_train, y_train, X_test, y_test = load_data()
-
-    X_train = X_train.reshape(X_train.shape[0], -1)
-    X_test = X_test.reshape(X_test.shape[0], -1)
-    # Reshape des labels
-    y_train = y_train.reshape(-1, 1)
-    y_test = y_test.reshape(-1, 1)
-
-  
-    # Vérification des dimensions
-    print("X_train shape:", X_train.shape)
-    print("y_train shape:", y_train.shape)
-    print("X_test shape:", X_test.shape)
-    print("y_test shape:", y_test.shape)
-    #dimension obtenu
-    X_train shape: (1000, 4096)
-    y_train shape: (1000, 1)
-    X_test shape: (200, 4096)
-    y_test shape: (200, 1)
-
-
-
-    X_train_r=X_train/X_train.max()
-    X_test_r=X_test/X_train.max()
-
-
-    #Nouveau neurone
-    if bool_c == 0:
-        chien_chat = Neurone(X_train_r, y_train, X_test_r, y_test, 1e-2)
-        chien_chat.save(path)
-        
-    #Neurone existant
-    else:
-            chien_chat = Neurone()
-            chien_chat.load(path)
-
-    #celon si on veut entrainer ou non
-    if bool_t == 1:
-        chien_chat.train(X_train_r, y_train, X_test_r, y_test, 1e-2, 10000)
-        chien_chat.save(path)
-
-
-    #affichage et calcule d'efficacité sur mes test
-    pred_chien_chat = chien_chat.predict(X_train_r)
-    print(accuracy_score(y_train, pred_chien_chat))
-    pred_chien_chat_test = chien_chat.predict(X_test_r)
-    print(accuracy_score(y_test, pred_chien_chat_test))
-
-
-    #création et stockage des courbesclear
-    plt.figure(figsize=(12,4))
-
-    plt.subplot(1,2,1)
-    plt.plot(chien_chat.L, label="train loss")
-    plt.plot(chien_chat.L_t, label="test loss")
-    plt.legend()
-    plt.title("Courbe de perte")
-    plt.xlabel("Itérations")
-    plt.ylabel("Loss")
-
-    plt.subplot(1,2,2)
-    plt.plot(chien_chat.acc, label="train acc")
-    plt.plot(chien_chat.acc_t, label="test acc")
-    plt.legend()
-    plt.title("Courbe d'accuracy")
-    plt.xlabel("Itérations")
-    plt.ylabel("Acc")
-
-    plt.savefig(path_c)  # Sauvegarde dans un fichier
-    print("Courbes sauvegardée dans ", path_c)
-"""
-
-#main(0, 1, "Training/saves/save_chien_chat.pkl", "Training/saves/curve.png")
 
 def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
@@ -201,90 +94,92 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         return pd.read_csv('Training/datasets/Sleep_health_and_lifestyle_dataset.csv')
     
     def preprocess_data(df):
-        # Encodage des variables catégorielles
         label_encoders = {}
         for column in df.select_dtypes(include=['object']).columns:
             le = LabelEncoder()
             df[column] = le.fit_transform(df[column])
             label_encoders[column] = le
 
-        # Séparation des caractéristiques et de la cible
         X = df.drop('Quality of Sleep', axis=1)
         y = df['Quality of Sleep']
 
-        # Normalisation des caractéristiques
         scaler = StandardScaler()
         X = scaler.fit_transform(X)
-        y=y.values.reshape(-1,1)
+        
+        y = y.values.reshape(-1, 1)
 
-        """
-        # Afficher la composition des données après le prétraitement
-        print("Types de données après le prétraitement :")
-        print(pd.DataFrame(X).dtypes)
-        print("\nPremières lignes des données après le prétraitement :")
-        print(pd.DataFrame(X).head())
+        # Check the distribution of the target variable
+        print("Distribution of target variable:")
+        print(pd.Series(y.flatten()).value_counts())
 
-        # Afficher le format de y après le prétraitement
-        print("Format de y après le prétraitement :")
-        print(pd.DataFrame(y).dtypes)
-        print("\nPremières lignes de y après le prétraitement :")
-        print(pd.DataFrame(y).head())
-        """
         return X, y, label_encoders, scaler
     
-    def train_model(X_train,y_train,X_test,y_test):
-        #Nouveau neurone
-        if bool_c:
-            sleep = Neurone(X_train, y_train, X_test, y_test)
-            sleep.save(path_n)
-            
-        #Neurone existant
-        else:
-                sleep = Neurone()
-                sleep.load(path_n)
+    def train_model(X_train, y_train, X_test, y_test):
+        class_weights = compute_class_weight('balanced', classes=np.unique(y_train), y=y_train.flatten())
+        class_weights_dict = {i: class_weights[i] for i in np.unique(y_train)}
+        print("Class weights:", class_weights_dict)
 
-        #celon si on veut entrainer ou non
+        if bool_c:
+            sleep = Neurone(X_train, y_train, X_test, y_test, class_weights=class_weights_dict)
+            sleep.save(path_n)
+        else:
+            sleep = Neurone(class_weights=class_weights_dict)
+            sleep.load(path_n)
+
         if bool_t:
             sleep.train(X_train, y_train, X_test, y_test, 1e-2, 10000)
             sleep.save(path_n)
         return sleep
 
     df = load()
-    #print(df.shape)
-    #df.info()
-    X,y,label_encoders, scaler = preprocess_data(df)
+    X, y, label_encoders, scaler = preprocess_data(df)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    sleep = train_model(X_train, y_train,X_test, y_test)
+    sleep = train_model(X_train, y_train, X_test, y_test)
 
-    # Prédictions
     y_pred_train = sleep.predict(X_train)
     y_pred_test = sleep.predict(X_test)
 
-    # Évaluation du modèle
+    # Ensure y_train and y_test are in the correct shape for accuracy calculation
+    y_train = y_train.ravel()
+    y_test = y_test.ravel()
+
+    # Debugging: Check initial predictions before training
+    initial_pred_train = sleep.predict(X_train)
+    initial_pred_test = sleep.predict(X_test)
+    print("Initial Train Accuracy:", accuracy_score(y_train, initial_pred_train))
+    print("Initial Test Accuracy:", accuracy_score(y_test, initial_pred_test))
+
     print("Train Accuracy:", accuracy_score(y_train, y_pred_train))
     print("Test Accuracy:", accuracy_score(y_test, y_pred_test))
 
-    #création et stockage des courbes
-    plt.figure(figsize=(12,4))
+    # Additional metrics
+    print("Train F1 Score:", f1_score(y_train, y_pred_train, average='weighted'))
+    print("Test F1 Score:", f1_score(y_test, y_pred_test, average='weighted'))
+    print("Train Precision:", precision_score(y_train, y_pred_train, average='weighted'))
+    print("Test Precision:", precision_score(y_test, y_pred_test, average='weighted'))
+    print("Train Recall:", recall_score(y_train, y_pred_train, average='weighted'))
+    print("Test Recall:", recall_score(y_test, y_pred_test, average='weighted'))
 
-    plt.subplot(1,2,1)
-    plt.plot(sleep.L, label="train loss")
-    plt.plot(sleep.L_t, label="test loss")
+    plt.figure(figsize=(12, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(sleep.L, marker='+', label="train loss")
+    plt.plot(sleep.L_t, marker='*', label="test loss")
     plt.legend()
     plt.title("Courbe de perte")
     plt.xlabel("Itérations")
     plt.ylabel("Loss")
 
-    plt.subplot(1,2,2)
-    plt.plot(sleep.acc, label="train acc")
-    plt.plot(sleep.acc_t, label="test acc")
+    plt.subplot(1, 2, 2)
+    plt.plot(sleep.acc, marker='+', label="train acc")
+    plt.plot(sleep.acc_t, marker='*', label="test acc")
     plt.legend()
     plt.title("Courbe d'accuracy")
     plt.xlabel("Itérations")
     plt.ylabel("Acc")
 
-    plt.savefig(path_c)  # Sauvegarde dans un fichier
+    plt.savefig(path_c)
     print("Courbes sauvegardée dans ", path_c)
 
 
