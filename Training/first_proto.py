@@ -4,27 +4,23 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.utils.class_weight import compute_class_weight
 import pickle
 from tqdm import tqdm 
 
 
 class Neurone: 
 
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1, class_weights=None):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1):
         self.W = None
         self.b = None
         self.L = []
         self.L_t = []
         self.acc = []
         self.acc_t = []
-        self.class_weights = class_weights
 
         if X is not None and y is not None:
             self.W = np.random.randn(X.shape[1], 1)
             self.b = np.random.randn(1)
-            print("Initial weights:", self.W)
-            print("Initial bias:", self.b)
             self.train(X, y, X_test, y_test, learning_rate, nb_iter)
 
     def model(self, X):
@@ -34,18 +30,20 @@ class Neurone:
 
     def log_loss(self, A, y):
         epsilon = 1e-15
-        if self.class_weights is not None:
-            weights = np.array([self.class_weights[int(label[0])] for label in y])
-            return np.sum(-weights * (y * np.log(A + epsilon) + (1 - y) * np.log(1 - A + epsilon))) / len(y)
-        else:
-            return np.sum(-y * np.log(A + epsilon) - (1 - y) * np.log(1 - A + epsilon)) / len(y)
+        return np.sum(-y * np.log(A + epsilon) - (1 - y) * np.log(1 - A + epsilon), axis=0) / len(y)
 
     def gradients(self, A, X, y):
+        print(X.T.shape)
+        print(A.shape)
+        print(y.shape)
+        print((A - y).shape)
         dW = np.dot(X.T, A - y) / len(y)
-        db = np.sum(A - y) / len(y)
+        db = np.sum(A - y, axis = 0) / len(y)
         return dW, db
 
     def update(self, dW, db, learning_rate):
+        print(dW.shape)
+        print(self.W.shape)
         self.W -= learning_rate * dW
         self.b -= learning_rate * db
 
@@ -93,37 +91,48 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     def load():
         return pd.read_csv('Training/datasets/Sleep_health_and_lifestyle_dataset.csv')
     
-    def preprocess_data(df):
-        label_encoders = {}
-        for column in df.select_dtypes(include=['object']).columns:
-            le = LabelEncoder()
-            df[column] = le.fit_transform(df[column])
-            label_encoders[column] = le
+    def encodage(df):
 
-        X = df.drop('Quality of Sleep', axis=1)
-        y = df['Quality of Sleep']
-
-        scaler = StandardScaler()
-        X = scaler.fit_transform(X)
+        code = {'Normal': 0, 'Normal Weight':0, 'Overweight': 1, 'Underweight':2, 'Obesity': 2, 'Software Eginneer': 0, 'Doctor': 1, 'Sales Representative': 2, 
+                'Nurse': 3, 'Teacher': 4, 'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10,
+                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1 }
         
-        y = y.values.reshape(-1, 1)
 
-        # Check the distribution of the target variable
-        print("Distribution of target variable:")
-        print(pd.Series(y.flatten()).value_counts())
+        df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
+        
+        for col in df.select_dtypes('object'):
+            df[col] = df[col].map(code)
 
-        return X, y, label_encoders, scaler
+        return df
+
+    def imputation(df):
+
+        return df.fillna(df.mean())
+    
+    def preprocecing(df):
+
+        df = encodage(df)
+        df = imputation(df)
+
+        X = df.drop(columns='Quality of Sleep', axis=1)
+        y = df['Quality of Sleep']
+        y = y.reshape(-1, 1)
+        print(y.shape)
+
+        #print(y.value_counts())
+        #print()
+
+        return X, y
+         
     
     def train_model(X_train, y_train, X_test, y_test):
-        class_weights = compute_class_weight('balanced', classes=np.unique(y_train), y=y_train.flatten())
-        class_weights_dict = {i: class_weights[i] for i in np.unique(y_train)}
-        print("Class weights:", class_weights_dict)
 
         if bool_c:
-            sleep = Neurone(X_train, y_train, X_test, y_test, class_weights=class_weights_dict)
+            sleep = Neurone(X_train, y_train, X_test, y_test,)
             sleep.save(path_n)
         else:
-            sleep = Neurone(class_weights=class_weights_dict)
+            sleep = Neurone()
             sleep.load(path_n)
 
         if bool_t:
@@ -131,10 +140,37 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
             sleep.save(path_n)
         return sleep
 
-    df = load()
-    X, y, label_encoders, scaler = preprocess_data(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+    data = load()
+    df = data.copy()
+
+    """ visualisation des données
+    print()
+    print(df.head())
+    print()
+    print(df.info())
+    print()
+    print(df.describe())
+    print()
+    print(df.isna().sum()/df.shape[0])
+    print()
+    """
+    
+    trainset, testset = train_test_split(df, test_size=0.2, random_state=0)
+    X_train, y_train = preprocecing(trainset)
+    X_test, y_test = preprocecing(testset)
+
+    """ test pour voir si les données sont bien prétraitées
+    print()
+    print(X_train.head())
+    print()
+    print(X_train.info())
+    print()
+    print(X_train.describe())
+    print()
+    print(X_train.isna().sum()/X_train.shape[0])
+    print()
+    """
     sleep = train_model(X_train, y_train, X_test, y_test)
 
     y_pred_train = sleep.predict(X_train)
@@ -181,6 +217,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
     plt.savefig(path_c)
     print("Courbes sauvegardée dans ", path_c)
+
 
 
 if __name__ == "__main__":

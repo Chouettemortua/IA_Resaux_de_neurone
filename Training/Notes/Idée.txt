@@ -58,4 +58,5 @@ Data set idea (kagle, data.world):
 
 24/02 :choix du data set -> fixé sur une IA qui determine la qualité du sommeil
 03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
-10/03 :
+10/03 : blocage sur le preprocecing non fonctionel
+17/03 : débugage du preprocecing ?
