@@ -60,3 +60,4 @@ Data set idea (kagle, data.world):
 03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
 10/03 : blocage sur le preprocecing non fonctionel
 17/03 : débugage du preprocecing bug sur reshape de y
+19/03 : reshape de y fait, et ajout d'une normalisation temporaire
