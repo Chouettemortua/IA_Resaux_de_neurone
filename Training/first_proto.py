@@ -33,17 +33,17 @@ class Neurone:
         return np.sum(-y * np.log(A + epsilon) - (1 - y) * np.log(1 - A + epsilon), axis=0) / len(y)
 
     def gradients(self, A, X, y):
-        print(X.T.shape)
-        print(A.shape)
-        print(y.shape)
-        print((A - y).shape)
+        #print(X.T.shape)
+        #print(A.shape)
+        #print(y.shape)
+        #print((A - y).shape)
         dW = np.dot(X.T, A - y) / len(y)
         db = np.sum(A - y, axis = 0) / len(y)
         return dW, db
 
     def update(self, dW, db, learning_rate):
-        print(dW.shape)
-        print(self.W.shape)
+        #print(dW.shape)
+        #print(self.W.shape)
         self.W -= learning_rate * dW
         self.b -= learning_rate * db
 
@@ -116,12 +116,12 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         df = imputation(df)
 
         X = df.drop(columns='Quality of Sleep', axis=1)
-        y = df['Quality of Sleep']
-        y = y.reshape(-1, 1)
-        print(y.shape)
+        y = df['Quality of Sleep'].values.reshape(-1, 1)  # Reshape y to (299, 1)
+        #print(y.shape)
 
-        #print(y.value_counts())
-        #print()
+        # Normalize features
+        scaler = StandardScaler()
+        X = scaler.fit_transform(X)
 
         return X, y
          
