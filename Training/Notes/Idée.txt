@@ -46,6 +46,10 @@ Data set idea (kagle, data.world):
 			https://www.kaggle.com/datasets/damirgadylyaev/more-than-4-years-of-steps-and-sleep-data-mi-band?select=02_Sleep.csv
 
 
+Biblio:
+
+https://theses.hal.science/tel-03642096v1/file/NGUYEN_2021_archivage.pdf , thèse sur les  det du sommeil
+
 
 25,26/01 : entrainement code IA
 
@@ -57,7 +61,11 @@ Data set idea (kagle, data.world):
 	trie de data set sur kagle arret page 4.
 
 24/02 :choix du data set -> fixé sur une IA qui determine la qualité du sommeil
+
 03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
+
 10/03 : blocage sur le preprocecing non fonctionel
+
 17/03 : débugage du preprocecing bug sur reshape de y
+
 19/03 : reshape de y fait, et ajout d'une normalisation temporaire
