@@ -106,7 +106,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     
     def split_data(df):
 
-        trainset, testset = train_test_split(df, test_size=0.2, random_state=12)
+        trainset, testset = train_test_split(df, test_size=0.2, random_state=42)
         return trainset, testset
     
     def normalisation(df):
@@ -142,83 +142,88 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         print("Initial Test Accuracy:", accuracy_score(y_test >= 0.5, initial_pred_test))
 
         if bool_t:
-            sleep.train(X_train, y_train, X_test, y_test, 1e-2, 10000)
+            sleep.train(X_train, y_train, X_test, y_test, 1e-1, 1000)
             sleep.save(path_n)
         return sleep
 
+    def analyse_pre_process(df):
+        print()
+        print(df.head())
+        print()
+        print(df.info())
+        print()
+        print(df.describe())
+        print()
+        print(df.isna().sum()/df.shape[0])
+        print()
+
+    def analyse_post_process(X_train, y_train, X_test, y_test):
+        print("X_train shape:", X_train.shape)
+        print("y_train shape:", y_train.shape)
+        print("X_test shape:", X_test.shape)
+        print("y_test shape:", y_test.shape)
+
+        print("\nX_train data types:\n", pd.DataFrame(X_train).dtypes)
+        print("\nFirst 5 rows of X_train:\n", pd.DataFrame(X_train).head())
+        print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
+        print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
+
+    def affichage_perf(X_train, y_train, X_test, y_test, sleep):
+        y_pred_train = sleep.predict(X_train)
+        y_pred_test = sleep.predict(X_test)
+
+
+        print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train))
+        print("Test Accuracy:", accuracy_score(y_test >= 0.5, y_pred_test))
+
+        # Additional metrics
+        print("Train F1 Score:", f1_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
+        print("Test F1 Score:", f1_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
+        print("Train Precision:", precision_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
+        print("Test Precision:", precision_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
+        print("Train Recall:", recall_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
+        print("Test Recall:", recall_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
+
+    def courbe_perf(sleep):
+        plt.figure(figsize=(12, 4))
+
+        plt.subplot(1, 2, 1)
+        plt.plot(sleep.L, label="train loss")
+        plt.plot(sleep.L_t, label="test loss")
+        plt.legend()
+        plt.title("Courbe de perte")
+        plt.xlabel("Itérations")
+        plt.ylabel("Loss")
+
+        plt.subplot(1, 2, 2)
+        plt.plot(sleep.acc, label="train acc")
+        plt.plot(sleep.acc_t, label="test acc")
+        plt.legend()
+        plt.title("Courbe d'accuracy")
+        plt.xlabel("Itérations")
+        plt.ylabel("Acc")
+
+        plt.savefig(path_c)
+        print("Courbes sauvegardée dans ", path_c)
 
     data = load()
     df = data.copy()
 
-    '''
-    #visualisation des données
-
-    print()
-    print(df.head())
-    print()
-    print(df.info())
-    print()
-    print(df.describe())
-    print()
-    print(df.isna().sum()/df.shape[0])
-    print()
-    '''
-    
+    # analyse_pre_process(df)
+        
     trainset, testset = split_data(df)
     X_train, y_train = preprocecing(trainset)
     X_test, y_test = preprocecing(testset)
 
-    '''
-    # test pour voir si les données sont bien prétraitées
+    assert not np.any(np.isin(X_train.index, X_test.index))
 
-    print("X_train shape:", X_train.shape)
-    print("y_train shape:", y_train.shape)
-    print("X_test shape:", X_test.shape)
-    print("y_test shape:", y_test.shape)
-
-    print("\nX_train data types:\n", pd.DataFrame(X_train).dtypes)
-    print("\nFirst 5 rows of X_train:\n", pd.DataFrame(X_train).head())
-    print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
-    print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
-    '''
+    # analyse_post_process(X_train, y_train, X_test, y_test)
     
     sleep = train_model(X_train, y_train, X_test, y_test)
 
-    y_pred_train = sleep.predict(X_train)
-    y_pred_test = sleep.predict(X_test)
+    affichage_perf(X_train, y_train, X_test, y_test, sleep)
 
-
-    print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train))
-    print("Test Accuracy:", accuracy_score(y_test >= 0.5, y_pred_test))
-
-    # Additional metrics
-    print("Train F1 Score:", f1_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test F1 Score:", f1_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
-    print("Train Precision:", precision_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test Precision:", precision_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
-    print("Train Recall:", recall_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test Recall:", recall_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
-
-    plt.figure(figsize=(12, 4))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(sleep.L, label="train loss")
-    plt.plot(sleep.L_t, label="test loss")
-    plt.legend()
-    plt.title("Courbe de perte")
-    plt.xlabel("Itérations")
-    plt.ylabel("Loss")
-
-    plt.subplot(1, 2, 2)
-    plt.plot(sleep.acc, label="train acc")
-    plt.plot(sleep.acc_t, label="test acc")
-    plt.legend()
-    plt.title("Courbe d'accuracy")
-    plt.xlabel("Itérations")
-    plt.ylabel("Acc")
-
-    plt.savefig(path_c)
-    print("Courbes sauvegardée dans ", path_c)
+    courbe_perf(sleep)
 
 
 if __name__ == "__main__":
