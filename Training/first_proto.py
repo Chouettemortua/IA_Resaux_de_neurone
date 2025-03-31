@@ -74,10 +74,68 @@ class Neurone:
             self.acc_t = data['acc_t']
         print(f"Modèle chargé depuis {filename}")
 
+"""
+comentaire temporaire:
+    dZ2 =  A2 - y
+    dZ1 = W2^T . dZ2 * A1 * (1 - A1)
+"""
 
 class Resaux:
-    def __init__(self):
-        pass
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1):
+        self.W = None
+        self.b = None
+
+        if X is not None and y is not None:
+            self.W = [np.random.randn(n, X.shape[1]) for n in nb_neurone_couche]
+            self.b = [np.random.randn(n,1) for n in nb_neurone_couche]
+            self.train(X, y, X_test, y_test, learning_rate, nb_iter)
+
+    def forward_propagation(self, X):
+        Z = [self.W[0].dot(X) + self.b[0]]
+        A = [1 / (1 + np.exp(-Z[0]))]
+        for i in range(1, len(self.W)):
+            Z.append(self.W[i].dot(A[i-1]) + self.b[i])
+            A.append(1 / (1 + np.exp(-Z[i])))
+        return A
+
+    def back_propagation(self, A, X, y):
+
+        m = y.shape[1]
+
+        dZn = A[-1] - y
+        dWn = np.dot(dZn, A[-2].T) / m 
+        dbn = np.sum(dZn, axis=1, keepdims=True) / m
+        dZ = [dZn]
+        dW = [dWn]
+        db = [dbn]
+
+        for i in reversed(range(1, len(self.W))):
+            dZ.append(np.dot(self.W[i].T, dZ[-1]) * A[i-1] * (1 - A[i-1]))
+            if i-2 >= 0:
+                dW.append(np.dot(dZ[-1], A[i-2].T) / m)
+            else:
+                dW.append(np.dot(dZ[-1], X.T) / m)
+            db.append(np.sum(dZ[-1], axis=1, keepdims=True) / m)
+
+        dW.reverse()
+        db.reverse()
+
+        return dW, db
+
+    def update(self, dW, db, learning_rate):
+        for i in range(len(self.W)):
+            self.W[i] -= learning_rate * dW[i]
+            self.b[i] -= learning_rate * db[i]
+    
+    def predict(self, X):
+        A = self.forward_propagation(X)
+        return A[-1] >= 0.5
+
+    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000):
+        for i in tqdm(range(nb_iter)):
+            A = self.forward_propagation(X)
+            dW, db = self.back_propagation(A, X, y)
+            self.update(dW, db, learning_rate)  
 
 
 def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
@@ -130,8 +188,8 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     def train_model(X_train, y_train, X_test, y_test):
 
         if bool_c:
-            sleep = Neurone(X_train, y_train, X_test, y_test,)
-            sleep.save(path_n)
+            sleep = Resaux(X_train, y_train, X_test, y_test,[1, 3, 1])
+            #sleep.save(path_n)
         else:
             sleep = Neurone()
             sleep.load(path_n)
@@ -143,7 +201,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
         if bool_t:
             sleep.train(X_train, y_train, X_test, y_test, 1e-1, 1000)
-            sleep.save(path_n)
+            #sleep.save(path_n)
         return sleep
 
     def analyse_pre_process(df):
@@ -223,7 +281,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
     affichage_perf(X_train, y_train, X_test, y_test, sleep)
 
-    courbe_perf(sleep)
+    #courbe_perf(sleep)
 
 
 if __name__ == "__main__":
