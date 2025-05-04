@@ -85,6 +85,10 @@ class Resaux:
         self.W = None
         self.b = None
         self.nb_neurone_couche = nb_neurone_couche 
+        self.L = []
+        self.L_t = []  
+        self.acc = []
+        self.acc_t = []
 
         if X is not None and y is not None:
             self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
@@ -101,53 +105,90 @@ class Resaux:
             Z.append(self.W[i].dot(A[i-1]) + self.b[i])
             A.append(1 / (1+np.exp(-Z[i])))
         return A
-
+    
     def back_propagation(self, A, X, y):
+        m = X.shape[0]
+        y = y.reshape(1, -1)  # y doit être (1, m)
 
-        m = y.shape[1]
-        print("A[-1].shape", A[-1].shape)
-        print("y.shape", y.T.shape)
-        print("A[-2].shape", A[-2].shape)
+        dZ = A[-1] - y  # (1, m)
+        dW = []
+        db = []
 
-        dZn = A[-1] - y.T
-        #print("dZn.shape", dZn.shape)
-        dWn = np.dot(dZn, A[-2].T) / m 
-        dbn = np.sum(dZn, axis=1, keepdims=True) / m
-        dZ = [dZn]
-        dW = [dWn] 
-        db = [dbn]
+        for i in reversed(range(len(self.W))):
+            A_prev = A[i - 1] if i > 0 else X.T  # (n_l-1, m)
 
-        for i in reversed(range(1, len(self.W))):
-            dZ.append(np.dot(self.W[i].T, dZ[-1]) * A[i] * (1 - A[i]))
-            if i-1 >= 0:
-                dW.append(np.dot(dZ[-1], A[i-1].T) / m)
-            else:
-                dW.append(np.dot(dZ[-1], X.T) / m)
-            db.append(np.sum(dZ[-1], axis=1, keepdims=True) / m)
-        dW = dW.reverse
-        db = db.reverse
+            dW_i = np.dot(dZ, A_prev.T) / m
+            db_i = np.sum(dZ, axis=1, keepdims=True) / m
+
+            dW.insert(0, dW_i)
+            db.insert(0, db_i)
+
+            if i > 0:
+                dA_prev = np.dot(self.W[i].T, dZ)
+                dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # sigmoid prime
+
         return dW, db
 
+    def log_loss(self, A, y):
+        epsilon = 1e-15
+        A = np.clip(A[-1], epsilon, 1 - epsilon)
+        return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
+
     def update(self, dW, db, learning_rate):
-        for i in range(len(self.W)):
+        '''for i in range(len(self.W)):
             print(f"dW[{i}].shape", dW[i].shape)
             print(f"self.W[{i}].shape", self.W[i].shape)
             print(f"db[{i}].shape", db[i].shape)
             print(f"self.b[{i}].shape", self.b[i].shape)
+        '''
         for i in range(len(self.W)):
             self.W[i] -= learning_rate * dW[i]
             self.b[i] -= learning_rate * db[i]
     
     def predict(self, X):
         A = self.forward_propagation(X)
-        return A[-1] >= 0.5
+        return (A[-1] >= 0.5).astype(int).flatten()
 
-    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000):
+    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=100):
+        """ Entraîne le modèle sur les données d'entraînement """
         for i in tqdm(range(nb_iter)):
             A = self.forward_propagation(X)
+
+            if i % partialsteps == 0:
+                self.L.append(self.log_loss(A, y))
+                self.L_t.append(self.log_loss(self.forward_propagation(X_test), y_test))
+                self.acc.append(accuracy_score(y >= 0.5, self.predict(X)))
+                self.acc_t.append(accuracy_score(y_test >= 0.5, self.predict(X_test)))
+            
             dW, db = self.back_propagation(A, X, y)
             self.update(dW, db, learning_rate)  
 
+    def save(self, filename):
+        """ Sauvegarde du modèle dans un fichier """
+        with open(filename, 'wb') as f:
+            pickle.dump({
+                'W': self.W,
+                'b': self.b,
+                'L': self.L,
+                'L_t': self.L_t,
+                'acc': self.acc,
+                'acc_t': self.acc_t,
+                'nb_neurone_couche': self.nb_neurone_couche
+            }, f)
+        print(f"Modèle sauvegardé dans {filename}")
+
+    def load(self, filename):
+        """ Charge un modèle depuis un fichier """
+        with open(filename, 'rb') as f:
+            data = pickle.load(f)
+            self.W = data['W']
+            self.b = data['b']
+            self.L = data['L']
+            self.L_t = data['L_t']
+            self.acc = data['acc']
+            self.acc_t = data['acc_t']
+            self.nb_neurone_couche = data['nb_neurone_couche']
+        print(f"Modèle chargé depuis {filename}")
 
 def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
 
@@ -198,11 +239,14 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
          
     def train_model(X_train, y_train, X_test, y_test):
 
+        y_train = y_train.flatten()
+        y_test = y_test.flatten()
+
         if bool_c:
-            sleep = Neurone(X_train, y_train, X_test, y_test)
-            #sleep.save(path_n)
+            sleep = Resaux(X_train, y_train, X_test, y_test, [1,3,3,1], 1e-1, 1000)
+            sleep.save(path_n)
         else:
-            sleep = Neurone()
+            sleep = Resaux()
             sleep.load(path_n)
 
         initial_pred_train = sleep.predict(X_train)
@@ -238,8 +282,8 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
 
     def affichage_perf(X_train, y_train, X_test, y_test, sleep):
-        y_pred_train = sleep.predict(X_train)
-        y_pred_test = sleep.predict(X_test)
+        y_pred_train = sleep.predict(X_train).flatten()
+        y_pred_test = sleep.predict(X_test).flatten()
 
 
         print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train))
@@ -296,6 +340,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     affichage_perf(X_train, y_train, X_test, y_test, sleep)
 
     #courbe_perf(sleep)
+    courbe_perf(sleep)
 
 
 if __name__ == "__main__":
