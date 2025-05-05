@@ -372,9 +372,9 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     affichage_perf(X_train, y_train, X_test, y_test, sleep)
 
     #courbe_perf(sleep)
-
-    courbe_perf(sleep)
+    if bool_c or bool_t:     
+        courbe_perf(sleep)
 
 if __name__ == "__main__":
     # Main function launcher with arguments
-    main_for_sleep_dat(True, True, "Training/saves/save_sleep.pkl", "Training/saves/curve_sleep.png")
+    main_for_sleep_dat(False, False, "Training/saves/save_sleep.pkl", "Training/saves/curve_sleep.png")
