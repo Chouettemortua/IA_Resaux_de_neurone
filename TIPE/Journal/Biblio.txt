@@ -1,0 +1,4 @@
+Biblio:
+
+https://theses.hal.science/tel-03642096v1/file/NGUYEN_2021_archivage.pdf , thèse sur les  det du sommeil
+https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset, dataset use

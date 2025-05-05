@@ -1,0 +1,26 @@
+Année 2025
+
+25; 26/01 : entrainement code IA
+
+27/01 : carte mentale idée TIPE 
+
+03/02 : recherche de dataset plus mini analyse avec GPT, 
+	réflexion d'un choix parmi le 5 thème trouvé, 
+	likely sleep,
+	trie de data set sur kagle arret page 4.
+
+24/02 :choix du data set -> fixé sur une IA qui determine la qualité du sommeil
+
+03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
+
+10/03 : blocage sur le preprocecing non fonctionel
+
+17/03 : débugage du preprocecing bug sur reshape de y
+
+19/03 : reshape de y fait, et ajout d'une normalisation temporaire
+
+.... A remplir avec les commit plus tard
+
+04/05 : Modèle multicouche fonctionel
+
+05/05 : ébauche d'interface utilisateur
