@@ -17,6 +17,7 @@ from PyQt6.QtCore import Qt
 class AddEntryDock(QDockWidget):
     def __init__(self, parent=None):
         super().__init__("Ajouter une entrée", parent)
+        self.setFloating(False)  # Assurer que le dock est ancré
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
 
         self.fields = [
@@ -29,7 +30,7 @@ class AddEntryDock(QDockWidget):
         content = QWidget()
         main_layout = QVBoxLayout()
 
-         # --- Bouton d'aide en haut
+        # --- Bouton d'aide en haut
         help_btn = QPushButton("Aide sur les formats")
         help_btn.clicked.connect(self.show_help)
         main_layout.addWidget(help_btn)
@@ -45,7 +46,7 @@ class AddEntryDock(QDockWidget):
                 self.inputs[field] = gender_combo
             elif field == "BMI Category":
                 bmi_combo = QComboBox()
-                bmi_combo.addItems(["Normal", "Overweight", "Underweight", "Obese"])
+                bmi_combo.addItems(["Underweight", "Normal", "Overweight", "Obese"])
                 form_layout.addRow(field, bmi_combo)
                 self.inputs[field] = bmi_combo
             elif field == "Sleep Disorder":
@@ -68,12 +69,28 @@ class AddEntryDock(QDockWidget):
         content.setLayout(main_layout)
         self.setWidget(content)
 
+    def show_help(self):
+        # Afficher un message d'aide avec des informations sur le format des champs
+        help_message = (
+            "Voici les formats attendus :\n\n"
+            "Gender: Male ou Female\n"
+            "BMI Category: Underweight, Normal, Overweight, Obese\n"
+            "Sleep Disorder: None, Insomnia, Sleep Apnea\n"
+            "Age: Entier positif\n"
+            "Sleep Duration: Nombre à virgule positif (ex. 6.5)\n"
+            "Physical Activity Level: Entier positif\n"
+            "Stress Level: Entier entre 1 et 10\n"
+            "Blood Pressure: Format NNN/NNN (ex. 120/80)\n"
+            "Heart Rate: Entier positif\n"
+            "Daily Steps: Entier positif\n"
+            "Occupation: Toute valeur non vide"
+        )
+        QMessageBox.information(self, "Aide", help_message)
+
     def submit_data(self):
-        values = [
-        self.inputs[field].currentText().strip() if isinstance(self.inputs[field], QComboBox)
-        else self.inputs[field].text().strip()
-        for field in self.fields
-        ]
+        # Récupération des données du formulaire
+        values = [self.inputs[field].currentText().strip() if isinstance(self.inputs[field], QComboBox) else self.inputs[field].text().strip() for field in self.fields]
+
         try:
             gender = values[0]
             if gender not in ["Male", "Female"]:
@@ -125,35 +142,18 @@ class AddEntryDock(QDockWidget):
         except ValueError as e:
             QMessageBox.critical(self, "Erreur de validation", str(e))
             return None
-    def show_help(self):
-        help_text = (
-            "Guide des formats attendus :\n\n"
-            "- Gender : Male ou Female\n"
-            "- Age : Entier positif (ex: 27)\n"
-            "- Occupation : Texte libre (ex: Software Engineer)\n"
-            "- Sleep Duration : Float > 0 (ex: 6.5 heures)\n"
-            "- Physical Activity Level : Minutes par jour, entier ≥ 0 (ex: 45)\n"
-            "- Stress Level : Entier entre 1 et 10\n"
-            "- BMI Category : Underweight, Normal, Overweight ou Obese\n"
-            "- Blood Pressure : Format SYS/DIA (ex: 120/80)\n"
-            "- Heart Rate : Entier > 0 (ex: 72)\n"
-            "- Daily Steps : Entier ≥ 0 (ex: 4000)\n"
-            "- Sleep Disorder : None, Insomnia ou Sleep Apnea"
-        )
-        QMessageBox.information(self, "Aide sur les formats", help_text)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Analyse IA - Santé Personnelle")
+        self.setWindowTitle("IA SLeep")
         self.resize(1000, 700)
 
-        # --- Widget central pour permettre l'ancrage correct des docks ---
+        # --- Layout principal ---
         central_widget = QWidget()
-        central_layout = QVBoxLayout()
-        central_widget.setLayout(central_layout)
-        self.setCentralWidget(central_widget)  # 👈 essentiel pour le dock
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
 
         # --- Menu boutons ---
         menu_layout = QHBoxLayout()
@@ -169,7 +169,7 @@ class MainWindow(QMainWindow):
 
         for btn in [self.btn_add, self.btn_analyse, self.btn_import, self.btn_export]:
             menu_layout.addWidget(btn)
-        central_layout.addLayout(menu_layout)
+        main_layout.addLayout(menu_layout)
 
         # --- Table des données ---
         self.table = QTableWidget()
@@ -180,24 +180,27 @@ class MainWindow(QMainWindow):
         ]
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)
-        central_layout.addWidget(self.table)
+        main_layout.addWidget(self.table)
 
         # --- Résultats d'analyse ---
         self.result_label = QLabel("Résultats de l'analyse :")
-        central_layout.addWidget(self.result_label)
+        main_layout.addWidget(self.result_label)
+
+        # --- Afficher la fenêtre principale après tout ---
+        self.show()
 
     def add_entry(self):
         if hasattr(self, "entry_dock") and self.entry_dock:
             self.entry_dock.close()
-
         self.entry_dock = AddEntryDock(self)
+        self.entry_dock.setFloating(False)  # Ancrer le dock
         self.entry_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable)
-        self.entry_dock.setFloating(False)  # 👈 le garde intégré
-        self.entry_dock.setFixedWidth(300)  # Taille du panneau
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.entry_dock)
+        self.entry_dock.setFixedWidth(300)
         self.entry_dock.show()
 
     def add_entry_from_values(self, data):
+        # tu peux valider ici aussi si tu veux
         row_pos = self.table.rowCount()
         self.table.insertRow(row_pos)
         for col, val in enumerate(data):
@@ -209,6 +212,7 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Aucune donnée", "Ajoutez des données avant d'analyser.")
             return
 
+        # Simulation d’analyse IA
         sleep_disorders = [self.table.item(i, 10).text() for i in range(count)]
         count_disorder = sum(1 for d in sleep_disorders if d.lower() != "none")
         self.result_label.setText(
