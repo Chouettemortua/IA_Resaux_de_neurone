@@ -85,6 +85,7 @@ class Neurone:
 class Resaux:
     def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1):
         """ Initialise le réseau de neurones """
+        nb_neurone_couche.reverse()
         self.W = None
         self.b = None
         self.nb_neurone_couche = nb_neurone_couche 
@@ -157,7 +158,7 @@ class Resaux:
         A = self.forward_propagation(X)
         return (A[-1] >= 0.5).astype(int).flatten()
 
-    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=100):
+    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement """
         for i in tqdm(range(nb_iter)):
             A = self.forward_propagation(X)
@@ -165,7 +166,7 @@ class Resaux:
             if i % partialsteps == 0:
                 self.L.append(self.log_loss(A, y))
                 self.L_t.append(self.log_loss(self.forward_propagation(X_test), y_test))
-                self.acc.append(accuracy_score(y >= 0.5, self.predict(X)))
+                self.acc.append(accuracy_score(y >= 0.5, self.predict(X).flatten()))
                 self.acc_t.append(accuracy_score(y_test >= 0.5, self.predict(X_test)))
             
             dW, db = self.back_propagation(A, X, y)
@@ -259,7 +260,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         y_test = y_test.flatten()
 
         if bool_c:
-            sleep = Resaux(X_train, y_train, X_test, y_test, [1,3,3,1], 1e-1, 1000)
+            sleep = Resaux(X_train, y_train, X_test, y_test, [1,3,3,1], 1e-2, 1000)
             sleep.save(path_n)
         else:
             sleep = Resaux()
@@ -271,7 +272,7 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
         print("Initial Test Accuracy:", accuracy_score(y_test >= 0.5, initial_pred_test))
 
         if bool_t:
-            sleep.train(X_train, y_train, X_test, y_test, 1e-1, 1000)
+            sleep.train(X_train, y_train, X_test, y_test, 1e-2, 1000)
             #sleep.save(path_n)
         return sleep
 
@@ -373,7 +374,6 @@ def main_for_sleep_dat(bool_c, bool_t, path_n, path_c):
     #courbe_perf(sleep)
 
     courbe_perf(sleep)
-
 
 if __name__ == "__main__":
     # Main function launcher with arguments
