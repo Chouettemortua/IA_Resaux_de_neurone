@@ -24,3 +24,5 @@ Année 2025
 04/05 : Modèle multicouche fonctionel
 
 05/05 : ébauche d'interface utilisateur
+
+12/05 : entrainement résaux sur les sleep Disorder
