@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QDockWidget, QComboBox
 )
 from PyQt6.QtCore import Qt
+from AI_Model import Resaux
 
 
 class AddEntryDock(QDockWidget):
@@ -46,7 +47,7 @@ class AddEntryDock(QDockWidget):
                 self.inputs[field] = gender_combo
             elif field == "BMI Category":
                 bmi_combo = QComboBox()
-                bmi_combo.addItems(["Underweight", "Normal", "Overweight", "Obese"])
+                bmi_combo.addItems(["Normal", "Overweight", "Underweight", "Obese"])
                 form_layout.addRow(field, bmi_combo)
                 self.inputs[field] = bmi_combo
             elif field == "Sleep Disorder":
@@ -149,6 +150,10 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("IA SLeep")
         self.resize(1000, 700)
+        self.sleep_quality = Resaux()
+        self.sleep_quality.load("TIPE/Saves/save_sleep_quality.pkl")
+        self.sleep_trouble = Resaux()
+        self.sleep_trouble.load("TIPE/Saves/save_sleep_trouble.pkl")
 
         # --- Layout principal ---
         central_widget = QWidget()
@@ -213,12 +218,20 @@ class MainWindow(QMainWindow):
             return
 
         # Simulation d’analyse IA
-        sleep_disorders = [self.table.item(i, 10).text() for i in range(count)]
-        count_disorder = sum(1 for d in sleep_disorders if d.lower() != "none")
-        self.result_label.setText(
-            f"Résultats de l'analyse : {count_disorder} troubles du sommeil détectés sur {count} entrées."
-        )
-
+        #disorder = self.sleep_trouble.predict()
+        #quality = self.sleep_quality.predict()
+        disorder = 1
+        quality = 1
+        # Affichage des résultats
+        if disorder == 0 and quality == 0:
+            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: non détecté, Qualité du sommeil: faible")
+        elif disorder == 1 and quality == 0:
+            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: détecté, Qualité du sommeil: faible")
+        elif disorder == 1 and quality == 1:
+            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: détecté, Qualité du sommeil: bonne")
+        else:
+            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: non détecté, Qualité du sommeil: bonne")   
+        
     def import_data(self):
         file_name, _ = QFileDialog.getOpenFileName(self, "Importer CSV", "", "CSV Files (*.csv)")
         if file_name:
