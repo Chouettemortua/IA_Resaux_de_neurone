@@ -3,8 +3,8 @@
 # If you are using WSL, run the following command in the terminal   
 
 import sys
+import os
 import pandas as pd
-import csv
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
@@ -15,10 +15,11 @@ from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
 from AI_Model import Resaux
 
+os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 class AddEntryFrom(QDockWidget):
     def __init__(self, add_entry_callback):
-        super().__init__("Ajouter une entrée")
+        super().__init__()
         self.add_entry_callback = add_entry_callback
 
         self.form_widget = QWidget()
@@ -47,7 +48,7 @@ class AddEntryFrom(QDockWidget):
         add_row("BMI Category", bmi); row += 1
 
         disorder = QComboBox()
-        disorder.addItems(["None", "Insomnia", "Sleep Apnea"])
+        disorder.addItems(["nan", "Insomnia", "Sleep Apnea"])
         add_row("Sleep Disorder", disorder); row += 1
 
         age = QSpinBox(); age.setRange(0, 120)
@@ -119,7 +120,7 @@ class AddEntryFrom(QDockWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Sleep Disorder Tracker")
+        self.setWindowTitle("Sleep IA")
         self.resize(1000, 600)
         self.df = pd.DataFrame()
 
@@ -226,7 +227,6 @@ class MainWindow(QMainWindow):
         self.df = pd.DataFrame()
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
-
 
 
 if __name__ == "__main__":
