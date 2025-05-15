@@ -163,7 +163,7 @@ class Resaux:
     def predict(self, X):
         """ Prédiction sur de nouvelles données """
         A = self.forward_propagation(X)
-        return (A[-1] >= 0.5).astype(int).flatten()
+        return A[-1].flatten()
 
     def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement """
@@ -334,16 +334,16 @@ def affichage_perf(X_train, y_train, X_test, y_test, model):
     print("Initial Test Accuracy:", initial_pred_test)
 
 
-    print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train))
-    print("Test Accuracy:", accuracy_score(y_test >= 0.5, y_pred_test))
+    print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train >= 0.5))
+    print("Test Accuracy:", accuracy_score(y_test >= 0.5, y_pred_test >= 0.5))
 
     # Additional metrics
-    print("Train F1 Score:", f1_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test F1 Score:", f1_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
-    print("Train Precision:", precision_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test Precision:", precision_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
-    print("Train Recall:", recall_score(y_train >= 0.5, y_pred_train, average='weighted', zero_division= np.nan))
-    print("Test Recall:", recall_score(y_test >= 0.5, y_pred_test, average='weighted', zero_division= np.nan))
+    print("Train F1 Score:", f1_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
+    print("Test F1 Score:", f1_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
+    print("Train Precision:", precision_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
+    print("Test Precision:", precision_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
+    print("Train Recall:", recall_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
+    print("Test Recall:", recall_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
 
 def courbe_perf(sleep, path, bool_p=True):
     """ Met les courbes de perte et d'accuracy dans un fichier """
@@ -407,7 +407,8 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Ami évaluation affichage
 
-    print(f"mons amis :{sleep.predict(np.array(ami))}") 
+    ami_res = round(sleep.predict(np.array(ami))[0], 2)
+    print(f"mons amis: {ami_res}") 
 
     # affichage des performances
 
@@ -448,6 +449,10 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
 
     if bool_t:
         sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n, iteration=5000, precision=1e-2)
+
+    # Ami évaluation affichage
+    ami = [0,0.3,0.6,0.47,0.8,0.11,4,0,0.88,0.89,0.5]
+    print(f"ami: {round(sleep.predict(np.array(ami))[0], 2)}")
 
     # affichage des performances
 

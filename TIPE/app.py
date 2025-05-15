@@ -3,258 +3,230 @@
 # If you are using WSL, run the following command in the terminal   
 
 import sys
-import re
+import pandas as pd
 import csv
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout,
-    QHBoxLayout, QPushButton, QFileDialog, QTableWidget,
-    QTableWidgetItem, QFormLayout, QLineEdit, QLabel, QMessageBox,
-    QDockWidget, QComboBox
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
+    QPushButton, QComboBox, QFileDialog, QMessageBox, QFormLayout, QSplitter,
+    QDockWidget, QGridLayout, QSizePolicy, QDoubleSpinBox, QSpinBox, QGroupBox
 )
+from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
 from AI_Model import Resaux
 
 
-class AddEntryDock(QDockWidget):
-    def __init__(self, parent=None):
-        super().__init__("Ajouter une entrée", parent)
-        self.setFloating(False)  # Assurer que le dock est ancré
-        self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+class AddEntryFrom(QDockWidget):
+    def __init__(self, add_entry_callback):
+        super().__init__("Ajouter une entrée")
+        self.add_entry_callback = add_entry_callback
 
-        self.fields = [
-            "Gender", "Age", "Occupation", "Sleep Duration",
-            "Physical Activity Level", "Stress Level", "BMI Category",
-            "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
-        ]
-        self.inputs = {}
+        self.form_widget = QWidget()
+        self.setWidget(self.form_widget)
 
-        content = QWidget()
         main_layout = QVBoxLayout()
+        grid = QGridLayout()
 
-        # --- Bouton d'aide en haut
-        help_btn = QPushButton("Aide sur les formats")
-        help_btn.clicked.connect(self.show_help)
-        main_layout.addWidget(help_btn)
+        self.fields = {}
 
-        # --- Formulaire avec QComboBox pour certains champs
-        form_layout = QFormLayout()
+        row = 0
 
-        for field in self.fields:
-            if field == "Gender":
-                gender_combo = QComboBox()
-                gender_combo.addItems(["Male", "Female"])
-                form_layout.addRow(field, gender_combo)
-                self.inputs[field] = gender_combo
-            elif field == "BMI Category":
-                bmi_combo = QComboBox()
-                bmi_combo.addItems(["Normal", "Overweight", "Underweight", "Obese"])
-                form_layout.addRow(field, bmi_combo)
-                self.inputs[field] = bmi_combo
-            elif field == "Sleep Disorder":
-                disorder_combo = QComboBox()
-                disorder_combo.addItems(["None", "Insomnia", "Sleep Apnea"])
-                form_layout.addRow(field, disorder_combo)
-                self.inputs[field] = disorder_combo
-            else:
-                inp = QLineEdit()
-                form_layout.addRow(field, inp)
-                self.inputs[field] = inp
+        def add_row(label_text, widget):
+            label = QLabel(label_text)
+            grid.addWidget(label, row, 0)
+            grid.addWidget(widget, row, 1)
+            self.fields[label_text] = widget
 
-        main_layout.addLayout(form_layout)
+        # Champs avec widgets appropriés
+        gender = QComboBox()
+        gender.addItems(["Male", "Female"])
+        add_row("Gender", gender); row += 1
 
-        # --- Bouton Ajouter en bas
-        btn = QPushButton("Ajouter")
-        btn.clicked.connect(self.submit_data)
-        main_layout.addWidget(btn)
+        bmi = QComboBox()
+        bmi.addItems(["Normal", "Overweight", "Underweight", "Obese"])
+        add_row("BMI Category", bmi); row += 1
 
-        content.setLayout(main_layout)
-        self.setWidget(content)
+        disorder = QComboBox()
+        disorder.addItems(["None", "Insomnia", "Sleep Apnea"])
+        add_row("Sleep Disorder", disorder); row += 1
 
-    def show_help(self):
-        # Afficher un message d'aide avec des informations sur le format des champs
-        help_message = (
-            "Voici les formats attendus :\n\n"
-            "Gender: Male ou Female\n"
-            "BMI Category: Underweight, Normal, Overweight, Obese\n"
-            "Sleep Disorder: None, Insomnia, Sleep Apnea\n"
-            "Age: Entier positif\n"
-            "Sleep Duration: Nombre à virgule positif (ex. 6.5)\n"
-            "Physical Activity Level: Entier positif\n"
-            "Stress Level: Entier entre 1 et 10\n"
-            "Blood Pressure: Format NNN/NNN (ex. 120/80)\n"
-            "Heart Rate: Entier positif\n"
-            "Daily Steps: Entier positif\n"
-            "Occupation: Toute valeur non vide"
-        )
-        QMessageBox.information(self, "Aide", help_message)
+        age = QSpinBox(); age.setRange(0, 120)
+        add_row("Age", age); row += 1
 
-    def submit_data(self):
-        # Récupération des données du formulaire
-        values = [self.inputs[field].currentText().strip() if isinstance(self.inputs[field], QComboBox) else self.inputs[field].text().strip() for field in self.fields]
+        sleep_duration = QDoubleSpinBox(); sleep_duration.setRange(0.0, 24.0); sleep_duration.setSingleStep(1)
+        add_row("Sleep Duration", sleep_duration); row += 1
 
-        try:
-            gender = values[0]
-            if gender not in ["Male", "Female"]:
-                raise ValueError("Gender doit être 'Male' ou 'Female'.")
+        physical_activity = QSpinBox(); physical_activity.setRange(0, 100)
+        add_row("Physical Activity Level", physical_activity); row += 1
 
-            age = int(values[1])
-            if age < 0:
-                raise ValueError("Age doit être un entier positif.")
+        stress = QSpinBox(); stress.setRange(1, 10)
+        add_row("Stress Level", stress); row += 1
 
-            occupation = values[2]
-            if not occupation:
-                raise ValueError("Occupation ne peut pas être vide.")
+        blood_pressure = QLineEdit()
+        blood_pressure.setPlaceholderText("Ex: 120/80")
+        add_row("Blood Pressure", blood_pressure); row += 1
 
-            sleep_duration = float(values[3])
-            if sleep_duration <= 0:
-                raise ValueError("Sleep Duration doit être un float > 0.")
+        heart_rate = QSpinBox(); heart_rate.setRange(30, 200)
+        add_row("Heart Rate", heart_rate); row += 1
 
-            activity = int(values[4])
-            if activity < 0:
-                raise ValueError("Physical Activity Level doit être ≥ 0.")
+        steps = QSpinBox(); steps.setRange(0, 50000); steps.setSingleStep(1000)
+        add_row("Daily Steps", steps); row += 1
 
-            stress = int(values[5])
-            if not (1 <= stress <= 10):
-                raise ValueError("Stress Level doit être entre 1 et 10.")
+        occupation = QLineEdit()
+        occupation.setPlaceholderText("Entrez votre métier")
+        add_row("Occupation", occupation); row += 1
 
-            bmi = values[6]
-            if bmi not in ["Underweight", "Normal", "Overweight", "Obese"]:
-                raise ValueError("BMI Category invalide.")
+        # Bouton d'enregistrement
+        self.submit_button = QPushButton("Ajouter à la base")
+        self.submit_button.clicked.connect(self.submit_entry)
+        self.submit_button.setStyleSheet("padding: 8px; background-color: #cce5ff; border: 1px solid #99ccff;")
 
-            bp = values[7]
-            if not re.match(r'^\d{2,3}/\d{2,3}$', bp):
-                raise ValueError("Blood Pressure doit être au format NNN/NNN.")
+        # Group box pour regrouper proprement le formulaire
+        group_box = QGroupBox("Formulaire d'entrée utilisateur")
+        group_box.setLayout(grid)
+        group_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-            hr = int(values[8])
-            if hr <= 0:
-                raise ValueError("Heart Rate doit être > 0.")
+        main_layout.addWidget(group_box)
+        main_layout.addWidget(self.submit_button, alignment=Qt.AlignmentFlag.AlignRight)
+        self.form_widget.setLayout(main_layout)
 
-            steps = int(values[9])
-            if steps < 0:
-                raise ValueError("Daily Steps doit être ≥ 0.")
+        # Style général
+        self.setStyleSheet("""
+            QLabel {
+                font-weight: bold;
+            }
+            QGroupBox {
+                font-size: 14px;
+                font-weight: bold;
+                border: 1px solid lightgray;
+                padding: 8px;
+                margin-top: 10px;
+            }
+        """)
 
-            disorder = values[10]
-            if disorder not in ["None", "Insomnia", "Sleep Apnea"]:
-                raise ValueError("Sleep Disorder invalide.")
-
-            self.parent().add_entry_from_values(values)
-            self.close()
-
-        except ValueError as e:
-            QMessageBox.critical(self, "Erreur de validation", str(e))
-            return None
+    def submit_entry(self):
+        data = {}
+        for key, widget in self.fields.items():
+            if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                data[key] = widget.value()
+            elif isinstance(widget, QComboBox):
+                data[key] = widget.currentText()
+            elif isinstance(widget, QLineEdit):
+                data[key] = widget.text()
+        self.add_entry_callback(data)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("IA SLeep")
-        self.resize(1000, 700)
-        self.sleep_quality = Resaux()
-        self.sleep_quality.load("TIPE/Saves/save_sleep_quality.pkl")
-        self.sleep_trouble = Resaux()
-        self.sleep_trouble.load("TIPE/Saves/save_sleep_trouble.pkl")
+        self.setWindowTitle("Sleep Disorder Tracker")
+        self.resize(1000, 600)
+        self.df = pd.DataFrame()
 
-        # --- Layout principal ---
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget)
+        self.init_ui()
 
-        # --- Menu boutons ---
-        menu_layout = QHBoxLayout()
-        self.btn_add = QPushButton("Ajouter Entrée")
-        self.btn_analyse = QPushButton("Analyser")
-        self.btn_import = QPushButton("Importer")
-        self.btn_export = QPushButton("Exporter")
+    def init_ui(self):
+        self.toolbar = QToolBar("Main Toolbar")
+        self.toolbar.setMovable(False)  # toolbar fixe
+        self.addToolBar(self.toolbar)
 
-        self.btn_add.clicked.connect(self.add_entry)
-        self.btn_analyse.clicked.connect(self.analyze_data)
-        self.btn_import.clicked.connect(self.import_data)
-        self.btn_export.clicked.connect(self.export_data)
+        load_action = QAction(QIcon(), "Charger CSV", self)
+        load_action.triggered.connect(self.load_csv)
+        self.toolbar.addAction(load_action)
 
-        for btn in [self.btn_add, self.btn_analyse, self.btn_import, self.btn_export]:
-            menu_layout.addWidget(btn)
-        main_layout.addLayout(menu_layout)
+        save_action = QAction(QIcon(), "Sauvegarder CSV", self)
+        save_action.triggered.connect(self.save_csv)
+        self.toolbar.addAction(save_action)
 
-        # --- Table des données ---
-        self.table = QTableWidget()
+        clear_action = QAction(QIcon(), "Vider la table", self)
+        clear_action.triggered.connect(self.clear_table)
+        self.toolbar.addAction(clear_action)
+
+        toggle_form_action = QAction(QIcon(), "Afficher/Masquer Formulaire", self)
+        toggle_form_action.setCheckable(True)
+        toggle_form_action.setChecked(True)
+        toggle_form_action.triggered.connect(self.toggle_form_visibility)
+        self.toolbar.addAction(toggle_form_action)
+
         self.columns = [
-            "Gender", "Age", "Occupation", "Sleep Duration",
-            "Physical Activity Level", "Stress Level", "BMI Category",
-            "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+            "Gender", "BMI Category", "Sleep Disorder", "Age", "Sleep Duration",
+            "Physical Activity Level", "Stress Level", "Blood Pressure",
+            "Heart Rate", "Daily Steps", "Occupation"
         ]
+
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
+
+        self.table = QTableWidget()
         self.table.setColumnCount(len(self.columns))
         self.table.setHorizontalHeaderLabels(self.columns)
-        main_layout.addWidget(self.table)
+        header = self.table.horizontalHeader()
+        font = header.font()
+        font.setBold(True)
+        header.setFont(font)
+        self.splitter.addWidget(self.table)
 
-        # --- Résultats d'analyse ---
-        self.result_label = QLabel("Résultats de l'analyse :")
-        main_layout.addWidget(self.result_label)
+        self.add_entry_form = AddEntryFrom(self.add_entry)
+        self.splitter.addWidget(self.add_entry_form)
 
-        # --- Afficher la fenêtre principale après tout ---
-        self.show()
+        self.setCentralWidget(self.splitter)
+        self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
 
-    def add_entry(self):
-        if hasattr(self, "entry_dock") and self.entry_dock:
-            self.entry_dock.close()
-        self.entry_dock = AddEntryDock(self)
-        self.entry_dock.setFloating(False)  # Ancrer le dock
-        self.entry_dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.entry_dock)
-        self.entry_dock.setFixedWidth(300)
-        self.entry_dock.show()
+    def add_entry(self, entry_dict):
+        if self.df.empty:
+            self.df = pd.DataFrame(columns=entry_dict.keys())
+        self.df.loc[len(self.df)] = entry_dict
+        self.refresh_table()
 
-    def add_entry_from_values(self, data):
-        # tu peux valider ici aussi si tu veux
-        row_pos = self.table.rowCount()
-        self.table.insertRow(row_pos)
-        for col, val in enumerate(data):
-            self.table.setItem(row_pos, col, QTableWidgetItem(val))
+    def refresh_table(self):
+        self.table.setRowCount(len(self.df))
+        self.table.setColumnCount(len(self.df.columns))
+        self.table.setHorizontalHeaderLabels(self.df.columns.tolist())
 
-    def analyze_data(self):
-        count = self.table.rowCount()
-        if count == 0:
-            QMessageBox.warning(self, "Aucune donnée", "Ajoutez des données avant d'analyser.")
-            return
+        for row_idx, row in self.df.iterrows():
+            for col_idx, val in enumerate(row):
+                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(val)))
 
-        # Simulation d’analyse IA
-        #disorder = self.sleep_trouble.predict()
-        #quality = self.sleep_quality.predict()
-        disorder = 1
-        quality = 1
-        # Affichage des résultats
-        if disorder == 0 and quality == 0:
-            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: non détecté, Qualité du sommeil: faible")
-        elif disorder == 1 and quality == 0:
-            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: détecté, Qualité du sommeil: faible")
-        elif disorder == 1 and quality == 1:
-            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: détecté, Qualité du sommeil: bonne")
+        self.table.resizeColumnsToContents()
+        self.table.resizeRowsToContents()
+        self.table.setShowGrid(True)
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+
+        header = self.table.horizontalHeader()
+        font = header.font()
+        font.setBold(True)
+        header.setFont(font)
+
+    def toggle_form_visibility(self, checked):
+        if checked:
+            self.add_entry_form.show()
+            self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
         else:
-            self.result_label.setText(f"Résultats de l'analyse : Trouble du sommeil: non détecté, Qualité du sommeil: bonne")   
-        
-    def import_data(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Importer CSV", "", "CSV Files (*.csv)")
-        if file_name:
-            with open(file_name, newline='') as f:
-                reader = csv.reader(f)
-                self.table.setRowCount(0)
-                for row_data in reader:
-                    row_pos = self.table.rowCount()
-                    self.table.insertRow(row_pos)
-                    for col, val in enumerate(row_data):
-                        self.table.setItem(row_pos, col, QTableWidgetItem(val))
+            self.add_entry_form.hide()
+            self.splitter.setSizes([self.width(), 0])
 
-    def export_data(self):
-        file_name, _ = QFileDialog.getSaveFileName(self, "Exporter CSV", "", "CSV Files (*.csv)")
-        if file_name:
-            with open(file_name, 'w', newline='') as f:
-                writer = csv.writer(f)
-                for row in range(self.table.rowCount()):
-                    row_data = [
-                        self.table.item(row, col).text() if self.table.item(row, col) else ""
-                        for col in range(self.table.columnCount())
-                    ]
-                    writer.writerow(row_data)
+    def load_csv(self):
+        file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
+        if file:
+            try:
+                self.df = pd.read_csv(file)
+                self.refresh_table()
+            except Exception as e:
+                QMessageBox.critical(self, "Erreur", f"Échec du chargement : {str(e)}")
+
+    def save_csv(self):
+        file, _ = QFileDialog.getSaveFileName(self, "Sauvegarder CSV")
+        if file:
+            try:
+                self.df.to_csv(file, index=False)
+            except Exception as e:
+                QMessageBox.critical(self, "Erreur", f"Échec de la sauvegarde : {str(e)}")
+
+    def clear_table(self):
+        self.df = pd.DataFrame()
+        self.table.setRowCount(0)
+        self.table.setColumnCount(0)
+
 
 
 if __name__ == "__main__":
