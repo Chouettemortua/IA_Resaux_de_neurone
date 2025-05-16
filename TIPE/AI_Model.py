@@ -283,10 +283,11 @@ def preprocecing_user(df, on=None):
 
         code = {'Normal': 0, 'Normal Weight':0, 'Overweight': 1, 'Underweight':2, 'Obesity': 3, 'Software Eginneer': 0, 'Doctor': 1, 'Sales Representative': 2, 
                 'Nurse': 3, 'Teacher': 4, 'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10,
-                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1 }
+                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1, 'nan': 1 }
         
+        df['Blood Pressure'] = df['Blood Pressure'].fillna('0/0').astype(str)
 
-        df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
+        df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
         df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
         
         for col in df.select_dtypes('object'):
@@ -308,9 +309,9 @@ def preprocecing_user(df, on=None):
         df = imputation(df)
 
         if on is None:
-            X = df.drop(columns= on, axis=1)
-        else:
             X = df
+        else:
+            X = df.drop(columns= on, axis=1)
 
         # Normalize features
         X = normalisation(X) 
