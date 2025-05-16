@@ -1,2 +1,6 @@
 Gender,BMI Category,Sleep Disorder,Age,Sleep Duration,Physical Activity Level,Stress Level,Blood Pressure,Heart Rate,Daily Steps,Occupation
-Male,Normal,None,0,0.0,0,1,,30,0,
+Male,Normal,,18,8.0,60,4,120/80,75,5000,Engineer
+Male,Normal,nan,18,8.0,60,4,120/80,75,5000,Engineer
+Male,Normal,nan,18,8.0,60,4,120/80,75,5000,Engineer
+Male,Normal,nan,18,8.0,60,4,120/80,75,5000,Engineer
+Male,Normal,nan,18,8.0,60,4,120/80,75,5000,Engineer
