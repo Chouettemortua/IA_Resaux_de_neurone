@@ -4,7 +4,9 @@
 
 import sys
 import os
+import math
 import pandas as pd
+import numpy as np
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
@@ -124,6 +126,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Sleep IA")
         self.resize(1000, 600)
         self.df = pd.DataFrame()
+        self.df = pd.DataFrame(columns=[
+        "Gender", "Age", "Occupation", "Sleep Duration",
+        "Physical Activity Level", "Stress Level", "BMI Category",
+        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+        ])
 
         self.init_ui()
 
@@ -182,9 +189,21 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
 
     def add_entry(self, entry_dict):
+        expected_columns = [
+        "Gender", "Age", "Occupation", "Sleep Duration",
+        "Physical Activity Level", "Stress Level", "BMI Category",
+        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+    ]
+
+        # Créer une nouvelle ligne conforme à l'ordre attendu
+        new_row = {col: entry_dict.get(col, "") for col in expected_columns}
+
+        # Initialiser le DataFrame avec les bonnes colonnes si vide
         if self.df.empty:
-            self.df = pd.DataFrame(columns=entry_dict.keys())
-        self.df.loc[len(self.df)] = entry_dict
+            self.df = pd.DataFrame(columns=expected_columns)
+
+        # Ajouter la nouvelle ligne
+        self.df.loc[len(self.df)] = new_row
         self.refresh_table()
 
     def refresh_table(self):
@@ -220,22 +239,32 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Avertissement", "Aucune donnée à analyser.")
             return
         
-        # Appel du modèle de prédiction
+        # Chargement des modèles
+        model_quality = model_charge("TIPE/Saves/save_sleep_quality.pkl")
+        model_trouble = model_charge("TIPE/Saves/save_sleep_trouble.pkl")
+
+        n = min(5, len(self.df))
+        recent_entries = self.df.tail(n)
+        recent_entries = recent_entries.copy()
+
         try:
-            # Chargement des modèles
-            model_quality = model_charge("TIPE/Saves/save_sleep_quality.pkl")
-            model_trouble = model_charge("TIPE/Saves/save_sleep_trouble.pkl")
-            # Prétraitement des données
-            df_quality = preprocecing_user(self.df)
-            df_trouble = preprocecing_user(self.df, "Trouble")
-            # Prediction
-            prediction_quality = model_quality.predict(df_quality)
-            #prediction_trouble = model_trouble.predict(df_trouble)
-            # Affichage des résultats
-            QMessageBox.information(self, "Prédiction", f"Quality : {prediction_quality}\nTrouble : {None}")
+            df_quality = preprocecing_user(recent_entries)
+            print("df_quality shape:", df_quality.shape)
+            print(df_quality.head())
+            pred_qualities = [model_quality.predict(row.values.reshape(1, -1))[0] for _, row in df_quality.iterrows()]
+            # Filtrer les nan ou valeurs non numériques
+            mean_quality = sum(pred_qualities) / len(pred_qualities)
+
+            df_quality.loc[:, 'Quality of Sleep'] = pd.Series(np.round(pred_qualities), index=df_quality.index)
+            df_trouble = preprocecing_user(df_quality, 'Sleep Disorder')
+            pred_trouble = [model_trouble.predict(row.values.reshape(1, -1))[0] for _, row in df_trouble.iterrows()]
+            mean_trouble = sum(pred_trouble) / len(pred_trouble)
+
+            QMessageBox.information(self, "Analyse", f"Score moyen qualité de sommeil : {mean_quality:.2f}\nScore trouble détecté : {mean_trouble:.2f}")
 
         except Exception as e:
-            QMessageBox.critical(self, "Erreur", f"Échec de la prédiction : {str(e)}")
+            QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")
+
         
     def load_csv(self):
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
