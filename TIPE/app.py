@@ -51,7 +51,7 @@ class AddEntryFrom(QDockWidget):
         add_row("BMI Category", bmi); row += 1
 
         disorder = QComboBox()
-        disorder.addItems(["nan", "Insomnia", "Sleep Apnea"])
+        disorder.addItems(["Normal", "Insomnia", "Sleep Apnea"])
         add_row("Sleep Disorder", disorder); row += 1
 
         age = QSpinBox(); age.setRange(0, 120)
@@ -264,8 +264,7 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")
-
-        
+       
     def load_csv(self):
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
         if file:
