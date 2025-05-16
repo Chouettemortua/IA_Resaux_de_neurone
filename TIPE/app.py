@@ -13,7 +13,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
-from AI_Model import Resaux
+from AI_Model import model_charge
+#from AI_Model import preprocecing_user fonction a faire
 
 os.environ["QT_QPA_PLATFORM"] = "xcb"
 
@@ -131,17 +132,25 @@ class MainWindow(QMainWindow):
         self.toolbar.setMovable(False)  # toolbar fixe
         self.addToolBar(self.toolbar)
 
+        analyse_action = QAction(QIcon(), "Analyser", self)
+        analyse_action.triggered.connect(self.analyse_data)
+        self.toolbar.addAction(analyse_action)
+        self.toolbar.addSeparator()
+
         load_action = QAction(QIcon(), "Charger CSV", self)
         load_action.triggered.connect(self.load_csv)
         self.toolbar.addAction(load_action)
+        self.toolbar.addSeparator()
 
         save_action = QAction(QIcon(), "Sauvegarder CSV", self)
         save_action.triggered.connect(self.save_csv)
         self.toolbar.addAction(save_action)
+        self.toolbar.addSeparator()
 
         clear_action = QAction(QIcon(), "Vider la table", self)
         clear_action.triggered.connect(self.clear_table)
         self.toolbar.addAction(clear_action)
+        self.toolbar.addSeparator()
 
         toggle_form_action = QAction(QIcon(), "Afficher/Masquer Formulaire", self)
         toggle_form_action.setCheckable(True)
@@ -150,9 +159,9 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(toggle_form_action)
 
         self.columns = [
-            "Gender", "BMI Category", "Sleep Disorder", "Age", "Sleep Duration",
-            "Physical Activity Level", "Stress Level", "Blood Pressure",
-            "Heart Rate", "Daily Steps", "Occupation"
+            "Gender","Age", "Occupation", "Sleep Duration", "Physical Activity Level",
+            "Stress Level", "BMI Category", "Blood Pressure", "Heart Rate", 
+            "Daily Steps", "Sleep Disorder"
         ]
 
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -205,6 +214,30 @@ class MainWindow(QMainWindow):
         else:
             self.add_entry_form.hide()
             self.splitter.setSizes([self.width(), 0])
+
+    def analyse_data(self):
+        if self.df.empty:
+            QMessageBox.warning(self, "Avertissement", "Aucune donnée à analyser.")
+            return
+        """
+        # Appel du modèle de prédiction
+        try:
+            # Chargement des modèles
+            model_quality = model_charge("TIPE/Saves/save_sleep_quality.pkl")
+            model_trouble = model_charge("TIPE/Saves/save_sleep_trouble.pkl")
+            # Prétraitement des données
+            df_quality = preprocecing_user(self.df)
+            df_trouble = preprocecing_user(self.df, "Trouble")
+            # Prediction
+            prediction_quality = model_quality.predict(df_quality)
+            prediction_trouble = model_trouble.predict(df_trouble)
+            # Affichage des résultats
+            QMessageBox.information(self, "Prédiction", f"Quality : {prediction_quality}\nTrouble : {None}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Échec de la prédiction : {str(e)}")
+        """
+        QMessageBox.information(self, "Prédiction", "Fonctionnalité non implémentée.")
 
     def load_csv(self):
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
