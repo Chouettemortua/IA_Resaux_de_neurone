@@ -275,6 +275,50 @@ def preprocecing(df, on):
 
     return X_train, y_train, X_test, y_test   
 
+def preprocecing_user(df, on=None):
+    """ Prétraite les données """
+
+    def encodage(df):
+        """ Encode les variables catégorielles """
+
+        code = {'Normal': 0, 'Normal Weight':0, 'Overweight': 1, 'Underweight':2, 'Obesity': 3, 'Software Eginneer': 0, 'Doctor': 1, 'Sales Representative': 2, 
+                'Nurse': 3, 'Teacher': 4, 'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10,
+                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1 }
+        
+
+        df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
+        
+        for col in df.select_dtypes('object'):
+            df[col] = df[col].map(code)
+
+        return df
+
+    def imputation(df):
+        """ Impute les valeurs manquantes et supprime les colonnes inutiles """
+        return df.fillna(df.mean())
+    
+    def normalisation(df):
+        """ Normalise les données entre 0 et 1 """
+
+        return df/df.max()
+    
+    def intern(df):
+        df= encodage(df)
+        df = imputation(df)
+
+        if on is None:
+            X = df.drop(columns= on, axis=1)
+        else:
+            X = df
+
+        # Normalize features
+        X = normalisation(X) 
+
+        return X
+
+    return intern(df)
+
 def model_init(path_n, X_train, y_train, X_test, y_test, format, path):
     """ Initialise le modèle """
     y_train = y_train.flatten()
