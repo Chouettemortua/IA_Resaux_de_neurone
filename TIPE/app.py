@@ -13,8 +13,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
-from AI_Model import model_charge
-#from AI_Model import preprocecing_user fonction a faire
+from AI_Model import model_charge, preprocecing_user
+
 
 os.environ["QT_QPA_PLATFORM"] = "xcb"
 
@@ -219,7 +219,7 @@ class MainWindow(QMainWindow):
         if self.df.empty:
             QMessageBox.warning(self, "Avertissement", "Aucune donnée à analyser.")
             return
-        """
+        
         # Appel du modèle de prédiction
         try:
             # Chargement des modèles
@@ -230,15 +230,13 @@ class MainWindow(QMainWindow):
             df_trouble = preprocecing_user(self.df, "Trouble")
             # Prediction
             prediction_quality = model_quality.predict(df_quality)
-            prediction_trouble = model_trouble.predict(df_trouble)
+            #prediction_trouble = model_trouble.predict(df_trouble)
             # Affichage des résultats
             QMessageBox.information(self, "Prédiction", f"Quality : {prediction_quality}\nTrouble : {None}")
 
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Échec de la prédiction : {str(e)}")
-        """
-        QMessageBox.information(self, "Prédiction", "Fonctionnalité non implémentée.")
-
+        
     def load_csv(self):
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
         if file:
