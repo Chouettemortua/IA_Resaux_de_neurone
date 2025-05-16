@@ -226,16 +226,21 @@ def preprocecing(df, on):
     def encodage(df):
         """ Encode les variables catégorielles """
 
-        code = {'Normal': 0, 'Normal Weight':0, 'Overweight': 1, 'Underweight':2, 'Obesity': 3, 'Software Eginneer': 0, 'Doctor': 1, 'Sales Representative': 2, 
-                'Nurse': 3, 'Teacher': 4, 'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10,
-                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1 }
+        code_bmi = {'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obesity': 3}
+        code_gender = {'Male': 0, 'Female': 1}
+        code_occupation = {'Software Engineer': 0, 'Doctor': 1, 'Sales Representative': 2, 'Nurse': 3, 'Teacher': 4,
+                        'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10}
+        code_sleep_disorder = {'Normal': 0, 'Sleep Apnea': 1, 'Insomnia': 2}
         
 
         df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
         df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
         
-        for col in df.select_dtypes('object'):
-            df[col] = df[col].map(code)
+        # Mapper les colonnes catégorielles
+        df['BMI Category'] = df['BMI Category'].map(code_bmi).fillna(-1).astype(int)
+        df['Gender'] = df['Gender'].map(code_gender).fillna(-1).astype(int)
+        df['Occupation'] = df['Occupation'].map(code_occupation).fillna(-1).astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].map(code_sleep_disorder).fillna(-1).astype(int)
 
         return df
 
@@ -279,19 +284,39 @@ def preprocecing_user(df, on=None):
     """ Prétraite les données """
 
     def encodage(df):
-        """ Encode les variables catégorielles """
-
-        code = {'Normal': 0, 'Normal Weight':0, 'Overweight': 1, 'Underweight':2, 'Obesity': 3, 'Software Eginneer': 0, 'Doctor': 1, 'Sales Representative': 2, 
-                'Nurse': 3, 'Teacher': 4, 'Scientist': 5, 'Engineer': 6, 'Lawyer': 7, 'Accountant': 8, 'Salesperson': 9, 'Manager': 10,
-                'Sleep Apnea': 1, 'Insomnia': 2, 'Male': 0, 'Female': 1, 'nan': 1 }
-        
-        df['Blood Pressure'] = df['Blood Pressure'].fillna('0/0').astype(str)
+        code_bmi = {'Normal': 1, 'Overweight': 2, 'Underweight': 3, 'Obesity': 4}
+        code_gender = {'Male': 1, 'Female': 2}
+        code_occupation = {'Software Engineer': 1, 'Doctor': 2, 'Sales Representative': 3, 'Nurse': 4, 'Teacher': 5,
+                        'Scientist': 6, 'Engineer': 7, 'Lawyer': 8, 'Accountant': 9, 'Salesperson': 10, 'Manager': 11, 'Other': 12}
+        code_sleep_disorder = {'Normal': 1, 'Sleep Apnea': 2, 'Insomnia': 3}
 
         df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
-        df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
+        df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
+
+        # Remplacer les valeurs nulles ou "None" dans Sleep Disorder par 'Normal'
+        df['Sleep Disorder'] = df['Sleep Disorder'].replace({'None': 'Normal'})
         
-        for col in df.select_dtypes('object'):
-            df[col] = df[col].map(code)
+        # Mapper les colonnes catégorielles
+        df['BMI Category'] = df['BMI Category'].astype(str).str.strip().map(code_bmi)
+        if df['BMI Category'].isnull().any():
+            raise ValueError("Valeur invalide dans 'BMI Category'. Vérifiez vos entrées.")
+        df['BMI Category'] = df['BMI Category'].astype(int)
+
+        df['Gender']  = df['Gender'].astype(str).str.strip().map(code_gender)
+        if df['Gender'].isnull().any():
+            raise ValueError("Valeur invalide dans 'Gender'. Vérifiez vos entrées.")
+        df['Gender'] = df['Gender'].astype(int)
+
+        df['Occupation'] = df['Occupation'].astype(str).str.strip().map(code_occupation)
+        if df['Occupation'].isnull().any():
+            raise ValueError("Valeur invalide dans 'Occupation'. Vérifiez vos entrées.")
+        df['Occupation'] = df['Occupation'].astype(int)
+
+        df['Sleep Disorder'] = df['Sleep Disorder'].astype(str).str.strip().map(code_sleep_disorder)
+        if df['Sleep Disorder'].isnull().any():
+            raise ValueError("Valeur invalide dans 'Sleep Disorder'. Vérifiez vos entrées.")
+        df['Sleep Disorder'] = df['Sleep Disorder'].astype(int)
+        
 
         return df
 
@@ -305,17 +330,13 @@ def preprocecing_user(df, on=None):
         return df/df.max()
     
     def intern(df):
-        df= encodage(df)
-        df = imputation(df)
-
-        if on is None:
-            X = df
+        if on is not None and on in df.columns:
+            X = df.drop(columns=on, axis=1)
         else:
-            X = df.drop(columns= on, axis=1)
-
-        # Normalize features
-        X = normalisation(X) 
-
+            df= encodage(df)
+            df = imputation(df)
+            X = df
+            X = normalisation(X) 
         return X
 
     return intern(df)
