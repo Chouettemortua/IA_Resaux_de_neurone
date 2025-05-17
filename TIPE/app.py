@@ -269,8 +269,27 @@ class MainWindow(QMainWindow):
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
         if file:
             try:
-                self.df = pd.read_csv(file)
+                temp_df = pd.read_csv(file)
+
+                # Vérification stricte des colonnes attendues
+                expected_columns = set([
+                    "Gender", "Age", "Occupation", "Sleep Duration",
+                    "Physical Activity Level", "Stress Level", "BMI Category",
+                    "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+                ])
+
+                file_columns = set(temp_df.columns)
+
+                missing = expected_columns - file_columns
+                extra = file_columns - expected_columns
+
+                if missing or extra:
+                    raise ValueError(f"Colonnes incorrectes.\nManquantes : {missing}\nInattendues : {extra}")
+
+                # Si toutes les colonnes sont valides, charger
+                self.df = temp_df[sorted(expected_columns)]  # pour garder un ordre cohérent
                 self.refresh_table()
+
             except Exception as e:
                 QMessageBox.critical(self, "Erreur", f"Échec du chargement : {str(e)}")
 
