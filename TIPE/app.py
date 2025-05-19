@@ -4,13 +4,12 @@
 
 import sys
 import os
-import math
 import pandas as pd
 import numpy as np
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QApplication, QMainWindow, QWidget, QVBoxLayout,
     QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
-    QPushButton, QComboBox, QFileDialog, QMessageBox, QFormLayout, QSplitter,
+    QPushButton, QComboBox, QFileDialog, QMessageBox, QSplitter,
     QDockWidget, QGridLayout, QSizePolicy, QDoubleSpinBox, QSpinBox, QGroupBox
 )
 from PyQt6.QtGui import QIcon, QAction
@@ -187,6 +186,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
         self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
+        self.refresh_table()
 
     def add_entry(self, entry_dict):
         expected_columns = [
@@ -302,9 +302,14 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, "Erreur", f"Échec de la sauvegarde : {str(e)}")
 
     def clear_table(self):
-        self.df = pd.DataFrame()
+        self.df = pd.DataFrame(columns=[
+        "Gender", "Age", "Occupation", "Sleep Duration",
+        "Physical Activity Level", "Stress Level", "BMI Category",
+        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+        ])
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
+        self.refresh_table()
 
 
 if __name__ == "__main__":

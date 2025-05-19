@@ -26,3 +26,5 @@ Année 2025
 05/05 : ébauche d'interface utilisateur
 
 12/05 : entrainement résaux sur les sleep Disorder
+
+13/05 - 17/05 : Revisite de l'ui pour la rendre un peu plus propre, Prepocesing pour le coté user, lien entre l'ui et les résaux

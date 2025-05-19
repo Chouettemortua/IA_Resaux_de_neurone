@@ -1,5 +1,18 @@
 A faire :
-    Regarder des truc sur le fléau de la dimension
-    se renseigner sur le fetcher engineering
-    améliorer l'interface utilisateur
-    faire en sorte qu'il y est un retour sur les amélioration utile.
+
+    Prioritaire:
+        Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence
+        Potentielement retirer certaine variable (Blood pressure)
+        Passer les Occupation a seulement deux choix : Working, Not Working 
+        Faire en sorte que le trouble soit différencié pas juste détection d'un problème
+        Faire le retour
+
+    Pour plus tard :
+        Regarder des truc sur le fléau de la dimension
+        se renseigner sur le fetcher engineering
+        faire en sorte qu'il y est un retour sur les amélioration utile.
+        Commenter correctement tout le code
+
+    Optionel fun:
+
+        Rendre l'ui multilingue
