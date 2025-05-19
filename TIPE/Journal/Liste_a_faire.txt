@@ -2,8 +2,8 @@ A faire :
 
     Prioritaire:
         Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence
-        Potentielement retirer certaine variable (Blood pressure)
-        Passer les Occupation a seulement deux choix : Working, Not Working 
+        Fait --- Potentielement retirer certaine variable (Blood pressure)
+        En Cours --- Passer les Occupation a seulement deux choix : Working, Not Working 
         Faire en sorte que le trouble soit différencié pas juste détection d'un problème
         Faire le retour
 
@@ -16,3 +16,4 @@ A faire :
     Optionel fun:
 
         Rendre l'ui multilingue
+        passer sur gradio pour faire un app en ligne : https://www.gradio.app

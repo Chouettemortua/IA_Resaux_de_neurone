@@ -59,7 +59,7 @@ class AddEntryFrom(QDockWidget):
         sleep_duration = QDoubleSpinBox(); sleep_duration.setRange(0.0, 24.0); sleep_duration.setSingleStep(1)
         add_row("Sleep Duration", sleep_duration); row += 1
 
-        physical_activity = QSpinBox(); physical_activity.setRange(0, 100)
+        physical_activity = QSpinBox(); physical_activity.setRange(0, 1440)
         add_row("Physical Activity Level", physical_activity); row += 1
 
         stress = QSpinBox(); stress.setRange(1, 10)
@@ -125,11 +125,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Sleep IA")
         self.resize(1000, 600)
         self.df = pd.DataFrame()
-        self.df = pd.DataFrame(columns=[
-        "Gender", "Age", "Occupation", "Sleep Duration",
+        self.columns = ["Gender", "Age", "Occupation", "Sleep Duration",
         "Physical Activity Level", "Stress Level", "BMI Category",
         "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
-        ])
+        ]
+        self.df = pd.DataFrame(columns=self.columns)
 
         self.init_ui()
 
@@ -164,21 +164,10 @@ class MainWindow(QMainWindow):
         toggle_form_action.triggered.connect(self.toggle_form_visibility)
         self.toolbar.addAction(toggle_form_action)
 
-        self.columns = [
-            "Gender","Age", "Occupation", "Sleep Duration", "Physical Activity Level",
-            "Stress Level", "BMI Category", "Blood Pressure", "Heart Rate", 
-            "Daily Steps", "Sleep Disorder"
-        ]
-
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(len(self.columns))
-        self.table.setHorizontalHeaderLabels(self.columns)
-        header = self.table.horizontalHeader()
-        font = header.font()
-        font.setBold(True)
-        header.setFont(font)
+        self.refresh_table()
         self.splitter.addWidget(self.table)
 
         self.add_entry_form = AddEntryFrom(self.add_entry)
@@ -186,14 +175,9 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.splitter)
         self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
-        self.refresh_table()
 
     def add_entry(self, entry_dict):
-        expected_columns = [
-        "Gender", "Age", "Occupation", "Sleep Duration",
-        "Physical Activity Level", "Stress Level", "BMI Category",
-        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
-    ]
+        expected_columns = self.columns
 
         # Créer une nouvelle ligne conforme à l'ordre attendu
         new_row = {col: entry_dict.get(col, "") for col in expected_columns}
@@ -251,13 +235,13 @@ class MainWindow(QMainWindow):
             df_quality = preprocecing_user(recent_entries)
             #print("df_quality shape:", df_quality.shape)
             #print(df_quality.head())
-            pred_qualities = [model_quality.predict(row.values.reshape(1, -1))[0] for _, row in df_quality.iterrows()]
+            pred_qualities = [model_quality.predict(row.values)[0] for _, row in df_quality.iterrows()]
             # Filtrer les nan ou valeurs non numériques
             mean_quality = sum(pred_qualities) / len(pred_qualities)
 
             df_quality.insert(4, 'Quality of Sleep', pd.Series(np.round(pred_qualities), index=df_quality.index))
             df_trouble = preprocecing_user(df_quality, 'Sleep Disorder')
-            pred_trouble = [model_trouble.predict(row.values.reshape(1, -1))[0] for _, row in df_trouble.iterrows()]
+            pred_trouble = [model_trouble.predict(row.values)[0] for _, row in df_trouble.iterrows()]
             mean_trouble = sum(pred_trouble) / len(pred_trouble)
 
             QMessageBox.information(self, "Analyse", f"Score moyen qualité de sommeil : {mean_quality:.2f}\nScore trouble détecté : {mean_trouble:.2f}")
@@ -272,11 +256,7 @@ class MainWindow(QMainWindow):
                 temp_df = pd.read_csv(file)
 
                 # Vérification stricte des colonnes attendues
-                expected_columns = set([
-                    "Gender", "Age", "Occupation", "Sleep Duration",
-                    "Physical Activity Level", "Stress Level", "BMI Category",
-                    "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
-                ])
+                expected_columns = set(self.columns)
 
                 file_columns = set(temp_df.columns)
 
@@ -287,7 +267,7 @@ class MainWindow(QMainWindow):
                     raise ValueError(f"Colonnes incorrectes.\nManquantes : {missing}\nInattendues : {extra}")
 
                 # Si toutes les colonnes sont valides, charger
-                self.df = temp_df[sorted(expected_columns)]  # pour garder un ordre cohérent
+                self.df = temp_df[self.columns]  # pour garder un ordre cohérent
                 self.refresh_table()
 
             except Exception as e:
@@ -302,11 +282,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.critical(self, "Erreur", f"Échec de la sauvegarde : {str(e)}")
 
     def clear_table(self):
-        self.df = pd.DataFrame(columns=[
-        "Gender", "Age", "Occupation", "Sleep Duration",
-        "Physical Activity Level", "Stress Level", "BMI Category",
-        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
-        ])
+        self.df = pd.DataFrame(columns=self.columns)
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
         self.refresh_table()

@@ -89,13 +89,15 @@ class Neurone:
         print(f"Modèle chargé depuis {filename}")
 
 class Resaux:
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, treshold_fun= lambda x,y: x >= y, treshold_val=0.5):
         """ Initialise le réseau de neurones """
         nb_neurone_couche.reverse()
         self.path = path
         self.W = None
         self.b = None
         self.nb_neurone_couche = nb_neurone_couche 
+        self.treshold_fun = treshold_fun
+        self.treshold_val = treshold_val
         self.L = []
         self.L_t = []  
         self.acc = []
@@ -173,8 +175,14 @@ class Resaux:
             if i % partialsteps == 0:
                 self.L.append(self.log_loss(A, y))
                 self.L_t.append(self.log_loss(self.forward_propagation(X_test), y_test))
-                self.acc.append(accuracy_score(y >= 0.5, self.predict(X).flatten()))
-                self.acc_t.append(accuracy_score(y_test >= 0.5, self.predict(X_test)))
+                if self.treshold_val is not None:
+                    self.acc.append(accuracy_score(self.treshold_fun(y, self.treshold_val) , self.treshold_fun(self.predict(X).flatten(), self.treshold_val)))
+                    self.acc_t.append(accuracy_score(self.treshold_fun(y_test, self.treshold_val) , self.treshold_fun(self.predict(X_test), self.treshold_val)))
+                else:
+                    predict_train = self.predict(X).flatten()
+                    predict_test = self.predict(X_test).flatten()
+                    self.acc.append(accuracy_score(self.treshold_fun(predict_train, y), self.treshold_fun(y, y)))
+                    self.acc_t.append(accuracy_score(self.treshold_fun(predict_test, y_test), self.treshold_fun(y_test, y_test)))
             if i % (partialsteps*100) == 0:
                 if self.path is not None:
                     self.save(self.path, bool_p=False)
@@ -220,45 +228,27 @@ def load(path):
     """ Charge le dataset """
     return pd.read_csv(path)
 
-def preprocecing(df, on):
+def preprocecing(df, on, y_normalisation=True):
     """ Prétraite les données """
 
     def encodage(df):
-        code_bmi = {'Normal': 1, 'Normal Weight': 1, 'Overweight': 2, 'Underweight': 3, 'Obese': 4}
+        """ Encode les variables catégorielles """
+
+        code_bmi = {'Normal':1,'Normal Weight': 1, 'Overweight': 3, 'Underweight': 4, 'Obesity': 5}
         code_gender = {'Male': 1, 'Female': 2}
         code_occupation = {'Software Engineer': 1, 'Doctor': 2, 'Sales Representative': 3, 'Nurse': 4, 'Teacher': 5,
-                        'Scientist': 6, 'Engineer': 7, 'Lawyer': 8, 'Accountant': 9, 'Salesperson': 10, 'Manager': 11, 'Other': 12}
+                        'Scientist': 6, 'Engineer': 7, 'Lawyer': 8, 'Accountant': 9, 'Salesperson': 10, 'Manager': 11}
         code_sleep_disorder = {'Normal': 1, 'Sleep Apnea': 2, 'Insomnia': 3}
+        
 
-        df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
-        df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
-
-        # Remplacer les valeurs nulles ou "None" dans Sleep Disorder par 'Normal'
-        df['Sleep Disorder'] = df['Sleep Disorder'].replace({'None': 'Normal'})
-        df['Sleep Disorder'] = df['Sleep Disorder'].fillna('Normal')
+        df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
         
         # Mapper les colonnes catégorielles
-        #print("BMI uniques reçus :", df['BMI Category'].unique())
-        df['BMI Category'] = df['BMI Category'].astype(str).str.strip().map(code_bmi)
-        if df['BMI Category'].isnull().any():
-            raise ValueError("Valeur invalide dans 'BMI Category'. Vérifiez vos entrées.")
-        df['BMI Category'] = df['BMI Category'].astype(int)
-
-        df['Gender']  = df['Gender'].astype(str).str.strip().map(code_gender)
-        if df['Gender'].isnull().any():
-            raise ValueError("Valeur invalide dans 'Gender'. Vérifiez vos entrées.")
-        df['Gender'] = df['Gender'].astype(int)
-
-        df['Occupation'] = df['Occupation'].astype(str).str.strip().map(code_occupation)
-        if df['Occupation'].isnull().any():
-            raise ValueError("Valeur invalide dans 'Occupation'. Vérifiez vos entrées.")
-        df['Occupation'] = df['Occupation'].astype(int)
-
-        #print("Sleep Disorder uniques reçus :", df['Sleep Disorder'].unique())
-        df['Sleep Disorder'] = df['Sleep Disorder'].astype(str).str.strip().map(code_sleep_disorder)
-        if df['Sleep Disorder'].isnull().any():
-            raise ValueError("Valeur invalide dans 'Sleep Disorder'. Vérifiez vos entrées.")
-        df['Sleep Disorder'] = df['Sleep Disorder'].astype(int)
+        df['BMI Category'] = df['BMI Category'].map(code_bmi).fillna(-1).astype(int)
+        df['Gender'] = df['Gender'].map(code_gender).fillna(-1).astype(int)
+        df['Occupation'] = df['Occupation'].map(code_occupation).fillna(-1).astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].map(code_sleep_disorder).fillna(-1).astype(int)
 
         return df
 
@@ -287,8 +277,9 @@ def preprocecing(df, on):
 
         # Normalize features
         X = normalisation(X)
-        y = normalisation(y) 
-
+        if y_normalisation:
+            # Normalize target variable
+            y = normalisation(y) 
         return X, y
 
     trainset, testset = split_data(df)
@@ -375,12 +366,14 @@ def preprocecing_user(df, on=None):
 
     return intern(df)
 
-def model_init(path_n, X_train, y_train, X_test, y_test, format, path):
+def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_fun=None, treshold_val=None):
     """ Initialise le modèle """
     y_train = y_train.flatten()
     y_test = y_test.flatten()
-
-    model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path)
+    if treshold_fun is None:
+        model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path)
+    else:
+        model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, treshold_fun=treshold_fun, treshold_val=treshold_val)   
     model.save(path_n)
     return model  
 
@@ -498,7 +491,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     
     # Train the model
     if bool_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1,3,3,1], path_n)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1,64,32,16,1], path_n)
     else: 
         sleep = model_charge(path_n)
 
@@ -529,7 +522,7 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     # Uncomment the following line to see the dataset before preprocessing
     # analyse_pre_process(df)
     
-    X_train, y_train, X_test, y_test = preprocecing(df, 'Sleep Disorder')
+    X_train, y_train, X_test, y_test = preprocecing(df, 'Sleep Disorder', y_normalisation=False)
 
     assert not np.any(np.isin(X_train.index, X_test.index))
 
@@ -541,9 +534,13 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     # architecture = [1,30,75,500,1000,500,100,75,30,1] atteint les 0.8 
     # architecture = [1,2000,1500,1000,500,400,100,75,30,1] atteint les 0.85 mais pas stable et long -> set trop petit pour le nombre de neurones
     # architecture = [1, 64, 32, 16, 1] se stabilise à 0.5 sous apprentissage
-
+    def compare_ranges(arr1, arr2):
+        # Broadcasting pour comparer chaque x de arr1 à chaque y de arr2
+        x = arr1[:, None]  # shape (n, 1)
+        y = arr2[None, :]  # shape (1, m)
+        return (x >= y - 1) & (x <= y)
     if boul_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1, 256, 128, 64, 32, 1], path_n)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1, 256, 128, 64, 32, 1], path_n, treshold_fun=compare_ranges, treshold_val=None)
     else: 
         sleep = model_charge(path_n)
 
@@ -565,5 +562,5 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
 if __name__ == "__main__":
     # Main function launcher with arguments
     main_quality_of_sleep(False, False, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
-    main_sleep_trouble(False, False, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
+    main_sleep_trouble(True, True, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
   
