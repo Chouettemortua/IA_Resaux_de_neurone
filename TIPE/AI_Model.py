@@ -89,66 +89,116 @@ class Neurone:
         print(f"Modèle chargé depuis {filename}")
 
 class Resaux:
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, treshold_fun= lambda x,y: x >= y, treshold_val=0.5):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, treshold_val=0.5):
         """ Initialise le réseau de neurones """
-        nb_neurone_couche.reverse()
         self.path = path
         self.W = None
         self.b = None
-        self.nb_neurone_couche = nb_neurone_couche 
-        self.treshold_fun = treshold_fun
-        self.treshold_val = treshold_val
         self.L = []
         self.L_t = []  
         self.acc = []
         self.acc_t = []
+        self.treshold_val = treshold_val
+
+        self.nb_classes = nb_neurone_couche[-1]  # <= capture correcte AVANT toute inversion
+        self.nb_neurone_couche = nb_neurone_couche
 
         if X is not None and y is not None:
             self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
-            self.W = self.W+[np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i-1]) for i in range(1, len(nb_neurone_couche))]
-            self.b = [np.random.randn(n, 1  ) for n in nb_neurone_couche]
+            self.W += [np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i - 1]) for i in range(1, len(nb_neurone_couche))]
+            self.b = [np.random.randn(n, 1) for n in nb_neurone_couche]
             self.train(X, y, X_test, y_test, learning_rate, nb_iter)
+        
+    def softmax(self, z):
+        exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
+        return exp_z / np.sum(exp_z, axis=0, keepdims=True)
 
     def forward_propagation(self, X):
         """ Calcule la propagation avant du réseau de neurones """
         Z = [np.dot(self.W[0], X.T) + self.b[0]]
         A = [1 / (1 + np.exp(-Z[0]))]
-        for i in range(1, len(self.W)):
-            #print(f"W[{i}].shape", self.W[i].shape)
-            #print(f"A[{i-1}].shape", A[i-1].shape)
-            Z.append(self.W[i].dot(A[i-1]) + self.b[i])
-            A.append(1 / (1+np.exp(-Z[i])))
+        if self.nb_classes == 1:
+            for i in range(1, len(self.W)):
+                #print(f"W[{i}].shape", self.W[i].shape)
+                #print(f"A[{i-1}].shape", A[i-1].shape)
+                Z.append(self.W[i].dot(A[i-1]) + self.b[i])
+                A.append(1 / (1+np.exp(-Z[i])))
+        else:
+            for i in range(1, len(self.W) - 1):
+                Z.append(self.W[i].dot(A[i-1]) + self.b[i])
+                A.append(1 / (1+np.exp(-Z[i])))
+
+            # Dernière couche : softmax
+            Z_last = self.W[-1].dot(A[-1]) + self.b[-1]
+            A.append(self.softmax(Z_last))
         return A
     
     def back_propagation(self, A, X, y):
         """ Calcule les gradients de la fonction de perte par rapport aux poids et au biais """
         m = X.shape[0]
-        y = y.reshape(1, -1)  # y doit être (1, m)
-
-        dZ = A[-1] - y  # (1, m)
         dW = []
         db = []
+        if self.nb_classes == 1:
+            y = y.reshape(1, -1)  # y doit être (1, m)
 
-        for i in reversed(range(len(self.W))):
-            A_prev = A[i - 1] if i > 0 else X.T  # (n_l-1, m)
+            dZ = A[-1] - y  # (1, m)
 
-            dW_i = np.dot(dZ, A_prev.T) / m
-            db_i = np.sum(dZ, axis=1, keepdims=True) / m
+            for i in reversed(range(len(self.W))):
+                A_prev = A[i - 1] if i > 0 else X.T  # (n_l-1, m)
 
-            dW.insert(0, dW_i)
-            db.insert(0, db_i)
+                dW_i = np.dot(dZ, A_prev.T) / m
+                db_i = np.sum(dZ, axis=1, keepdims=True) / m
 
-            if i > 0:
-                dA_prev = np.dot(self.W[i].T, dZ)
-                dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # sigmoid prime
+                dW.insert(0, dW_i)
+                db.insert(0, db_i)
+
+                if i > 0:
+                    dA_prev = np.dot(self.W[i].T, dZ)
+                    dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # sigmoid prime
+        else:
+            y_one_hot = np.zeros_like(A[-1])
+            y_one_hot[y, np.arange(m)] = 1
+
+            dZ = A[-1] - y_one_hot
+
+            for i in reversed(range(len(self.W))):
+                A_prev = A[i - 1] if i > 0 else X.T
+
+                dW_i = np.dot(dZ, A_prev.T) / m
+                db_i = np.sum(dZ, axis=1, keepdims=True) / m
+
+                dW.insert(0, dW_i)
+                db.insert(0, db_i)
+
+                if i > 0:
+                    dA_prev = np.dot(self.W[i].T, dZ)
+                    dZ = dA_prev * A[i - 1] * (1 - A[i - 1])
 
         return dW, db
 
+    def cross_entropy_loss(self, A, y):
+        m = y.shape[0]
+        probs = np.clip(A[-1], 1e-15, 1 - 1e-15)
+
+        if self.nb_classes != probs.shape[0]:
+            raise ValueError(f"Nombre de classes incohérent : self.nb_classes={self.nb_classes}, probs.shape={probs.shape}")
+
+        y_one_hot = np.zeros_like(probs)
+        y_one_hot[y, np.arange(m)] = 1
+
+        return -np.sum(y_one_hot * np.log(probs)) / m
+    
     def log_loss(self, A, y):
-        """ Calcule la fonction de perte logistique """
         epsilon = 1e-15
         A = np.clip(A[-1], epsilon, 1 - epsilon)
         return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
+
+    def loss(self, A, y):
+        """ Calcule la fonction de perte logistique """
+        if self.nb_classes == 1:
+            return self.log_loss(A, y)
+        else:
+            return self.cross_entropy_loss(A, y)
 
     def update(self, dW, db, learning_rate):
         """ Met à jour les poids et le biais """
@@ -163,9 +213,18 @@ class Resaux:
             self.b[i] -= learning_rate * db[i]
     
     def predict(self, X):
-        """ Prédiction sur de nouvelles données """
+        """Prédiction sur de nouvelles données, toujours en (n_samples, n_features)."""
+        # Cas vecteur 1D (un seul exemple) → on le passe en shape (1, n_features)
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+
         A = self.forward_propagation(X)
-        return A[-1].flatten()
+        out = A[-1]
+        if self.nb_classes == 1:
+            return (out.flatten() >= self.treshold_val).astype(int)
+        else:
+            # Multi-classes : out.shape == (nb_classes, n_samples)
+            return np.argmax(out, axis=0)
 
     def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement """
@@ -173,16 +232,27 @@ class Resaux:
             A = self.forward_propagation(X)
 
             if i % partialsteps == 0:
-                self.L.append(self.log_loss(A, y))
-                self.L_t.append(self.log_loss(self.forward_propagation(X_test), y_test))
-                if self.treshold_val is not None:
-                    self.acc.append(accuracy_score(self.treshold_fun(y, self.treshold_val) , self.treshold_fun(self.predict(X).flatten(), self.treshold_val)))
-                    self.acc_t.append(accuracy_score(self.treshold_fun(y_test, self.treshold_val) , self.treshold_fun(self.predict(X_test), self.treshold_val)))
+                self.L.append(self.loss(A, y))
+                self.L_t.append(self.loss(self.forward_propagation(X_test), y_test))
+                if self.nb_classes == 1:
+                    # Problème binaire 
+                    y_true_train_bin = (y >= self.treshold_val).astype(int)
+                    y_true_test_bin  = (y_test >= self.treshold_val).astype(int)
+                    y_pred_train     = (self.predict(X) >= self.treshold_val).astype(int)
+                    y_pred_test      = (self.predict(X_test) >= self.treshold_val).astype(int)
+
+                    self.acc.append(accuracy_score(y_true_train_bin, y_pred_train))
+                    self.acc_t.append(accuracy_score(y_true_test_bin,  y_pred_test))
                 else:
-                    predict_train = self.predict(X).flatten()
-                    predict_test = self.predict(X_test).flatten()
-                    self.acc.append(accuracy_score(self.treshold_fun(predict_train, y), self.treshold_fun(y, y)))
-                    self.acc_t.append(accuracy_score(self.treshold_fun(predict_test, y_test), self.treshold_fun(y_test, y_test)))
+                    # Problème multi-classes
+                    y_pred_train = self.predict(X)
+                    y_pred_test  = self.predict(X_test)
+                    y_true_train = y.flatten().astype(int)
+                    y_true_test  = y_test.flatten().astype(int)
+
+                    self.acc.append(accuracy_score(y_true_train, y_pred_train))
+                    self.acc_t.append(accuracy_score(y_true_test,  y_pred_test))
+
             if i % (partialsteps*100) == 0:
                 if self.path is not None:
                     self.save(self.path, bool_p=False)
@@ -201,7 +271,9 @@ class Resaux:
                 'acc': self.acc,
                 'acc_t': self.acc_t,
                 'nb_neurone_couche': self.nb_neurone_couche,
-                'path': self.path
+                'path': self.path,
+                'threshold_val': self.treshold_val,
+                'nb_classes': self.nb_classes,
             }, f)
         courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve"), bool_p)
         if bool_p:
@@ -219,6 +291,8 @@ class Resaux:
             self.acc_t = data['acc_t']
             self.nb_neurone_couche = data['nb_neurone_couche']
             self.path = data['path']
+            self.treshold_val = data['threshold_val']
+            self.nb_classes = data['nb_classes']
         print(f"Modèle chargé depuis {filename}")
 
 
@@ -366,14 +440,11 @@ def preprocecing_user(df, on=None):
 
     return intern(df)
 
-def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_fun=None, treshold_val=None):
+def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_val=None):
     """ Initialise le modèle """
     y_train = y_train.flatten()
     y_test = y_test.flatten()
-    if treshold_fun is None:
-        model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path)
-    else:
-        model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, treshold_fun=treshold_fun, treshold_val=treshold_val)   
+    model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, treshold_val=treshold_val)
     model.save(path_n)
     return model  
 
@@ -418,25 +489,42 @@ def analyse_post_process(X_train, y_train, X_test, y_test):
 
 def affichage_perf(X_train, y_train, X_test, y_test, model):
     """ Affiche les performances du modèle """
-    y_pred_train = model.predict(X_train).flatten()
-    y_pred_test = model.predict(X_test).flatten()
 
-    initial_pred_train = model.acc[0]
-    initial_pred_test = model.acc_t[0]
-    print("Initial Train Accuracy:", initial_pred_train)
-    print("Initial Test Accuracy:", initial_pred_test)
+    predict_train = model.predict(X_train).flatten()
+    predict_test = model.predict(X_test).flatten()
 
+    # Affichage des métriques initiales
+    print("Initial Train Accuracy:", model.acc[0])
+    print("Initial Test Accuracy:", model.acc_t[0])
 
-    print("Train Accuracy:", accuracy_score(y_train >= 0.5, y_pred_train >= 0.5))
-    print("Test Accuracy:", accuracy_score(y_test >= 0.5, y_pred_test >= 0.5))
+    # Sélection de la bonne fonction de seuil
+    if model.treshold_val is None:
+        y_pred_train_class = predict_train
+        y_pred_test_class = predict_test
+        y_train_class = y_train.flatten()
+        y_test_class = y_test.flatten()
+    else:
+        y_pred_train_class = predict_train 
+        y_pred_test_class = predict_test 
+        y_train_class = y_train.flatten() >= model.treshold_val
+        y_test_class = y_test.flatten() >= model.treshold_val
 
-    # Additional metrics
-    print("Train F1 Score:", f1_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
-    print("Test F1 Score:", f1_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
-    print("Train Precision:", precision_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
-    print("Test Precision:", precision_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
-    print("Train Recall:", recall_score(y_train >= 0.5, y_pred_train >= 0.5, average='weighted', zero_division= np.nan))
-    print("Test Recall:", recall_score(y_test >= 0.5, y_pred_test >= 0.5, average='weighted', zero_division= np.nan))
+    try: 
+        # Affichage des métriques
+        print("Train Accuracy:", accuracy_score(y_train_class, y_pred_train_class))
+        print("Test Accuracy:", accuracy_score(y_test_class, y_pred_test_class))
+
+        print("Train F1 Score:", f1_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
+        print("Test F1 Score:", f1_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
+
+        print("Train Precision:", precision_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
+        print("Test Precision:", precision_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
+
+        print("Train Recall:", recall_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
+        print("Test Recall:", recall_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
+    except Exception as e : 
+        print(f"Train shapes mismatch: {y_pred_train_class.shape} vs {y_train_class.shape}")
+        print(f"Test shapes mismatch: {y_pred_test_class.shape} vs {y_test_class.shape}")
 
 def courbe_perf(sleep, path, bool_p=True):
     """ Met les courbes de perte et d'accuracy dans un fichier """
@@ -491,7 +579,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     
     # Train the model
     if bool_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1,64,32,16,1], path_n)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [128,64,32,16,1], path_n, treshold_val=0.5)
     else: 
         sleep = model_charge(path_n)
 
@@ -500,7 +588,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Ami évaluation affichage
 
-    ami_res = round(sleep.predict(np.array(ami))[0], 2)
+    ami_res = sleep.predict(np.array(ami).reshape(1,-1))
     print(f"mons amis: {ami_res}") 
 
     # affichage des performances
@@ -534,22 +622,18 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     # architecture = [1,30,75,500,1000,500,100,75,30,1] atteint les 0.8 
     # architecture = [1,2000,1500,1000,500,400,100,75,30,1] atteint les 0.85 mais pas stable et long -> set trop petit pour le nombre de neurones
     # architecture = [1, 64, 32, 16, 1] se stabilise à 0.5 sous apprentissage
-    def compare_ranges(arr1, arr2):
-        # Broadcasting pour comparer chaque x de arr1 à chaque y de arr2
-        x = arr1[:, None]  # shape (n, 1)
-        y = arr2[None, :]  # shape (1, m)
-        return (x >= y - 1) & (x <= y)
+    
     if boul_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [1, 256, 128, 64, 32, 1], path_n, treshold_fun=compare_ranges, treshold_val=None)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [256, 128, 64, 32, 16, 4], path_n, treshold_val=None)
     else: 
         sleep = model_charge(path_n)
 
     if bool_t:
-        sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n, iteration=5000, precision=1e-2)
+        sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n, iteration=1000, precision=1e-2)
 
     # Ami évaluation affichage
     ami = [0,0.3,0.6,0.47,0.8,0.11,4,0,0.88,0.89,0.5]
-    print(f"ami: {round(sleep.predict(np.array(ami))[0], 2)}")
+    print(f"ami: {(sleep.predict(np.array(ami).reshape(1,-1)))}")
 
     # affichage des performances
 
@@ -562,5 +646,5 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
 if __name__ == "__main__":
     # Main function launcher with arguments
     main_quality_of_sleep(False, False, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
-    main_sleep_trouble(True, True, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
+    main_sleep_trouble(False, False, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
   
