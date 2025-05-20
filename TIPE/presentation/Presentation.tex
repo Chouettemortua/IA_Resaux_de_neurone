@@ -1,8 +1,7 @@
 \documentclass{beamer}
 
-\usetheme{Madrid}
-\usecolortheme{seahorse}
-
+\usetheme{CambridgeUS}
+\usecolortheme{whale}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
@@ -10,6 +9,15 @@
 \usepackage{hyperref}
 \usepackage{bookmark}
 \usepackage{amsmath, amsfonts}
+\setbeamertemplate{navigation symbols}{}
+\useoutertheme{shadow}
+\setbeamercolor{frametitle}{fg=white, bg=blue!30!black}
+\setbeamercolor{section in head/foot}{fg=white,bg=blue!30!black}
+\setbeamercolor{section in head/foot shaded}{fg=gray!70,bg=blue!30}
+\setbeamercolor{subsection in head/foot}{fg=white,bg=blue!40!black}
+\setbeamercolor{subsection in head/foot shaded}{fg=gray!50,bg=blue!10}
+\setbeamertemplate{frametitle}[default]
+
 
 \graphicspath{{../Saves/}}
 
@@ -19,13 +27,23 @@
 
 \begin{document}
 
-\begin{frame}
-  \titlepage
-\end{frame}
+{
+  \setbeamertemplate{headline}{%
+    \leavevmode
+    \hbox{%
+      \begin{beamercolorbox}[wd=\paperwidth,ht=7ex,dp=4ex]{section in head/foot}
+      \end{beamercolorbox}%
+    }%
+  }
+  \begin{frame}
+    \titlepage
+  \end{frame}
+}
 
-\begin{frame}{Plan de la présentation}
+\begin{frame}[plain]{Plan de la présentation}
   \tableofcontents
 \end{frame}
+
 
 \section{Introduction}
 
@@ -85,25 +103,34 @@
 
 \begin{frame}{Extrait du template Python}
   \begin{itemize}
-    \item Classe \texttt{MyModel} : entraînement, évaluation, sauvegarde
+    \item Classe \texttt{Resaux} : entraînement, évaluation, sauvegarde
     \item Modularité : choix du modèle, métriques, loss
   \end{itemize}
-  \includegraphics[width=0.9\textwidth]{screen_code.png}
-  % Capture d'écran de ton code Python
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{screen_class.png}
+    % Capture d'écran de ton code Python
+  \end{center}
 \end{frame}
 
 \section{Résultats et interface}
 
 \begin{frame}{Courbes d'apprentissage}
-  \begin{columns}
-    \column{0.50\textwidth}
-    \includegraphics[width=\linewidth]{curve_sleep_quality.png}
-    \centering{\tiny Courbe d'accuracy}
+    \begin{center}
 
-    \column{0.50\textwidth}
-    \includegraphics[width=\linewidth]{curve_sleep_trouble.png}
-    \centering{\tiny Courbe de loss}
-  \end{columns}
+      \begin{minipage}{0.7\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{curve_sleep_quality.png}
+        
+        {\tiny Courbe d'accuracy}
+      \end{minipage}
+
+      \begin{minipage}{0.7\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{curve_sleep_trouble.png}
+        
+        {\tiny Courbe de loss}
+      \end{minipage}
+    \end{center}
 \end{frame}
 
 \begin{frame}{Métriques de performance}
@@ -125,8 +152,10 @@
     \item Entrée de données manuelle
     \item Prédiction affichée à l'utilisateur
   \end{itemize}
-  \includegraphics[width=0.8\textwidth]{screen_UI.png}
-  % Capture d'écran de ton interface
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{screen_UI.png}
+    % Capture d'écran de ton interface
+  \end{center}
 \end{frame}
 
 \section{Discussion}
