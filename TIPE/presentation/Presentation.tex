@@ -13,7 +13,7 @@
 
 \graphicspath{{../Saves/}}
 
-\title[TIPE - Cycles et Boucles]{Analyse de la qualité du sommeil à l'aide de l'IA}
+\title[TIPE - Cycles et Boucles]{Analyse du sommeil à l'aide de l'IA}
 \author{Ewann Roche}
 \date{\today}
 
@@ -63,10 +63,9 @@
 
 \begin{frame}{Prétraitement des données}
   \begin{itemize}
-    \item Nettoyage : valeurs manquantes, conversion catégories
-    \item Encodage : variables nominales vers numériques
-    \item Normalisation si nécessaire
-    \item Suppression temporaire du champ \texttt{Sleep Disorder} comme label
+    \item Nettoyage : completion valeurs manquantes
+    \item Encodage : transformation des variables vers des valeurs numériques et suppression des catégories non pertinentes
+    \item Normalisation : mise à l'échelle des données
   \end{itemize}
 \end{frame}
 
@@ -79,7 +78,7 @@
       \item \textbf{Binaire} : bon / mauvais sommeil
       \item \textbf{Multiclasse} : insomnie, apnée, aucun
     \end{itemize}
-    \item Architecture : Réseau de neurones maison (MLP simple)
+    \item Architecture : Réseau de neurones multicouches
     \item Codé avec une classe Python modulable
   \end{itemize}
 \end{frame}
@@ -97,11 +96,11 @@
 
 \begin{frame}{Courbes d'apprentissage}
   \begin{columns}
-    \column{0.48\textwidth}
+    \column{0.50\textwidth}
     \includegraphics[width=\linewidth]{curve_sleep_quality.png}
     \centering{\tiny Courbe d'accuracy}
 
-    \column{0.48\textwidth}
+    \column{0.50\textwidth}
     \includegraphics[width=\linewidth]{curve_sleep_trouble.png}
     \centering{\tiny Courbe de loss}
   \end{columns}
@@ -117,13 +116,12 @@
     \begin{itemize}
       \item F1-score : 0.78, précision : 0.75, rappel : 0.79
     \end{itemize}
-    \item Visualisation : matrices de confusion (à insérer)
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Interface utilisateur}
   \begin{itemize}
-    \item Interface graphique codée maison (PyQt / Tkinter ?)
+    \item Interface graphique (PyQt)
     \item Entrée de données manuelle
     \item Prédiction affichée à l'utilisateur
   \end{itemize}
