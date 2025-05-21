@@ -49,10 +49,6 @@ class AddEntryFrom(QDockWidget):
         bmi.addItems(["Normal", "Overweight", "Underweight", "Obese"])
         add_row("BMI Category", bmi); row += 1
 
-        disorder = QComboBox()
-        disorder.addItems(["Normal", "Insomnia", "Sleep Apnea"])
-        add_row("Sleep Disorder", disorder); row += 1
-
         age = QSpinBox(); age.setRange(0, 120)
         add_row("Age", age); row += 1
 
@@ -127,7 +123,7 @@ class MainWindow(QMainWindow):
         self.df = pd.DataFrame()
         self.columns = ["Gender", "Age", "Occupation", "Sleep Duration",
         "Physical Activity Level", "Stress Level", "BMI Category",
-        "Blood Pressure", "Heart Rate", "Daily Steps", "Sleep Disorder"
+        "Blood Pressure", "Heart Rate", "Daily Steps"
         ]
         self.df = pd.DataFrame(columns=self.columns)
 
@@ -240,7 +236,7 @@ class MainWindow(QMainWindow):
             mean_quality = sum(pred_qualities) / len(pred_qualities)
 
             df_quality.insert(4, 'Quality of Sleep', pd.Series(np.round(pred_qualities), index=df_quality.index))
-            df_trouble = preprocecing_user(df_quality, 'Sleep Disorder')
+            df_trouble = df_quality.copy()
             pred_trouble = [model_trouble.predict(row.values)[0] for _, row in df_trouble.iterrows()]
             mean_trouble = sum(pred_trouble) / len(pred_trouble)
 
