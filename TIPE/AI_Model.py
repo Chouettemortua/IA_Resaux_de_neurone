@@ -346,8 +346,9 @@ def preprocecing(df, on, y_normalisation=True):
         df= encodage(df)
         df = imputation(df)
 
-        X = df.drop(columns= on, axis=1)
-        y = df[on].values.reshape(-1, 1)
+        for col in on:
+            X = df.drop(columns= on, axis=1)
+        y = df[on[0]].values.reshape(-1, 1)
 
         # Normalize features
         X = normalisation(X)
@@ -376,10 +377,7 @@ def preprocecing_user(df, on=None):
         df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
         df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
 
-        # Remplacer les valeurs nulles ou "None" dans Sleep Disorder par 'Normal'
-        df['Sleep Disorder'] = df['Sleep Disorder'].replace({'None': 'Normal'})
-        df['Sleep Disorder'] = df['Sleep Disorder'].fillna('Normal')
-        
+
         # Mapper les colonnes catégorielles
         #print("BMI uniques reçus :", df['BMI Category'].unique())
         df['BMI Category'] = df['BMI Category'].astype(str).str.strip().map(code_bmi)
@@ -396,12 +394,6 @@ def preprocecing_user(df, on=None):
         if df['Occupation'].isnull().any():
             raise ValueError("Valeur invalide dans 'Occupation'. Vérifiez vos entrées.")
         df['Occupation'] = df['Occupation'].astype(int)
-
-        #print("Sleep Disorder uniques reçus :", df['Sleep Disorder'].unique())
-        df['Sleep Disorder'] = df['Sleep Disorder'].astype(str).str.strip().map(code_sleep_disorder)
-        if df['Sleep Disorder'].isnull().any():
-            raise ValueError("Valeur invalide dans 'Sleep Disorder'. Vérifiez vos entrées.")
-        df['Sleep Disorder'] = df['Sleep Disorder'].astype(int)
         
 
         return df
@@ -420,6 +412,7 @@ def preprocecing_user(df, on=None):
             df_ref = df_ref.drop(columns=on, axis=1)
         else:
             df_ref = df_ref.drop(columns=['Quality of Sleep'], axis=1)
+            df_ref = df_ref.drop(columns=['Sleep Disorder'], axis=1)
 
         df_ref = encodage(df_ref)
         df_ref = imputation(df_ref)
@@ -563,14 +556,14 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Define ami
 
-    ami = [0,0.3,0.6,0.47,0.11,4,0,0.88,0.89,0.5,0]
+    ami = [0,0.3,0.6,0.47,0.11,4,0,0.88,0.89,0.5]
 
     #Preprocessing
 
     # Uncomment the following line to see the dataset before preprocessing
     # analyse_pre_process(df)
     
-    X_train, y_train, X_test, y_test = preprocecing(df, 'Quality of Sleep')
+    X_train, y_train, X_test, y_test = preprocecing(df, ['Quality of Sleep', 'Sleep Disorder'], y_normalisation=True)
 
     assert not np.any(np.isin(X_train.index, X_test.index))
 
@@ -579,7 +572,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     
     # Train the model
     if bool_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [128,64,32,16,1], path_n, treshold_val=0.5)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [256,128,64,32,16,1], path_n, treshold_val=0.5)
     else: 
         sleep = model_charge(path_n)
 
@@ -610,7 +603,7 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     # Uncomment the following line to see the dataset before preprocessing
     # analyse_pre_process(df)
     
-    X_train, y_train, X_test, y_test = preprocecing(df, 'Sleep Disorder', y_normalisation=False)
+    X_train, y_train, X_test, y_test = preprocecing(df, ['Sleep Disorder'], y_normalisation=False)
 
     assert not np.any(np.isin(X_train.index, X_test.index))
 
