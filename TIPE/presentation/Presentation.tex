@@ -31,7 +31,7 @@
   \setbeamertemplate{headline}{%
     \leavevmode
     \hbox{%
-      \begin{beamercolorbox}[wd=\paperwidth,ht=7ex,dp=4ex]{section in head/foot}
+      \begin{beamercolorbox}[wd=\paperwidth,ht=2ex,dp=2ex]{section in head/foot}
       \end{beamercolorbox}%
     }%
   }
@@ -41,9 +41,18 @@
 }
 
 \begin{frame}[plain]{Plan de la présentation}
-  \tableofcontents
-\end{frame}
 
+  \vspace*{2.5cm}
+
+  \begin{center}
+    \tableofcontents
+  \end{center}
+
+  \vspace*{2.5cm}
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2ex,dp=0.1ex,center]{author in head/foot}
+    \usebeamertemplate*{footline}
+  \end{beamercolorbox}
+\end{frame}
 
 \section{Introduction}
 
@@ -65,6 +74,8 @@
     \item Boucle utilisateur : collecte → IA → retour personnalisé
   \end{itemize}
 \end{frame}
+
+\section{Contexte et données}
 
 \begin{frame}{Présentation du dataset}
   \begin{itemize}
@@ -120,15 +131,11 @@
       \begin{minipage}{0.7\linewidth}
         \centering
         \includegraphics[width=\linewidth]{curve_sleep_quality.png}
-        
-        {\tiny Courbe d'accuracy}
       \end{minipage}
 
       \begin{minipage}{0.7\linewidth}
         \centering
         \includegraphics[width=\linewidth]{curve_sleep_trouble.png}
-        
-        {\tiny Courbe de loss}
       \end{minipage}
     \end{center}
 \end{frame}
@@ -153,7 +160,7 @@
     \item Prédiction affichée à l'utilisateur
   \end{itemize}
   \begin{center}
-    \includegraphics[width=0.8\textwidth]{screen_UI.png}
+    \includegraphics[width=0.7\textwidth]{screen_UI.png}
     % Capture d'écran de ton interface
   \end{center}
 \end{frame}
