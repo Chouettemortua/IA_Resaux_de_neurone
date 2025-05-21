@@ -28,3 +28,5 @@ Année 2025
 12/05 : entrainement résaux sur les sleep Disorder
 
 13/05 - 17/05 : Revisite de l'ui pour la rendre un peu plus propre, Prepocesing pour le coté user, lien entre l'ui et les résaux
+
+20/05 - 22/05 : amélioration des logique, planification des prochaine étape, création d'un début de beamer pour présentation
