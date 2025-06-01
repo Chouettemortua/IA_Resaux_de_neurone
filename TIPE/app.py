@@ -240,7 +240,23 @@ class MainWindow(QMainWindow):
             pred_trouble = [model_trouble.predict(row.values)[0] for _, row in df_trouble.iterrows()]
             mean_trouble = sum(pred_trouble) / len(pred_trouble)
 
-            QMessageBox.information(self, "Analyse", f"Score moyen qualité de sommeil : {mean_quality:.2f}\nScore trouble détecté : {mean_trouble:.2f}")
+            # Mapping des classes de trouble du sommeil
+            labels_trouble = {
+                1: "Normal (pas de trouble)",
+                2: "Apnée du sommeil",
+                3: "Insomnie"
+            }
+
+            # Calcul de la classe dominante moyenne
+            classe_moyenne_trouble = round(mean_trouble)
+            label_trouble = labels_trouble.get(classe_moyenne_trouble, "Inconnu")
+
+            QMessageBox.information(
+                self,
+                "Analyse",
+                f"Score moyen qualité de sommeil : {mean_quality * 100:.2f}%\n"
+                f"Trouble du sommeil détecté : {label_trouble}\n"
+            )
 
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")

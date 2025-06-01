@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
+from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
 import pickle
 from tqdm import tqdm 
@@ -89,7 +90,7 @@ class Neurone:
         print(f"Modèle chargé depuis {filename}")
 
 class Resaux:
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, treshold_val=0.5):
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, threshold_val=0.5, qt=None):
         """ Initialise le réseau de neurones """
         self.path = path
         self.W = None
@@ -98,81 +99,88 @@ class Resaux:
         self.L_t = []  
         self.acc = []
         self.acc_t = []
-        self.treshold_val = treshold_val
+        self.threshold_val = threshold_val
 
-        self.nb_classes = nb_neurone_couche[-1]  # <= capture correcte AVANT toute inversion
+        self.nb_classes = nb_neurone_couche[-1]  
         self.nb_neurone_couche = nb_neurone_couche
+
+        self.qt = qt
+        self.is_regression = self.qt is not None and self.nb_classes == 1
+
+        if self.qt is not None and nb_neurone_couche[-1] != 1:
+            raise ValueError("Régression autorisée uniquement si la dernière couche contient 1 neurone (nb_classes == 1)")
 
         if X is not None and y is not None:
             self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
             self.W += [np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i - 1]) for i in range(1, len(nb_neurone_couche))]
             self.b = [np.random.randn(n, 1) for n in nb_neurone_couche]
             self.train(X, y, X_test, y_test, learning_rate, nb_iter)
-        
+
+    def MSE(self, A, y):
+        """ Calcule l'erreur quadratique moyenne """
+        return np.mean((A[-1].flatten() - y.flatten()) ** 2)   
+    
     def softmax(self, z):
         exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
         return exp_z / np.sum(exp_z, axis=0, keepdims=True)
 
+    def log_loss(self, A, y):
+            epsilon = 1e-15
+            A = np.clip(A[-1], epsilon, 1 - epsilon)
+            return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
+    
     def forward_propagation(self, X):
         """ Calcule la propagation avant du réseau de neurones """
         Z = [np.dot(self.W[0], X.T) + self.b[0]]
-        A = [1 / (1 + np.exp(-Z[0]))]
-        if self.nb_classes == 1:
-            for i in range(1, len(self.W)):
-                #print(f"W[{i}].shape", self.W[i].shape)
-                #print(f"A[{i-1}].shape", A[i-1].shape)
-                Z.append(self.W[i].dot(A[i-1]) + self.b[i])
-                A.append(1 / (1+np.exp(-Z[i])))
-        else:
-            for i in range(1, len(self.W) - 1):
-                Z.append(self.W[i].dot(A[i-1]) + self.b[i])
-                A.append(1 / (1+np.exp(-Z[i])))
+        A = [1 / (1 + np.exp(-Z[0]))]  # Activation sigmoïde pour la première couche
 
-            # Dernière couche : softmax
-            Z_last = self.W[-1].dot(A[-1]) + self.b[-1]
-            A.append(self.softmax(Z_last))
+        for i in range(1, len(self.W) - 1):
+            Z.append(self.W[i].dot(A[i - 1]) + self.b[i])
+            A.append(1 / (1 + np.exp(-Z[i])))
+
+        # Dernière couche
+        Z_last = self.W[-1].dot(A[-1]) + self.b[-1]
+        Z.append(Z_last)
+
+        if self.is_regression:
+            A.append(Z_last)  # Pas d'activation en sortie pour la régression
+        elif self.nb_classes == 1:
+            A.append(1 / (1 + np.exp(-Z_last)))  # Sigmoïde pour classification binaire
+        else:
+            A.append(self.softmax(Z_last))  # Softmax pour classification multiclasse
+
         return A
     
     def back_propagation(self, A, X, y):
-        """ Calcule les gradients de la fonction de perte par rapport aux poids et au biais """
+        """ Calcule les gradients de la fonction de perte par rapport aux poids et biais """
         m = X.shape[0]
         dW = []
         db = []
-        if self.nb_classes == 1:
-            y = y.reshape(1, -1)  # y doit être (1, m)
 
-            dZ = A[-1] - y  # (1, m)
-
-            for i in reversed(range(len(self.W))):
-                A_prev = A[i - 1] if i > 0 else X.T  # (n_l-1, m)
-
-                dW_i = np.dot(dZ, A_prev.T) / m
-                db_i = np.sum(dZ, axis=1, keepdims=True) / m
-
-                dW.insert(0, dW_i)
-                db.insert(0, db_i)
-
-                if i > 0:
-                    dA_prev = np.dot(self.W[i].T, dZ)
-                    dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # sigmoid prime
+        if self.is_regression:
+            # y shape = (m,) → reshape to (1, m)
+            dZ = A[-1] - y.reshape(1, -1)
+        elif self.nb_classes == 1:
+            y = y.reshape(1, -1)
+            dZ = A[-1] - y
         else:
             y_one_hot = np.zeros_like(A[-1])
             y_one_hot[y, np.arange(m)] = 1
-
             dZ = A[-1] - y_one_hot
 
-            for i in reversed(range(len(self.W))):
-                A_prev = A[i - 1] if i > 0 else X.T
+        # Backpropagation générique
+        for i in reversed(range(len(self.W))):
+            A_prev = A[i - 1] if i > 0 else X.T
 
-                dW_i = np.dot(dZ, A_prev.T) / m
-                db_i = np.sum(dZ, axis=1, keepdims=True) / m
+            dW_i = np.dot(dZ, A_prev.T) / m
+            db_i = np.sum(dZ, axis=1, keepdims=True) / m
 
-                dW.insert(0, dW_i)
-                db.insert(0, db_i)
+            dW.insert(0, dW_i)
+            db.insert(0, db_i)
 
-                if i > 0:
-                    dA_prev = np.dot(self.W[i].T, dZ)
-                    dZ = dA_prev * A[i - 1] * (1 - A[i - 1])
+            if i > 0:
+                dA_prev = np.dot(self.W[i].T, dZ)
+                dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # Dérivée de sigmoïde
 
         return dW, db
 
@@ -187,15 +195,12 @@ class Resaux:
         y_one_hot[y, np.arange(m)] = 1
 
         return -np.sum(y_one_hot * np.log(probs)) / m
-    
-    def log_loss(self, A, y):
-        epsilon = 1e-15
-        A = np.clip(A[-1], epsilon, 1 - epsilon)
-        return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
 
     def loss(self, A, y):
         """ Calcule la fonction de perte logistique """
-        if self.nb_classes == 1:
+        if self.is_regression:
+            return self.MSE(A, y)
+        elif self.nb_classes == 1:
             return self.log_loss(A, y)
         else:
             return self.cross_entropy_loss(A, y)
@@ -220,11 +225,26 @@ class Resaux:
 
         A = self.forward_propagation(X)
         out = A[-1]
-        if self.nb_classes == 1:
-            return (out.flatten() >= self.treshold_val).astype(int)
+        if self.is_regression:
+            return self.qt.inverse_transform(out.T).flatten()
+        elif self.nb_classes == 1:
+            return (out.flatten() >= self.threshold_val).astype(int)
         else:
             # Multi-classes : out.shape == (nb_classes, n_samples)
             return np.argmax(out, axis=0)
+
+    def evaluate_metrics(self, y, y_pred, y_test, y_pred_test):
+        if self.is_regression:
+            y = self.qt.inverse_transform(y.reshape(-1, 1)).flatten()
+            y_test  = self.qt.inverse_transform(y_test.reshape(-1, 1)).flatten()
+            self.acc.append(r2_score(y, y_pred))
+            self.acc_t.append(r2_score(y_test, y_pred_test))
+        elif self.nb_classes == 1:
+            self.acc.append(accuracy_score((y >= self.threshold_val).astype(int), y_pred))
+            self.acc_t.append(accuracy_score((y_test >= self.threshold_val).astype(int), y_pred_test))
+        else:
+            self.acc.append(accuracy_score(y.flatten().astype(int), y_pred))
+            self.acc_t.append(accuracy_score(y_test.flatten().astype(int), y_pred_test))
 
     def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement """
@@ -234,24 +254,9 @@ class Resaux:
             if i % partialsteps == 0:
                 self.L.append(self.loss(A, y))
                 self.L_t.append(self.loss(self.forward_propagation(X_test), y_test))
-                if self.nb_classes == 1:
-                    # Problème binaire 
-                    y_true_train_bin = (y >= self.treshold_val).astype(int)
-                    y_true_test_bin  = (y_test >= self.treshold_val).astype(int)
-                    y_pred_train     = (self.predict(X) >= self.treshold_val).astype(int)
-                    y_pred_test      = (self.predict(X_test) >= self.treshold_val).astype(int)
-
-                    self.acc.append(accuracy_score(y_true_train_bin, y_pred_train))
-                    self.acc_t.append(accuracy_score(y_true_test_bin,  y_pred_test))
-                else:
-                    # Problème multi-classes
-                    y_pred_train = self.predict(X)
-                    y_pred_test  = self.predict(X_test)
-                    y_true_train = y.flatten().astype(int)
-                    y_true_test  = y_test.flatten().astype(int)
-
-                    self.acc.append(accuracy_score(y_true_train, y_pred_train))
-                    self.acc_t.append(accuracy_score(y_true_test,  y_pred_test))
+                y_pred_train = self.predict(X)
+                y_pred_test = self.predict(X_test)
+                self.evaluate_metrics(y, y_pred_train, y_test, y_pred_test)
 
             if i % (partialsteps*100) == 0:
                 if self.path is not None:
@@ -272,8 +277,10 @@ class Resaux:
                 'acc_t': self.acc_t,
                 'nb_neurone_couche': self.nb_neurone_couche,
                 'path': self.path,
-                'threshold_val': self.treshold_val,
+                'threshold_val': self.threshold_val,
                 'nb_classes': self.nb_classes,
+                'qt': self.qt,
+                'is_regression': self.is_regression
             }, f)
         courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve"), bool_p)
         if bool_p:
@@ -291,8 +298,10 @@ class Resaux:
             self.acc_t = data['acc_t']
             self.nb_neurone_couche = data['nb_neurone_couche']
             self.path = data['path']
-            self.treshold_val = data['threshold_val']
+            self.threshold_val = data['threshold_val']
             self.nb_classes = data['nb_classes']
+            self.qt = data['qt'] if 'qt' in data else None
+            self.is_regression = data['is_regression'] if 'is_regression' in data else False
         print(f"Modèle chargé depuis {filename}")
 
 
@@ -433,11 +442,11 @@ def preprocecing_user(df, on=None):
 
     return intern(df)
 
-def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_val=None):
+def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_val=None, qt=None):
     """ Initialise le modèle """
     y_train = y_train.flatten()
     y_test = y_test.flatten()
-    model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, treshold_val=treshold_val)
+    model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, threshold_val=treshold_val, qt=qt)
     model.save(path_n)
     return model  
 
@@ -480,49 +489,75 @@ def analyse_post_process(X_train, y_train, X_test, y_test):
     print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
     print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
 
-def affichage_perf(X_train, y_train, X_test, y_test, model):
-    """ Affiche les performances du modèle """
+def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
+    """ Affiche automatiquement les métriques selon le type du modèle (régression, binaire, ou multi-classes) """
 
-    predict_train = model.predict(X_train).flatten()
-    predict_test = model.predict(X_test).flatten()
+    y_train_true = y_train.flatten()
+    y_test_true = y_test.flatten()
 
-    # Affichage des métriques initiales
-    print("Initial Train Accuracy:", model.acc[0])
-    print("Initial Test Accuracy:", model.acc_t[0])
+    # Prédictions
+    pred_train = model.predict(X_train).flatten()
+    pred_test = model.predict(X_test).flatten()
 
-    # Sélection de la bonne fonction de seuil
-    if model.treshold_val is None:
-        y_pred_train_class = predict_train
-        y_pred_test_class = predict_test
-        y_train_class = y_train.flatten()
-        y_test_class = y_test.flatten()
+    # === CAS RÉGRESSION ===
+    if model.nb_classes == 1 and qt is not None:
+        y_train_true = qt.inverse_transform(y_train_true.reshape(-1, 1)).flatten()
+        y_test_true  = qt.inverse_transform(y_test_true.reshape(-1, 1)).flatten()
+        print("=== Régression - Train ===")
+        print(f"MSE: {mean_squared_error(y_train_true, pred_train):.4f}")
+        print(f"MAE: {mean_absolute_error(y_train_true, pred_train):.4f}")
+        print(f"R²:  {r2_score(y_train_true, pred_train):.4f}\n")
+
+        print("=== Régression - Test ===")
+        print(f"MSE: {mean_squared_error(y_test_true, pred_test):.4f}")
+        print(f"MAE: {mean_absolute_error(y_test_true, pred_test):.4f}")
+        print(f"R²:  {r2_score(y_test_true, pred_test):.4f}")
+
+    # === CAS CLASSIFICATION BINAIRE ===
+    elif model.nb_classes == 1:
+        y_train_bin = (y_train_true >= model.treshold_val).astype(int)
+        y_test_bin  = (y_test_true >= model.treshold_val).astype(int)
+
+        print("=== Classification binaire ===")
+        print(f"Train Accuracy:  {accuracy_score(y_train_bin, pred_train):.4f}")
+        print(f"Test Accuracy:   {accuracy_score(y_test_bin, pred_test):.4f}")
+        print(f"Train F1 Score:  {f1_score(y_train_bin, pred_train):.4f}")
+        print(f"Test F1 Score:   {f1_score(y_test_bin, pred_test):.4f}")
+        print(f"Train Precision: {precision_score(y_train_bin, pred_train):.4f}")
+        print(f"Test Precision:  {precision_score(y_test_bin, pred_test):.4f}")
+        print(f"Train Recall:    {recall_score(y_train_bin, pred_train):.4f}")
+        print(f"Test Recall:     {recall_score(y_test_bin, pred_test):.4f}")
+
+    # === CAS CLASSIFICATION MULTI-CLASSES ===
     else:
-        y_pred_train_class = predict_train 
-        y_pred_test_class = predict_test 
-        y_train_class = y_train.flatten() >= model.treshold_val
-        y_test_class = y_test.flatten() >= model.treshold_val
+        y_train_int = y_train_true.astype(int)
+        y_test_int  = y_test_true.astype(int)
 
-    try: 
-        # Affichage des métriques
-        print("Train Accuracy:", accuracy_score(y_train_class, y_pred_train_class))
-        print("Test Accuracy:", accuracy_score(y_test_class, y_pred_test_class))
-
-        print("Train F1 Score:", f1_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
-        print("Test F1 Score:", f1_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
-
-        print("Train Precision:", precision_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
-        print("Test Precision:", precision_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
-
-        print("Train Recall:", recall_score(y_train_class, y_pred_train_class, average='weighted', zero_division=np.nan))
-        print("Test Recall:", recall_score(y_test_class, y_pred_test_class, average='weighted', zero_division=np.nan))
-    except Exception as e : 
-        print(f"Train shapes mismatch: {y_pred_train_class.shape} vs {y_train_class.shape}")
-        print(f"Test shapes mismatch: {y_pred_test_class.shape} vs {y_test_class.shape}")
+        print("=== Classification multi-classes ===")
+        print(f"Train Accuracy:  {accuracy_score(y_train_int, pred_train):.4f}")
+        print(f"Test Accuracy:   {accuracy_score(y_test_int, pred_test):.4f}")
+        print(f"Train F1 Score:  {f1_score(y_train_int, pred_train, average='weighted'):.4f}")
+        print(f"Test F1 Score:   {f1_score(y_test_int, pred_test, average='weighted'):.4f}")
+        print(f"Train Precision: {precision_score(y_train_int, pred_train, average='weighted'):.4f}")
+        print(f"Test Precision:  {precision_score(y_test_int, pred_test, average='weighted'):.4f}")
+        print(f"Train Recall:    {recall_score(y_train_int, pred_train, average='weighted'):.4f}")
+        print(f"Test Recall:     {recall_score(y_test_int, pred_test, average='weighted'):.4f}")
 
 def courbe_perf(sleep, path, bool_p=True):
-    """ Met les courbes de perte et d'accuracy dans un fichier """
+    """ Met les courbes de perte et de performance dans un fichier """
     plt.figure(figsize=(12, 4))
 
+    # Titre et label dynamique selon le type de modèle
+    if sleep.is_regression:
+        acc_label = "R²"
+        acc_title = "Courbe de R²"
+        acc_ylabel = "R² score"
+    else:
+        acc_label = "accuracy"
+        acc_title = "Courbe d'accuracy"
+        acc_ylabel = "Accuracy"
+
+    # Perte (Loss)
     plt.subplot(1, 2, 1)
     plt.plot(sleep.L, label="train loss")
     plt.plot(sleep.L_t, label="test loss")
@@ -531,17 +566,20 @@ def courbe_perf(sleep, path, bool_p=True):
     plt.xlabel("Itérations")
     plt.ylabel("Loss")
 
+    # Performance (Accuracy ou R²)
     plt.subplot(1, 2, 2)
-    plt.plot(sleep.acc, label="train acc")
-    plt.plot(sleep.acc_t, label="test acc")
+    plt.plot(sleep.acc, label=f"train {acc_label}")
+    plt.plot(sleep.acc_t, label=f"test {acc_label}")
     plt.legend()
-    plt.title("Courbe d'accuracy")
+    plt.title(acc_title)
     plt.xlabel("Itérations")
-    plt.ylabel("Acc")
+    plt.ylabel(acc_ylabel)
 
+    plt.tight_layout()
     plt.savefig(path)
+
     if bool_p:
-        print("Courbes sauvegardée dans ", path)
+        print("Courbes sauvegardées dans", path)
 
 
 # Fonctions principales
@@ -569,10 +607,15 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Uncomment the following line to see the dataset after preprocessing
     # analyse_post_process(X_train, y_train, X_test, y_test)
+
+    # Transformer y_train / y_test avec QuantileTransformer
+    qt = QuantileTransformer(output_distribution='normal', random_state=42)
+    y_train = qt.fit_transform(y_train.reshape(-1, 1)).flatten()
+    y_test = qt.transform(y_test.reshape(-1, 1)).flatten()
     
     # Train the model
     if bool_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [256,128,64,32,16,1], path_n, treshold_val=0.5)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [64,32,16,1], path_n, treshold_val=0.5, qt=qt)
     else: 
         sleep = model_charge(path_n)
 
@@ -581,12 +624,13 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Ami évaluation affichage
 
-    ami_res = sleep.predict(np.array(ami).reshape(1,-1))
-    print(f"mons amis: {ami_res}") 
+    ami_in = np.array(ami).reshape(1,-1)
+    ami_pred = sleep.predict(ami_in)[-1].flatten()
+    print(f"mons amis: {ami_pred}") 
 
     # affichage des performances
 
-    affichage_perf(X_train, y_train, X_test, y_test, sleep)
+    affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)
 
     #courbe_perf(sleep)
     if bool_c or bool_t:     
@@ -638,6 +682,6 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
 
 if __name__ == "__main__":
     # Main function launcher with arguments
-    main_quality_of_sleep(False, False, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
+    main_quality_of_sleep(False, True, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
     main_sleep_trouble(False, False, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
   
