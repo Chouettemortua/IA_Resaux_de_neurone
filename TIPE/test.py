@@ -21,3 +21,33 @@ plt.xlabel('Genre')
 plt.ylabel('Fréquence')
 plt.grid(True)
 plt.show()
+
+
+def recommander_améliorations(model, input_row, features, non_modifiables):
+    base_pred = model.predict(input_row.reshape(1, -1))[0]
+    impacts = {}
+
+    for i, feature in enumerate(features):
+        if feature in non_modifiables:
+            continue
+
+        val = input_row[i]
+        # Variations tests : +5% et -5%
+        for delta in [-0.05 * val, 0.05 * val]:
+            modified = input_row.copy()
+            modified[i] = val + delta
+            new_pred = model.predict(modified.reshape(1, -1))[0]
+            impact = new_pred - base_pred
+            # On ne garde que les impacts positifs (amélioration)
+            if impact > 0:
+                impacts[feature] = max(impacts.get(feature, 0), impact)
+
+    # Trier par impact décroissant
+    impacts_tries = sorted(impacts.items(), key=lambda x: x[1], reverse=True)
+
+    # Construire message ou interface avec top suggestions
+    recommandations = []
+    for feature, impact in impacts_tries:
+        recommandations.append(f"Augmenter {feature} pourrait améliorer votre score de {impact:.4f}")
+
+    return recommandations

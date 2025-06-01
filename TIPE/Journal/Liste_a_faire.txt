@@ -5,12 +5,13 @@ A faire :
         Equiliber les donné pour la qualité du sommeil (ou autre solution)
         Utilisation de deux threshold pour la quality une sur la en preprocecing pour séparer les class et un pour l'IA aprés entrainement pour optimiser
         Optimiser le threshold pour la sortie 
-        Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
+        EN COURS --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
         Passer les Occupation a seulement deux choix : Working, Not Working
-        Faire le retour
+        Faire le retour (ce qu'il faut améliorer)
+        FAIT --- Changement du type d'IA pour quality -> regression
         FAIT --- Test retirer trouble de l'entrainement pour Quality, Decision il est retirer (plus logique)
         FAIT --- Faire en sorte que le trouble soit différencié pas juste détection d'un problème
-        FAIT--- Potentielement retirer certaine variable (Blood pressure)
+        FAIT --- Potentielement retirer certaine variable (Blood pressure)
         FAIT --- Avoir qq chose de fonctionel duquel on peut complexifié et optimiser/améliorer
 
     Pour plus tard :
