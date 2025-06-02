@@ -1,6 +1,6 @@
 Gender,Age,Occupation,Sleep Duration,Physical Activity Level,Stress Level,BMI Category,Blood Pressure,Heart Rate,Daily Steps
-Male,18,Engineer,7.5,0,3,Normal,120/80,80,500
-Male,18,Engineer,10.0,240,1,Normal,120/80,80,7000
-Male,18,Engineer,10.0,0,1,Normal,120/80,80,6200
-Male,18,Engineer,8.0,100,2,Normal,120/80,80,5000
-Male,18,Engineer,7.0,0,2,Normal,120/80,80,4500
+Male,18,working,7.5,0,3,Normal,140/90,80,500
+Male,18,working,10.0,240,1,Normal,140/90,80,7000
+Male,18,working,10.0,0,1,Normal,140/90,80,6200
+Male,18,working,8.0,100,2,Normal,140/90,80,5000
+Male,18,working,7.0,0,2,Normal,140/90,80,4500
