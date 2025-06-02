@@ -1,15 +1,17 @@
 # Importation de toute les bibliothèques nécessaires
 
 import numpy as np
+from itertools import combinations, product
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
-from sklearn.inspection import permutation_importance
 import pickle
+import sys
 from tqdm import tqdm 
+
 
 # Pour éviter les problèmes d'affichage de matplotlib dans certains environnements
 matplotlib.use('Agg')
@@ -268,6 +270,14 @@ class Resaux:
             
             dW, db = self.back_propagation(A, X, y)
             self.update(dW, db, learning_rate)  
+
+    def get_model_type(self):
+        if self.is_regression:
+            return "regression"
+        elif self.nb_classes == 1:
+            return "binaire"
+        else:
+            return "multiclass"
 
     def save(self, filename, bool_p=True):
         """ Sauvegarde du modèle dans un fichier """
@@ -587,17 +597,6 @@ def courbe_perf(sleep, path, bool_p=True):
     if bool_p:
         print("Courbes sauvegardées dans", path)
 
-def var_importance(model, X_test, y_test, X_train):
-
-    result = permutation_importance(model, X_test, y_test, n_repeats=10, random_state=42)
-    importances = result.importances_mean
-    indices = np.argsort(importances)[::-1]
-
-    # Affiche les 5 variables les plus influentes
-    for i in range(5):
-        print(f"{X_train.columns[indices[i]]}: {importances[indices[i]]:.4f}")
-
-
 # Fonctions principales
 
 def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
@@ -646,7 +645,9 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # affichage des performances
 
-    affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)  
+    affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)    
+
+
 
     #courbe_perf(sleep)
     if bool_c or bool_t:     
