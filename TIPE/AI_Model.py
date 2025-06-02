@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
 import pickle
-import sys
+from skopt import gp_minimize
 from tqdm import tqdm 
 
 
@@ -597,6 +597,39 @@ def courbe_perf(sleep, path, bool_p=True):
     if bool_p:
         print("Courbes sauvegardées dans", path)
 
+def val_evolution(model, input_row, nb_iter=30):
+    # Définir les indices modifiables
+    features = ["Gender", "Age", "Occupation", "Sleep Duration",
+        "Physical Activity Level", "Stress Level", "BMI Category",
+        "Blood Pressure", "Heart Rate", "Daily Steps"
+        ]
+    non_modifiables = ["Quality of Sleep", "Sleep Disorder", 'Age', 'Occupation', 'Gender']
+
+    modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
+    input_row = input_row.flatten()
+
+    # Fonction à optimiser : on veut maximiser la prédiction → donc on minimise -prédiction
+    def objective(x):
+        modified_input = input_row.copy()
+        for i, idx in enumerate(modifiable_indices):
+            modified_input[idx] = np.clip(x[i], 0, 1)
+        prediction = model.predict(modified_input.reshape(1, -1))[0]
+        return -prediction  # Pour maximiser la prédiction
+
+    # Appel à l'optimiseur bayésien
+    res = gp_minimize(
+        func=objective,
+        dimensions=[(0.0, 1.0)] * len(modifiable_indices),  # bornes des variables modifiables
+        n_calls=nb_iter,  # nombre d'appels à f(x), tu peux augmenter à 50+
+        random_state=123  # pour reproductibilité
+    )
+
+    # Affichage du résultat
+    print("Amélioration maximale prédite : %.4f" % (-res.fun))
+    print("Nouvelles valeurs modifiées des variables modifiables :")
+    for i, idx in enumerate(modifiable_indices):
+        print(f"  {features[idx]} = {res.x[i]:.3f}")
+
 # Fonctions principales
 
 def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
@@ -609,7 +642,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # Define ami
 
-    ami = [0,0.3,0.6,0.47,0.11,4,0,0.88,0.89,0.5]
+    ami = [0,0.3,0.2,0.47,0.11,4,0,0.88,0.89,0.5]
 
     #Preprocessing
 
@@ -647,6 +680,10 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)    
 
+    # evolution des variables modifiables pour améliorer la prédiction
+    print("")
+    print("Evolution des variables modifiables pour améliorer la prédiction :")
+    val_evolution(sleep, ami_in, nb_iter=30)
 
 
     #courbe_perf(sleep)
