@@ -2,6 +2,7 @@
 # export DISPLAY=:0
 # If you are using WSL, run the following command in the terminal   
 
+# Importation des bibliothèques nécessaires
 import sys
 import os
 import pandas as pd
@@ -17,8 +18,10 @@ from PyQt6.QtCore import Qt
 from AI_Model import model_charge, preprocecing_user
 
 
+# Configuration de l'environnement pour éviter les erreurs de plateforme
 os.environ["QT_QPA_PLATFORM"] = "xcb"
 
+# Classe pour le formulaire d'ajout d'entrée
 class AddEntryFrom(QDockWidget):
     def __init__(self, add_entry_callback):
         super().__init__()
@@ -71,8 +74,8 @@ class AddEntryFrom(QDockWidget):
         steps = QSpinBox(); steps.setRange(0, 50000); steps.setSingleStep(1000)
         add_row("Daily Steps", steps); row += 1
 
-        occupation = QLineEdit()
-        occupation.setPlaceholderText("Entrez votre métier")
+        occupation = QComboBox()
+        occupation.addItems(['working', 'unemployed', 'student', 'retired', 'other'])
         add_row("Occupation", occupation); row += 1
 
         # Bouton d'enregistrement
@@ -115,6 +118,7 @@ class AddEntryFrom(QDockWidget):
         self.add_entry_callback(data)
 
 
+# Fenêtre principale de l'application
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -300,6 +304,7 @@ class MainWindow(QMainWindow):
         self.refresh_table()
 
 
+# Lancement de l'application
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
