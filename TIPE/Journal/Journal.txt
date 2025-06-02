@@ -30,3 +30,7 @@ Année 2025
 13/05 - 17/05 : Revisite de l'ui pour la rendre un peu plus propre, Prepocesing pour le coté user, lien entre l'ui et les résaux
 
 20/05 - 22/05 : amélioration des logique, planification des prochaine étape, création d'un début de beamer pour présentation
+
+01/06 : Nouveau type de medèle - regression
+
+02/06 : Changement de methode de gestion donné en preprocecing (plus Occupation mais Working ..., et max logique et plus sur le max de dataset de ref)

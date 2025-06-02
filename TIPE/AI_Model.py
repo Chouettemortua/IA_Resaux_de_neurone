@@ -1,3 +1,5 @@
+# Importation de toute les bibliothèques nécessaires
+
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -5,13 +7,15 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
+from sklearn.inspection import permutation_importance
 import pickle
 from tqdm import tqdm 
 
+# Pour éviter les problèmes d'affichage de matplotlib dans certains environnements
 matplotlib.use('Agg')
 
 
-#Classe pour les modèles de neurones
+#Classe pour les modèles de neurones (Neurone et plus utiliser c'est le prototype unineuronal)
 
 class Neurone: 
 
@@ -305,11 +309,7 @@ class Resaux:
         print(f"Modèle chargé depuis {filename}")
 
 
-#Fonctions de prétraitement et d'analyse et pour le modèle
-
-def load(path):
-    """ Charge le dataset """
-    return pd.read_csv(path)
+# Pretraitement des données
 
 def preprocecing(df, on, y_normalisation=True):
     """ Prétraite les données """
@@ -319,8 +319,8 @@ def preprocecing(df, on, y_normalisation=True):
 
         code_bmi = {'Normal':1,'Normal Weight': 1, 'Overweight': 3, 'Underweight': 4, 'Obesity': 5}
         code_gender = {'Male': 1, 'Female': 2}
-        code_occupation = {'Software Engineer': 1, 'Doctor': 2, 'Sales Representative': 3, 'Nurse': 4, 'Teacher': 5,
-                        'Scientist': 6, 'Engineer': 7, 'Lawyer': 8, 'Accountant': 9, 'Salesperson': 10, 'Manager': 11}
+        code_occupation = {'Software Engineer': 1, 'Doctor': 1, 'Sales Representative': 1, 'Nurse': 1, 'Teacher': 1,
+                        'Scientist': 1, 'Engineer': 1, 'Lawyer': 1, 'Accountant': 1, 'Salesperson': 1, 'Manager': 1}
         code_sleep_disorder = {'Normal': 1, 'Sleep Apnea': 2, 'Insomnia': 3}
         
 
@@ -379,9 +379,7 @@ def preprocecing_user(df, on=None):
     def encodage(df):
         code_bmi = {'Normal': 1, 'Normal Weight': 1, 'Overweight': 2, 'Underweight': 3, 'Obese': 4}
         code_gender = {'Male': 1, 'Female': 2}
-        code_occupation = {'Software Engineer': 1, 'Doctor': 2, 'Sales Representative': 3, 'Nurse': 4, 'Teacher': 5,
-                        'Scientist': 6, 'Engineer': 7, 'Lawyer': 8, 'Accountant': 9, 'Salesperson': 10, 'Manager': 11, 'Other': 12}
-        code_sleep_disorder = {'Normal': 1, 'Sleep Apnea': 2, 'Insomnia': 3}
+        code_occupation = {'working':1, 'unemployed':2, 'student':3, 'retired':4, 'other':5}
 
         df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
         df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
@@ -414,33 +412,39 @@ def preprocecing_user(df, on=None):
     def normalisation(df):
         """ Normalise les données entre 0 et 1 """
 
-        df_ref = load('TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv')
-        df_ref = df_ref.drop(columns=['Person ID'])
+        max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
+                      'Physical Activity Level': 200, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000}
+       
+        df['Gender'] = df['Gender'].div(max_values['Gender'])
+        df['Age'] = df['Age'].div(max_values['Age'])
+        df['Occupation'] = df['Occupation'].div(max_values['Occupation'])
+        df['Sleep Duration'] = df['Sleep Duration'].div(max_values['Sleep Duration'])
+        df['Physical Activity Level'] = df['Physical Activity Level'].div(max_values['Physical Activity Level'])
+        df['Stress Level'] = df['Stress Level'].div(max_values['Stress Level'])
+        df['BMI Category'] = df['BMI Category'].div(max_values['BMI Category'])
+        df['Blood Pressure'] = df['Blood Pressure'].div(max_values['Blood Pressure'])
+        df['Heart Rate'] = df['Heart Rate'].div(max_values['Heart Rate'])
+        df['Daily Steps'] = df['Daily Steps'].div(max_values['Daily Steps'])
 
-        if on is not None and on in df_ref.columns:
-            df_ref = df_ref.drop(columns=on, axis=1)
-        else:
-            df_ref = df_ref.drop(columns=['Quality of Sleep'], axis=1)
-            df_ref = df_ref.drop(columns=['Sleep Disorder'], axis=1)
-
-        df_ref = encodage(df_ref)
-        df_ref = imputation(df_ref)
-
-        max_values = df_ref.max()
-
-        return df.div(max_values)
+        return df
     
     def intern(df):
         if on is not None and on in df.columns:
-            X = df.drop(columns=on, axis=1)
+            df.drop(columns=on, axis=1)
         else:
             df= encodage(df)
             df = imputation(df)
-            X = df
-            X = normalisation(X) 
-        return X
+            df = normalisation(df) 
+        return df
 
     return intern(df)
+
+# Gestion des modèles
+
+def load(path):
+    """ Charge le dataset """
+    return pd.read_csv(path)
 
 def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_val=None, qt=None):
     """ Initialise le modèle """
@@ -464,6 +468,8 @@ def model_charge(path_n):
     model = Resaux()
     model.load(path_n)
     return model
+
+# Outils d'analyse
 
 def analyse_pre_process(df):
     ''' Analyse le dataset avant le prétraitement '''
@@ -581,6 +587,16 @@ def courbe_perf(sleep, path, bool_p=True):
     if bool_p:
         print("Courbes sauvegardées dans", path)
 
+def var_importance(model, X_test, y_test, X_train):
+
+    result = permutation_importance(model, X_test, y_test, n_repeats=10, random_state=42)
+    importances = result.importances_mean
+    indices = np.argsort(importances)[::-1]
+
+    # Affiche les 5 variables les plus influentes
+    for i in range(5):
+        print(f"{X_train.columns[indices[i]]}: {importances[indices[i]]:.4f}")
+
 
 # Fonctions principales
 
@@ -630,7 +646,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
 
     # affichage des performances
 
-    affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)
+    affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)  
 
     #courbe_perf(sleep)
     if bool_c or bool_t:     
@@ -680,8 +696,9 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     if boul_c or bool_t:     
         courbe_perf(sleep,path_c)
 
+# Lancement automatique des fonctions principales
 if __name__ == "__main__":
     # Main function launcher with arguments
-    main_quality_of_sleep(False, True, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
+    main_quality_of_sleep(False, False, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
     main_sleep_trouble(False, False, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
   
