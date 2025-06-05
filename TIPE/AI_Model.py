@@ -1,7 +1,7 @@
 # Importation de toute les bibliothèques nécessaires
 
 import numpy as np
-from itertools import combinations, product
+import shap
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -10,6 +10,7 @@ from sklearn.preprocessing import QuantileTransformer
 from sklearn.model_selection import train_test_split
 import pickle
 from skopt import gp_minimize
+from skopt.space import Real
 from tqdm import tqdm 
 
 
@@ -597,38 +598,61 @@ def courbe_perf(sleep, path, bool_p=True):
     if bool_p:
         print("Courbes sauvegardées dans", path)
 
-def val_evolution(model, input_row, nb_iter=30):
-    # Définir les indices modifiables
-    features = ["Gender", "Age", "Occupation", "Sleep Duration",
-        "Physical Activity Level", "Stress Level", "BMI Category",
-        "Blood Pressure", "Heart Rate", "Daily Steps"
-        ]
-    non_modifiables = ["Quality of Sleep", "Sleep Disorder", 'Age', 'Occupation', 'Gender']
+def val_evolution(model, input_row, modifiable_features, modifiable_indices, features, nb_iter=30):
+    # Dictionnaire des max utilisés pour la normalisation
+    max_values = {
+        'Sleep Duration': 24, 
+        'Physical Activity Level': 200, 
+        'Stress Level': 10, 
+        'BMI Category': 4, 
+        'Blood Pressure': 200, 
+        'Heart Rate': 200, 
+        'Daily Steps': 50000
+    }
 
-    modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
+    # Définir les bornes réalistes (normalisées)
+    bounds = {
+        'Sleep Duration': (6 / 24, 9 / 24),  # 6 à 9 heures de sommeil
+        'Physical Activity Level': (20 / 200, 150 / 200),  # 20 à 150 min activité
+        'Stress Level': (0 / 10, 7 / 10),  # idéalement on cherche à le réduire
+        'BMI Category': (1 / 4, 2 / 4),  # viser "Normal" (1) ou "Overweight" (2)
+        'Daily Steps': (1000 / 50000, 30000 / 50000),  # cible santé classique
+    }
+
+    # Construction des bornes pour gp_minimize
+    dimensions = [Real(*bounds[feat]) for feat in modifiable_features]
+
     input_row = input_row.flatten()
 
-    # Fonction à optimiser : on veut maximiser la prédiction → donc on minimise -prédiction
     def objective(x):
         modified_input = input_row.copy()
         for i, idx in enumerate(modifiable_indices):
             modified_input[idx] = np.clip(x[i], 0, 1)
         prediction = model.predict(modified_input.reshape(1, -1))[0]
-        return -prediction  # Pour maximiser la prédiction
+        return -prediction
 
-    # Appel à l'optimiseur bayésien
     res = gp_minimize(
         func=objective,
-        dimensions=[(0.0, 1.0)] * len(modifiable_indices),  # bornes des variables modifiables
-        n_calls=nb_iter,  # nombre d'appels à f(x), tu peux augmenter à 50+
-        random_state=123  # pour reproductibilité
+        dimensions=dimensions,
+        n_calls=nb_iter,
+        random_state=123
     )
 
     # Affichage du résultat
     print("Amélioration maximale prédite : %.4f" % (-res.fun))
-    print("Nouvelles valeurs modifiées des variables modifiables :")
+    print("Nouvelles valeurs modifiées (dénormalisées) :")
     for i, idx in enumerate(modifiable_indices):
-        print(f"  {features[idx]} = {res.x[i]:.3f}")
+        feat = features[idx]
+        val = res.x[i] * max_values[feat]
+        if feat == "BMI Category":
+            val = round(val)  # Catégorie entière
+        elif feat == "Stress Level":
+            val = round(val, 1)  # un chiffre après la virgule suffit
+        elif feat == "Daily Steps":
+            val = int(val)
+        else:
+            val = round(val, 2)
+        print(f"  {feat}: {val}")
 
 # Fonctions principales
 
@@ -663,7 +687,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     
     # Train the model
     if bool_c:
-        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [64,32,16,1], path_n, treshold_val=0.5, qt=qt)
+        sleep = model_init(path_n, X_train, y_train, X_test, y_test, [128,64,32,16,1], path_n, treshold_val=0.5, qt=qt)
     else: 
         sleep = model_charge(path_n)
 
@@ -681,9 +705,32 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     affichage_perf(X_train, y_train, X_test, y_test, sleep, qt)    
 
     # evolution des variables modifiables pour améliorer la prédiction
+    features = ["Gender", "Age", "Occupation", "Sleep Duration",
+                "Physical Activity Level", "Stress Level", "BMI Category",
+                "Blood Pressure", "Heart Rate", "Daily Steps"]
+    
+    non_modifiables = ["Quality of Sleep", "Sleep Disorder", 'Age', 'Occupation', 'Gender', 'Heart Rate', 'Blood Pressure']
+
+    modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
+    modifiable_features = [features[i] for i in modifiable_indices]
+
     print("")
     print("Evolution des variables modifiables pour améliorer la prédiction :")
-    val_evolution(sleep, ami_in, nb_iter=30)
+    val_evolution(sleep, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
+    print(ami_in.sh)
+
+    # explainer
+    explainer = shap.KernelExplainer(sleep.predict, X_train)
+
+    # Calculer les valeurs SHAP
+    shap_values = explainer.shap_values(ami_in, nsamples=100)
+
+    # Visualiser
+    shap.initjs()
+    shap.force_plot(explainer.expected_value, shap_values, ami_in)
+    shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
+    plt.savefig('TIPE/Saves/values', bbox_inches='tight')
+    plt.close()
 
 
     #courbe_perf(sleep)
