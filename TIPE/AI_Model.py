@@ -360,7 +360,29 @@ def preprocecing(df, on, y_normalisation=True):
     def normalisation(df):
         """ Normalise les données entre 0 et 1 """
 
-        return df/df.max()
+        max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
+                      'Physical Activity Level': 200, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000, 'Quality of Sleep': 10}
+       
+        df['Gender'] = df['Gender'].div(max_values['Gender'])
+        df['Age'] = df['Age'].div(max_values['Age'])
+        df['Occupation'] = df['Occupation'].div(max_values['Occupation'])
+        df['Sleep Duration'] = df['Sleep Duration'].div(max_values['Sleep Duration'])
+        df['Physical Activity Level'] = df['Physical Activity Level'].div(max_values['Physical Activity Level'])
+        df['Stress Level'] = df['Stress Level'].div(max_values['Stress Level'])
+        df['BMI Category'] = df['BMI Category'].div(max_values['BMI Category'])
+        df['Blood Pressure'] = df['Blood Pressure'].div(max_values['Blood Pressure'])
+        df['Heart Rate'] = df['Heart Rate'].div(max_values['Heart Rate'])
+        df['Daily Steps'] = df['Daily Steps'].div(max_values['Daily Steps'])
+        if 'Quality of Sleep' in df.columns:
+            df['Quality of Sleep'] = df['Quality of Sleep'].div(max_values['Quality of Sleep'])
+
+        return df
+    
+    def normalisation_y(y):
+        if on[0] == 'Quality of Sleep':
+            max_value = 10
+        return y / max_value
     
     def intern(df):
         df= encodage(df)
@@ -374,7 +396,7 @@ def preprocecing(df, on, y_normalisation=True):
         X = normalisation(X)
         if y_normalisation:
             # Normalize target variable
-            y = normalisation(y) 
+            y = normalisation_y(y) 
         return X, y
 
     trainset, testset = split_data(df)
@@ -549,16 +571,18 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
     else:
         y_train_int = y_train_true.astype(int)
         y_test_int  = y_test_true.astype(int)
+        pred_train = np.round(pred_train).astype(int)
+        pred_test = np.round(pred_test).astype(int)
 
         print("=== Classification multi-classes ===")
         print(f"Train Accuracy:  {accuracy_score(y_train_int, pred_train):.4f}")
         print(f"Test Accuracy:   {accuracy_score(y_test_int, pred_test):.4f}")
         print(f"Train F1 Score:  {f1_score(y_train_int, pred_train, average='weighted'):.4f}")
         print(f"Test F1 Score:   {f1_score(y_test_int, pred_test, average='weighted'):.4f}")
-        print(f"Train Precision: {precision_score(y_train_int, pred_train, average='weighted'):.4f}")
-        print(f"Test Precision:  {precision_score(y_test_int, pred_test, average='weighted'):.4f}")
-        print(f"Train Recall:    {recall_score(y_train_int, pred_train, average='weighted'):.4f}")
-        print(f"Test Recall:     {recall_score(y_test_int, pred_test, average='weighted'):.4f}")
+        print(f"Train Precision: {precision_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}")
+        print(f"Test Precision:  {precision_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
+        print(f"Train Recall:    {recall_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}")
+        print(f"Test Recall:     {recall_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
 
 def courbe_perf(sleep, path, bool_p=True):
     """ Met les courbes de perte et de performance dans un fichier """
@@ -690,7 +714,6 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
         sleep = model_init(path_n, X_train, y_train, X_test, y_test, [128,64,32,16,1], path_n, treshold_val=0.5, qt=qt)
     else: 
         sleep = model_charge(path_n)
-
     if bool_t:
         sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n)
 
@@ -717,7 +740,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     print("")
     print("Evolution des variables modifiables pour améliorer la prédiction :")
     val_evolution(sleep, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
-    print(ami_in.sh)
+    print(ami_in.shape)
 
     # explainer
     explainer = shap.KernelExplainer(sleep.predict, X_train)
