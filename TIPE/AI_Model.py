@@ -680,7 +680,7 @@ def val_evolution(model, input_row, modifiable_features, modifiable_indices, fea
 
 # Fonctions principales
 
-def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
+def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     """ Main function for Resaux on the quality of sleep dataset """
     
     # Load the dataset
@@ -737,23 +737,24 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c):
     modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
     modifiable_features = [features[i] for i in modifiable_indices]
 
-    print("")
-    print("Evolution des variables modifiables pour améliorer la prédiction :")
-    val_evolution(sleep, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
-    print(ami_in.shape)
+    if verbose:
+        print("")
+        print("Evolution des variables modifiables pour améliorer la prédiction :")
+        val_evolution(sleep, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
+        print(ami_in.shape)
 
-    # explainer
-    explainer = shap.KernelExplainer(sleep.predict, X_train)
+        # explainer
+        explainer = shap.KernelExplainer(sleep.predict, X_train)
 
-    # Calculer les valeurs SHAP
-    shap_values = explainer.shap_values(ami_in, nsamples=100)
+        # Calculer les valeurs SHAP
+        shap_values = explainer.shap_values(ami_in, nsamples=100)
 
-    # Visualiser
-    shap.initjs()
-    shap.force_plot(explainer.expected_value, shap_values, ami_in)
-    shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
-    plt.savefig('TIPE/Saves/values', bbox_inches='tight')
-    plt.close()
+        # Visualiser
+        shap.initjs()
+        shap.force_plot(explainer.expected_value, shap_values, ami_in)
+        shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
+        plt.savefig('TIPE/Saves/values', bbox_inches='tight')
+        plt.close()
 
 
     #courbe_perf(sleep)
