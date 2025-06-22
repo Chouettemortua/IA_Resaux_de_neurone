@@ -15,9 +15,12 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
+
 # Ajout du chemin pour l'importation des modules personnalisés
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core'))
-from AI_Model import model_charge, preprocecing_user
+sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/training'))
+from training_utils import model_charge
+sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/preprocessing'))
+from preprocessing import preprocecing_user
 
 
 # Configuration de l'environnement pour éviter les erreurs de plateforme
