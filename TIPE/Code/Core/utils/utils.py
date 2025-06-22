@@ -1,6 +1,7 @@
 import matplotlib
-import matplotlib.pyplot as plt
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 
 def courbe_perf(sleep, path, bool_p=True):
     """ Met les courbes de perte et de performance dans un fichier """
@@ -36,6 +37,7 @@ def courbe_perf(sleep, path, bool_p=True):
 
     plt.tight_layout()
     plt.savefig(path)
+    plt.close()
 
     if bool_p:
         print("Courbes sauvegardées dans", path)

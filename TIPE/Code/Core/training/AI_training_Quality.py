@@ -3,18 +3,15 @@
 from sklearn.preprocessing import QuantileTransformer
 import shap
 
-import sys
-import os
 import numpy as np
 import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')
 
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/preprocessing'))
-from preprocessing import preprocecing
+
+from ..preprocessing.preprocessing import preprocecing
 from training_utils import model_charge, load, model_init, model_train, affichage_perf, val_evolution
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/utils'))
-from utils import courbe_perf
+from ..utils.utils import courbe_perf
 
 def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     """ Main function for Resaux on the quality of sleep dataset """

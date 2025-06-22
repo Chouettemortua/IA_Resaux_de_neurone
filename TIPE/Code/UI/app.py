@@ -17,10 +17,9 @@ from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
 
 # Ajout du chemin pour l'importation des modules personnalisés
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/training'))
-from training_utils import model_charge
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/preprocessing'))
-from preprocessing import preprocecing_user
+from ..Core.training.training_utils import model_charge
+
+from ..Core.preprocessing.preprocessing import preprocecing_user
 
 
 # Configuration de l'environnement pour éviter les erreurs de plateforme
@@ -234,7 +233,6 @@ class MainWindow(QMainWindow):
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)
-        recent_entries = recent_entries.copy()
 
         try:
             df_quality = preprocecing_user(recent_entries)
