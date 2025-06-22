@@ -1,18 +1,13 @@
 
 __init__ = "training_utils"
 
-import sys
-import os
 import numpy as np
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
-matplotlib.use('Agg')
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
 from skopt import gp_minimize
 from skopt.space import Real
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/models'))
-from AI_Model import Resaux
+
+from ..models.AI_Model import Resaux
 
 # Gestion des modèles
 

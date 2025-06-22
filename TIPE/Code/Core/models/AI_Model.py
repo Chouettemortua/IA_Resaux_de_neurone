@@ -5,11 +5,8 @@ import pickle
 from tqdm import tqdm 
 import numpy as np
 from sklearn.metrics import accuracy_score, r2_score
-import sys
-import os
 
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/utils'))
-from utils import courbe_perf
+from ..utils.utils import courbe_perf
 
 
 class Resaux:

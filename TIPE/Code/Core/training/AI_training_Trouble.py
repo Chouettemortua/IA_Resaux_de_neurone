@@ -1,13 +1,10 @@
 
 
-import sys
-import os
 import numpy as np
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/preprocessing'))
-from preprocessing import preprocecing
+
+from ..preprocessing.preprocessing import preprocecing
 from training_utils import model_charge, load, model_init, model_train, affichage_perf
-sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core/utils'))
-from utils import courbe_perf
+from ..utils.utils import courbe_perf
 
 def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     """ Main function for Resaux on the sleep trouble dataset """
