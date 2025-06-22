@@ -15,6 +15,8 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
+# Ajout du chemin pour l'importation des modules personnalisés
+sys.path.append(os.path.abspath('/home/chouettemortua/IA_Resaux_de_neurone/TIPE/Code/Core'))
 from AI_Model import model_charge, preprocecing_user
 
 
@@ -224,8 +226,8 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        model_quality = model_charge("TIPE/Saves/save_sleep_quality.pkl")
-        model_trouble = model_charge("TIPE/Saves/save_sleep_trouble.pkl")
+        model_quality = model_charge("TIPE/Code/Saves/save_sleep_quality.pkl")
+        model_trouble = model_charge("TIPE/Code/Saves/save_sleep_trouble.pkl")
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)

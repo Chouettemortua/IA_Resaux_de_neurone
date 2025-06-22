@@ -1,3 +1,8 @@
+
+#  AI_Model.py
+
+__init__ = "AI_Model"
+
 # Importation de toute les bibliothèques nécessaires
 
 import numpy as np
@@ -13,88 +18,11 @@ from skopt import gp_minimize
 from skopt.space import Real
 from tqdm import tqdm 
 
-
 # Pour éviter les problèmes d'affichage de matplotlib dans certains environnements
 matplotlib.use('Agg')
 
 
 #Classe pour les modèles de neurones (Neurone et plus utiliser c'est le prototype unineuronal)
-
-class Neurone: 
-
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, learning_rate=0.1, nb_iter=1):
-        """ Initialise le neurone """
-        self.W = None
-        self.b = None
-        self.L = []
-        self.L_t = []
-        self.acc = []
-        self.acc_t = []
-
-        if X is not None and y is not None:
-            self.W = np.random.randn(X.shape[1], 1)
-            self.b = np.random.randn(1)
-            self.train(X, y, X_test, y_test, learning_rate, nb_iter)
-
-    def model(self, X):
-        """ Calcule la sortie du neurone """
-        Z = X.dot(self.W) + self.b
-        A = 1 / (1 + np.exp(-Z)) 
-        return A
-
-    def log_loss(self, A, y):
-        """ Calcule la fonction de perte logistique """
-        epsilon = 1e-15
-        A = np.clip(A, epsilon, 1 - epsilon)  # Ensure A is within (0, 1)
-        return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
-
-    def gradients(self, A, X, y):
-        """ Calcule les gradients de la fonction de perte par rapport aux poids et au biais """
-        dW = np.dot(X.T, A - y) / len(y)
-        db = np.sum(A - y, axis=0) / len(y)
-        return dW, db
-
-    def update(self, dW, db, learning_rate):
-        """ Met à jour les poids et le biais """
-        self.W -= learning_rate * dW
-        self.b -= learning_rate * db
-
-    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=100):
-        """ Entraîne le modèle sur les données d'entraînement """
-        for i in tqdm(range(nb_iter)):
-            A = self.model(X)
-
-            if i % partialsteps == 0:
-                self.L.append(self.log_loss(A, y))
-                self.L_t.append(self.log_loss(self.model(X_test), y_test))
-                self.acc.append(accuracy_score(y >= 0.5, self.predict(X)))
-                self.acc_t.append(accuracy_score(y_test >= 0.5, self.predict(X_test)))
-
-            dW, db = self.gradients(A, X, y)
-            self.update(dW, db, learning_rate)
-
-    def predict(self, X):
-        """ Prédiction sur de nouvelles données """
-        A = self.model(X)
-        return A >= 0.5
-
-    def save(self, filename):
-        """ Sauvegarde du modèle dans un fichier """
-        with open(filename, 'wb') as f:
-            pickle.dump({'W': self.W, 'b': self.b, 'L': self.L, 'L_t': self.L_t, 'acc': self.acc, 'acc_t': self.acc_t}, f)
-        print(f"Modèle sauvegardé dans {filename}")
-
-    def load(self, filename):
-        """ Charge un modèle depuis un fichier """
-        with open(filename, 'rb') as f:
-            data = pickle.load(f)
-            self.W = data['W']
-            self.b = data['b']
-            self.L = data['L']
-            self.L_t = data['L_t']
-            self.acc = data['acc']
-            self.acc_t = data['acc_t']
-        print(f"Modèle chargé depuis {filename}")
 
 class Resaux:
     def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, threshold_val=0.5, qt=None):
@@ -297,7 +225,7 @@ class Resaux:
                 'qt': self.qt,
                 'is_regression': self.is_regression
             }, f)
-        courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve"), bool_p)
+        courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve").replace("TIPE/Code/Saves/", "TIPE/Code/Saves_Curves/"), bool_p)
         if bool_p:
             print(f"Modèle sauvegardé dans {filename}")
 
@@ -685,7 +613,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     
     # Load the dataset
 
-    data = load('TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv')
+    data = load('TIPE/Code/Data/Sleep_health_and_lifestyle_dataset.csv')
     df = data.copy()
 
     # Define ami
@@ -753,7 +681,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
         shap.initjs()
         shap.force_plot(explainer.expected_value, shap_values, ami_in)
         shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
-        plt.savefig('TIPE/Saves/values', bbox_inches='tight')
+        plt.savefig('TIPE/Code/Saves_Curve/values', bbox_inches='tight')
         plt.close()
 
 
@@ -765,7 +693,7 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     """ Main function for Resaux on the sleep trouble dataset """
     
     # Load the dataset
-    data = load('TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv')
+    data = load('TIPE/Code/Data/Sleep_health_and_lifestyle_dataset.csv')
     df = data.copy()
 
     # Preprocessing
@@ -808,6 +736,6 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
 # Lancement automatique des fonctions principales
 if __name__ == "__main__":
     # Main function launcher with arguments
-    main_quality_of_sleep(False, False, "TIPE/Saves/save_sleep_quality.pkl", "TIPE/Saves/curve_sleep_quality.png")
-    main_sleep_trouble(False, False, "TIPE/Saves/save_sleep_trouble.pkl", "TIPE/Saves/curve_sleep_trouble.png")
+    main_quality_of_sleep(False, False, "TIPE/Code/Saves/save_sleep_quality.pkl", "TIPE/Code/Saves_Curves/curve_sleep_quality.png")
+    main_sleep_trouble(False, False, "TIPE/Code/Saves/save_sleep_trouble.pkl", "TIPE/Code/Saves_Curves/curve_sleep_trouble.png")
   
