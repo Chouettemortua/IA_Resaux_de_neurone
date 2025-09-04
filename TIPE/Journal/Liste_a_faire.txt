@@ -1,9 +1,12 @@
 A faire :
 
     DEPRECATED : utile mais n'entre plus dans mon cas d'Utilisation
+    EN COURS : en travaille ou en cours d'implementation
+    FAIT : Implementé
 
     Prioritaire:
         Equiliber les donné pour la qualité du sommeil (ou autre solution)
+        Crée une interface admin pour lancé des entrainement avec des test et des sauvegarde facile (à l'heure actuel c'est en shell et avec choix dans le code)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         EN COURS --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
         FAIT --- Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence (beaucoup mieux adapté aux problème)
@@ -27,4 +30,4 @@ A faire :
         Rendre l'ui multilingue
         passer sur gradio pour faire un app en ligne : https://www.gradio.app
         Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
-        FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable)
+        FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)

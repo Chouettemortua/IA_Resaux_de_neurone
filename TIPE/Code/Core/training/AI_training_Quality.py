@@ -9,8 +9,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
+from .training_utils import model_charge, load, model_init, model_train, affichage_perf, val_evolution
 from ..preprocessing.preprocessing import preprocecing
-from training_utils import model_charge, load, model_init, model_train, affichage_perf, val_evolution
 from ..utils.utils import courbe_perf
 
 def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
@@ -95,6 +95,6 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
         courbe_perf(sleep, path_c)
 
 # Lancement automatique des fonctions principales
-if __name__ == "__main__":
+def run_ATQ():
     # Main function launcher with arguments
     main_quality_of_sleep(False, False, "TIPE/Code/Saves/save_sleep_quality.pkl", "TIPE/Code/Saves_Curves/curve_sleep_quality.png")

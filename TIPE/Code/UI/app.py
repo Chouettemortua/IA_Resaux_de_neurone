@@ -17,9 +17,9 @@ from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
 
 # Ajout du chemin pour l'importation des modules personnalisés
-from ..Core.training.training_utils import model_charge
+from Core.training.training_utils import model_charge
 
-from ..Core.preprocessing.preprocessing import preprocecing_user
+from Core.preprocessing.preprocessing import preprocecing_user
 
 
 # Configuration de l'environnement pour éviter les erreurs de plateforme
@@ -308,7 +308,7 @@ class MainWindow(QMainWindow):
 
 
 # Lancement de l'application
-if __name__ == "__main__":
+def run_app():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
