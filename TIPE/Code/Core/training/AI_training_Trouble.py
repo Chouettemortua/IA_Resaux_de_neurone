@@ -3,7 +3,7 @@
 import numpy as np
 
 from ..preprocessing.preprocessing import preprocecing
-from training_utils import model_charge, load, model_init, model_train, affichage_perf
+from .training_utils import model_charge, load, model_init, model_train, affichage_perf
 from ..utils.utils import courbe_perf
 
 def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
@@ -51,6 +51,7 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
         courbe_perf(sleep,path_c)
 
 # Lancement automatique des fonctions principales
-if __name__ == "__main__":
+def run_ATT():
+    """ Lance les fonctions principales """
     # Main function launcher with arguments
     main_sleep_trouble(False, False, "TIPE/Code/Saves/save_sleep_trouble.pkl", "TIPE/Code/Saves_Curves/curve_sleep_trouble.png")
