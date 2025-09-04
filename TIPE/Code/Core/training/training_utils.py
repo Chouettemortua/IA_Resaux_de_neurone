@@ -7,6 +7,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from skopt import gp_minimize
 from skopt.space import Real
 
+
 from ..models.AI_Model import Resaux
 
 # Gestion des modèles
