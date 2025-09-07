@@ -85,7 +85,6 @@ class AddEntryFrom(QDockWidget):
         # Bouton d'enregistrement
         self.submit_button = QPushButton("Ajouter à la base")
         self.submit_button.clicked.connect(self.submit_entry)
-        self.submit_button.setStyleSheet("padding: 8px; background-color: #cce5ff; border: 1px solid #99ccff;")
 
         # Group box pour regrouper proprement le formulaire
         group_box = QGroupBox("Formulaire d'entrée utilisateur")
@@ -107,6 +106,16 @@ class AddEntryFrom(QDockWidget):
                 border: 1px solid lightgray;
                 padding: 8px;
                 margin-top: 10px;
+            }
+            QPushButton {
+                background-color: #cce5ff;
+                border: 1px solid #99ccff;
+                padding: 10px;
+                font-size: 14px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #99ccff;
             }
         """)
 
