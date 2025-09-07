@@ -38,9 +38,10 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     if bool_t:
         sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n, iteration=1000, precision=1e-2)
 
-    # Ami évaluation affichage
+    # Ami évaluation (not used)
+
     ami = [0,0.3,0.6,0.47,0.8,0.11,4,0,0.88,0.89,0.5]
-    print(f"ami: {(sleep.predict(np.array(ami).reshape(1,-1)))}")
+    ami_pred = sleep.predict(np.array(ami).reshape(1,-1))
 
     # affichage des performances
 

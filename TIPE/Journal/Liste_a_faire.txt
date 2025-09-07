@@ -1,14 +1,18 @@
 A faire :
 
     DEPRECATED : utile mais n'entre plus dans mon cas d'Utilisation
+    WAITING : non démarer
+    PAUSED : a été démarer mais laisser de coter
     EN COURS : en travaille ou en cours d'implementation
     FAIT : Implementé
 
     Prioritaire:
-        Equiliber les donné pour la qualité du sommeil (ou autre solution)
-        Crée une interface admin pour lancé des entrainement avec des test et des sauvegarde facile (à l'heure actuel c'est en shell et avec choix dans le code)
+        WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
+        WAITING --- Retirer l'Utilisation de la quality of sleep pour la prédiction des trouble (erreur de la premierère boost celle de la seconde)
+        WAITING --- Améliorer l'interface admin (afficher les courbe, changer les parramètre de lancement, avoir le retour sur la fenêtre et non en shell)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
-        EN COURS --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
+        PAUSED --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
+        FAIT --- Crée une interface admin pour lancé les script (à l'heure actuel c'est en shell et avec choix dans le code)
         FAIT --- Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence (beaucoup mieux adapté aux problème)
         FAIT --- Passer les Occupation a seulement deux choix : Working, Not Working
         FAIT --- Changement du type d'IA pour quality -> regression
