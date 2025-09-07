@@ -64,12 +64,12 @@ class MainMenu(QMainWindow):
 
     def run_atq_script(self):
         # Lancer le script de training qualité
-        print("Lancement du script ATQ...")
+        print("\nLancement du script ATQ...\n")
         ATQ.run_ATQ()
 
     def run_att_script(self):
         # Lancer le script de training trouble
-        print("Lancement du script ATT...")
+        print("\nLancement du script ATT...\n")
         ATT.run_ATT()
 
 def run_menu():

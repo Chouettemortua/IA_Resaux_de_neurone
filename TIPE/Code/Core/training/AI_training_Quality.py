@@ -21,10 +21,6 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     data = load('TIPE/Code/Data/Sleep_health_and_lifestyle_dataset.csv')
     df = data.copy()
 
-    # Define ami
-
-    ami = [0,0.3,0.2,0.47,0.11,4,0,0.88,0.89,0.5]
-
     #Preprocessing
 
     # Uncomment the following line to see the dataset before preprocessing
@@ -38,7 +34,7 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     # analyse_post_process(X_train, y_train, X_test, y_test)
 
     # Transformer y_train / y_test avec QuantileTransformer
-    qt = QuantileTransformer(output_distribution='normal', random_state=42)
+    qt = QuantileTransformer(output_distribution='normal', random_state=42, n_quantiles= 299)
     y_train = qt.fit_transform(y_train.reshape(-1, 1)).flatten()
     y_test = qt.transform(y_test.reshape(-1, 1)).flatten()
     
@@ -50,11 +46,11 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
     if bool_t:
         sleep = model_train(X_train, y_train, X_test, y_test, sleep, path_n)
 
-    # Ami évaluation affichage
+    # Ami évaluation (not used)
 
+    ami = [0,0.3,0.2,0.47,0.11,4,0,0.88,0.89,0.5]
     ami_in = np.array(ami).reshape(1,-1)
     ami_pred = sleep.predict(ami_in)[-1].flatten()
-    print(f"mons amis: {ami_pred}") 
 
     # affichage des performances
 
