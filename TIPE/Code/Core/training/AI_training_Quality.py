@@ -82,15 +82,13 @@ def main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose=False):
         shap.initjs()
         shap.force_plot(explainer.expected_value, shap_values, ami_in)
         shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
-        plt.savefig('TIPE/Code/Saves_Curve/values', bbox_inches='tight')
-        plt.close()
+        #plt.savefig('TIPE/Code/Saves_Curve/values.png', bbox_inches='tight')
+        #plt.close()
 
 
     #courbe_perf(sleep)
     if bool_c or bool_t:     
         courbe_perf(sleep, path_c)
 
-# Lancement automatique des fonctions principales
-def run_ATQ():
-    # Main function launcher with arguments
-    main_quality_of_sleep(False, False, "TIPE/Code/Saves/save_sleep_quality.pkl", "TIPE/Code/Saves_Curves/curve_sleep_quality.png")
+# Main function launcher with exemple of arguments 
+# main_quality_of_sleep(False, False, "TIPE/Code/Saves/save_sleep_quality.pkl", "TIPE/Code/Saves_Curves/curve_sleep_quality.png")

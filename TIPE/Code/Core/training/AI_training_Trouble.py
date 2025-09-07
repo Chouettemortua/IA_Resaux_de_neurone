@@ -1,12 +1,11 @@
 
-
 import numpy as np
 
 from ..preprocessing.preprocessing import preprocecing
 from .training_utils import model_charge, load, model_init, model_train, affichage_perf
 from ..utils.utils import courbe_perf
 
-def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
+def main_sleep_trouble(boul_c, bool_t, path_n, path_c, verbose = False):
     """ Main function for Resaux on the sleep trouble dataset """
     
     # Load the dataset
@@ -51,8 +50,5 @@ def main_sleep_trouble(boul_c, bool_t, path_n, path_c):
     if boul_c or bool_t:     
         courbe_perf(sleep,path_c)
 
-# Lancement automatique des fonctions principales
-def run_ATT():
-    """ Lance les fonctions principales """
-    # Main function launcher with arguments
-    main_sleep_trouble(False, False, "TIPE/Code/Saves/save_sleep_trouble.pkl", "TIPE/Code/Saves_Curves/curve_sleep_trouble.png")
+# Main function launcher with exemple ofarguments
+# main_sleep_trouble(False, False, "TIPE/Code/Saves/save_sleep_trouble.pkl", "TIPE/Code/Saves_Curves/curve_sleep_trouble.png")
