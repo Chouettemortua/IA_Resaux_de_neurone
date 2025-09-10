@@ -1,12 +1,14 @@
 import sys
 import os
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QLabel, QComboBox, QHBoxLayout, QTextEdit, QCheckBox, QLineEdit, QFormLayout
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, 
+    QLabel, QComboBox, QHBoxLayout, QTextEdit, QCheckBox, QLineEdit, 
+    QFormLayout, QSpinBox, QProgressBar)
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt, pyqtSignal, QObject
+from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
 
 # Importation de mes modules
-import Core.training.AI_training_Quality as ATQ
-import Core.training.AI_training_Trouble as ATT
+import Core.training.AI_training as AT
 import UI.app as APP
 
 class EmittingStream(QObject):
@@ -81,10 +83,16 @@ class MainMenu(QMainWindow):
         self.line_path_n = QLineEdit()
         self.line_path_c = QLineEdit()
 
+        self.line_nb_iter = QSpinBox()
+        self.line_nb_iter.setRange(1000, 100000)
+        self.line_nb_iter.setSingleStep(1000)
+        self.line_nb_iter.setValue(1000)
+
         param_form.addRow("Création nouvelle IA:", self.cb_c)
         param_form.addRow("Mode Entraînement:", self.cb_t)
         param_form.addRow("Conserver les chemins:", self.cb_keep_paths)
         param_form.addRow("Verbose:", self.cb_verbose)
+        param_form.addRow("Nombres d'iteration d'entrainement", self.line_nb_iter)
         param_form.addRow("Chemin de sauvegarde:", self.line_path_n)
         param_form.addRow("Chemin des courbes:", self.line_path_c)
 
@@ -110,6 +118,23 @@ class MainMenu(QMainWindow):
         right_layout.addWidget(self.image_combo)
         right_layout.addWidget(self.image_label)
         self.display_image()
+
+        # Progresse Bar
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setValue(0)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #dcdfe6;
+                border-radius: 5px;
+                text-align: center;
+                background-color: #f5f5f5;
+            }
+            QProgressBar::chunk {
+                background-color: #5d9cec;
+                border-radius: 4px;
+            }
+        """)
+        right_layout.addWidget(self.progress_bar)
 
         # Console
         self.console_output = QTextEdit()
@@ -174,6 +199,10 @@ class MainMenu(QMainWindow):
             }
         """)
 
+    def update_progress_bar(self, value):
+        """ Met à jour la barre de progression. """
+        self.progress_bar.setValue(value)
+
     def display_image(self):
         selected_file = self.image_combo.currentText()
         if selected_file:
@@ -222,15 +251,32 @@ class MainMenu(QMainWindow):
         bool_t = self.cb_t.isChecked()
         path_n = self.line_path_n.text()
         path_c = self.line_path_c.text()
+        nb_iter = self.line_nb_iter.value()
         verbose = self.cb_verbose.isChecked()
+
+        self.image_combo.setCurrentText(path_c.split('/')[-1])
+        self.display_image()
         
-        # Lancer le script avec les paramètres récupérés
-        ATQ.main_quality_of_sleep(bool_c, bool_t, path_n, path_c, verbose)
+        # Lancer le script
+        self.thread = QThread()
+        self.worker = AT.TrainingWorker("Q", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
+
+        self.worker.moveToThread(self.thread)
+
+        self.thread.started.connect(self.worker.run)
+        self.worker.progress_updated.connect(self.update_progress_bar)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.thread.start()
+
+        self.display_image()
 
         if not self.cb_keep_paths.isChecked():
             self.clear_form_paths()
-
-        self.display_image() 
+        
+        self.line_nb_iter.setValue(1000) 
 
     def run_att_script(self):
         # Lancer le script de training trouble
@@ -242,15 +288,32 @@ class MainMenu(QMainWindow):
         bool_t = self.cb_t.isChecked()
         path_n = self.line_path_n.text()
         path_c = self.line_path_c.text()
+        nb_iter = self.line_nb_iter.value()
         verbose = self.cb_verbose.isChecked()
 
+        self.image_combo.setCurrentText(path_c.split('/')[-1])
+        self.display_image()
+
         print("\nLancement du script ATT...\n")
-        ATT.main_sleep_trouble(bool_c, bool_t, path_n, path_c, verbose)
+        self.thread = QThread()
+        self.worker = AT.TrainingWorker("T", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
+
+        self.worker.moveToThread(self.thread)
+
+        self.thread.started.connect(self.worker.run)
+        self.worker.progress_updated.connect(self.update_progress_bar)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+
+        self.thread.start()
+
+        self.display_image()
 
         if not self.cb_keep_paths.isChecked():
             self.clear_form_paths()
 
-        self.display_image()
+        self.line_nb_iter.setValue(1000)
 
 def run_menu():
     app = QApplication(sys.argv)
