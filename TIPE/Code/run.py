@@ -19,7 +19,7 @@ class EmittingStream(QObject):
         QApplication.processEvents()
 
     def flush(self):
-        pass # Nécessaire pour certains environnements
+        pass 
 
 class MainMenu(QMainWindow):
     def __init__(self):

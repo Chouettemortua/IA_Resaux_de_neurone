@@ -82,9 +82,9 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         print("=== Régression - Train ===")
         print(f"MSE: {mean_squared_error(y_train_true, pred_train):.4f}")
         print(f"MAE: {mean_absolute_error(y_train_true, pred_train):.4f}")
-        print(f"R²:  {r2_score(y_train_true, pred_train):.4f}\n")
+        print(f"R²:  {r2_score(y_train_true, pred_train):.4f}")
 
-        print("=== Régression - Test ===")
+        print("\n=== Régression - Test ===")
         print(f"MSE: {mean_squared_error(y_test_true, pred_test):.4f}")
         print(f"MAE: {mean_absolute_error(y_test_true, pred_test):.4f}")
         print(f"R²:  {r2_score(y_test_true, pred_test):.4f}")
@@ -94,15 +94,17 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         y_train_bin = (y_train_true >= model.treshold_val).astype(int)
         y_test_bin  = (y_test_true >= model.treshold_val).astype(int)
 
-        print("=== Classification binaire ===")
-        print(f"Train Accuracy:  {accuracy_score(y_train_bin, pred_train):.4f}")
-        print(f"Test Accuracy:   {accuracy_score(y_test_bin, pred_test):.4f}")
-        print(f"Train F1 Score:  {f1_score(y_train_bin, pred_train):.4f}")
-        print(f"Test F1 Score:   {f1_score(y_test_bin, pred_test):.4f}")
-        print(f"Train Precision: {precision_score(y_train_bin, pred_train):.4f}")
-        print(f"Test Precision:  {precision_score(y_test_bin, pred_test):.4f}")
-        print(f"Train Recall:    {recall_score(y_train_bin, pred_train):.4f}")
-        print(f"Test Recall:     {recall_score(y_test_bin, pred_test):.4f}")
+        print("=== Classification binaire - Train ===")
+        print(f"Accuracy:  {accuracy_score(y_train_bin, pred_train):.4f}")  
+        print(f"F1 Score:  {f1_score(y_train_bin, pred_train):.4f}")
+        print(f"Precision: {precision_score(y_train_bin, pred_train):.4f}") 
+        print(f"Recall:    {recall_score(y_train_bin, pred_train):.4f}")
+        
+        print("\n=== Classification binaire - Test ===")
+        print(f"Accuracy:   {accuracy_score(y_test_bin, pred_test):.4f}")
+        print(f"F1 Score:   {f1_score(y_test_bin, pred_test):.4f}")
+        print(f"Precision:  {precision_score(y_test_bin, pred_test):.4f}")
+        print(f"Recall:     {recall_score(y_test_bin, pred_test):.4f}")
 
     # === CAS CLASSIFICATION MULTI-CLASSES ===
     else:
@@ -111,15 +113,17 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         pred_train = np.round(pred_train).astype(int)
         pred_test = np.round(pred_test).astype(int)
 
-        print("=== Classification multi-classes ===")
-        print(f"Train Accuracy:  {accuracy_score(y_train_int, pred_train):.4f}")
-        print(f"Test Accuracy:   {accuracy_score(y_test_int, pred_test):.4f}")
-        print(f"Train F1 Score:  {f1_score(y_train_int, pred_train, average='weighted'):.4f}")
-        print(f"Test F1 Score:   {f1_score(y_test_int, pred_test, average='weighted'):.4f}")
-        print(f"Train Precision: {precision_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}")
-        print(f"Test Precision:  {precision_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
-        print(f"Train Recall:    {recall_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}")
-        print(f"Test Recall:     {recall_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
+        print("=== Classification multi-classes - Train ===")
+        print(f"Accuracy:  {accuracy_score(y_train_int, pred_train):.4f}")
+        print(f"F1 Score:  {f1_score(y_train_int, pred_train, average='weighted'):.4f}")
+        print(f"Precision: {precision_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}") 
+        print(f"Recall:    {recall_score(y_train_int, pred_train, average='weighted', zero_division=0):.4f}")
+        
+        print("\n=== Classification multi-classes - Test ===")
+        print(f"Accuracy:   {accuracy_score(y_test_int, pred_test):.4f}")
+        print(f"F1 Score:   {f1_score(y_test_int, pred_test, average='weighted'):.4f}")
+        print(f"Precision:  {precision_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
+        print(f"Recall:     {recall_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
 
 def val_evolution(model, input_row, modifiable_features, modifiable_indices, features, nb_iter=30):
     # Dictionnaire des max utilisés pour la normalisation
