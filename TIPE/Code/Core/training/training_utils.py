@@ -20,17 +20,17 @@ def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_
     """ Initialise le modèle """
     y_train = y_train.flatten()
     y_test = y_test.flatten()
-    model = Resaux(X_train, y_train, X_test, y_test, format, 1e-2, 1, path, threshold_val=treshold_val, qt=qt)
+    model = Resaux(X_train, y_train, X_test, y_test, format, path, threshold_val=treshold_val, qt=qt)
     model.save(path_n)
     return model  
 
-def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000, precision =1e-2):
+def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000, learning_rate =1e-2):
     """ Entraîne le modèle """
 
     y_train = y_train.flatten()
     y_test = y_test.flatten()
 
-    model.train(X_train, y_train, X_test, y_test, precision, iteration)
+    model.train(X_train, y_train, X_test, y_test, learning_rate, iteration)
     model.save(path_n)
     return model
 

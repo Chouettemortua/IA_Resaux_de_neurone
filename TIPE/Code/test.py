@@ -1,4 +1,4 @@
-import re
+'''import re
 import csv
 
 def parse_line(line):
@@ -286,3 +286,5 @@ def run_menu():
 
 if __name__ == "__main__":
     run_menu()
+
+    '''

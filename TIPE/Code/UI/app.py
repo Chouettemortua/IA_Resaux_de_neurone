@@ -244,6 +244,7 @@ class MainWindow(QMainWindow):
         recent_entries = self.df.tail(n)
 
         try:
+            # Préparation des données pour le modèle de qualité du sommeil
             df_quality = preprocecing_user(recent_entries)
             #print("df_quality shape:", df_quality.shape)
             #print(df_quality.head())
@@ -251,7 +252,7 @@ class MainWindow(QMainWindow):
             # Filtrer les nan ou valeurs non numériques
             mean_quality = sum(pred_qualities) / len(pred_qualities)
 
-            df_quality.insert(4, 'Quality of Sleep', pd.Series(np.round(pred_qualities), index=df_quality.index))
+            # Préparation des données pour le modèle de trouble du sommeil
             df_trouble = df_quality.copy()
             pred_trouble = [model_trouble.predict(row.values)[0] for _, row in df_trouble.iterrows()]
             mean_trouble = sum(pred_trouble) / len(pred_trouble)

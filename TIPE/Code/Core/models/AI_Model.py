@@ -2,16 +2,23 @@
 __init__ = "AI_Model"
 
 import pickle
-from tqdm import tqdm 
 import numpy as np
 from sklearn.metrics import accuracy_score, r2_score
+from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtWidgets import QApplication
 
 from ..utils.utils import courbe_perf
 
 
-class Resaux:
-    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], learning_rate=0.1, nb_iter=1, path=None, threshold_val=0.5, qt=None):
+class Resaux(QObject):
+
+    progress_updated = pyqtSignal(int) 
+
+    def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], path=None, threshold_val=0.5, qt=None):
         """ Initialise le réseau de neurones """
+
+        super().__init__()
+
         self.path = path
         self.W = None
         self.b = None
@@ -34,7 +41,6 @@ class Resaux:
             self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
             self.W += [np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i - 1]) for i in range(1, len(nb_neurone_couche))]
             self.b = [np.random.randn(n, 1) for n in nb_neurone_couche]
-            self.train(X, y, X_test, y_test, learning_rate, nb_iter)
 
     def MSE(self, A, y):
         """ Calcule l'erreur quadratique moyenne """
@@ -165,11 +171,16 @@ class Resaux:
         else:
             self.acc.append(accuracy_score(y.flatten().astype(int), y_pred))
             self.acc_t.append(accuracy_score(y_test.flatten().astype(int), y_pred_test))
-
+    
     def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement """
-        for i in tqdm(range(nb_iter)):
+        if nb_iter == 1:
+            self.progress_updated.emit(100)
+        for i in range(nb_iter):
             A = self.forward_propagation(X)
+
+            if nb_iter > 1 :
+                self.progress_updated.emit(int((i/(nb_iter-1))*100))
 
             if i % partialsteps == 0:
                 self.L.append(self.loss(A, y))
