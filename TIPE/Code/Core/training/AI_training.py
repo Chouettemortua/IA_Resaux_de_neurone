@@ -116,3 +116,4 @@ class TrainingWorker(QObject):
             courbe_perf(self.model,self.path_c)
 
         self.finished.emit()
+        
