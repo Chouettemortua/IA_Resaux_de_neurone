@@ -71,7 +71,7 @@ def preprocecing(df, on, y_normalisation=True):
         df= encodage(df)
         df = imputation(df)
 
-        for col in on:
+        for _ in on:
             X = df.drop(columns= on, axis=1)
         y = df[on[0]].values.reshape(-1, 1)
 
@@ -146,8 +146,10 @@ def preprocecing_user(df, on=None):
         return df
     
     def intern(df):
-        if on is not None and on in df.columns:
-            df.drop(columns=on, axis=1)
+        if on is not None:
+            for col in on:
+                if col in df.columns:
+                    df.drop(columns=on, axis=1)
         else:
             df= encodage(df)
             df = imputation(df)

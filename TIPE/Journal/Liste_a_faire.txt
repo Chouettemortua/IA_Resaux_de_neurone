@@ -8,10 +8,11 @@ A faire :
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
-        WAITING --- Retirer l'Utilisation de la quality of sleep pour la prédiction des trouble (erreur de la premierère boost celle de la seconde)
-        WAITING --- Améliorer l'interface admin (afficher les courbe, changer les parramètre de lancement, avoir le retour sur la fenêtre et non en shell)
+        WAITING --- Mettre en place les matrice de confusion pour évaluer les model
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         PAUSED --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
+        FAIT --- Retirer l'Utilisation de la quality of sleep pour la prédiction des trouble (erreur de la premierère boost celle de la seconde)
+        FAIT --- Améliorer l'interface admin (afficher les courbe, changer les parramètre de lancement, avoir le retour sur la fenêtre et non en shell)
         FAIT --- Crée une interface admin pour lancé les script (à l'heure actuel c'est en shell et avec choix dans le code)
         FAIT --- Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence (beaucoup mieux adapté aux problème)
         FAIT --- Passer les Occupation a seulement deux choix : Working, Not Working
