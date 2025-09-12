@@ -41,12 +41,14 @@ class TrainingWorker(QObject):
             X_train, y_train, X_test, y_test = preprocecing(df, ['Sleep Disorder', 'Quality of Sleep'], y_normalisation=False)
             self.learning_rate = 1e-3
         elif self.model_type == "Q":
-            X_train, y_train, X_test, y_test = preprocecing(df, ['Quality of Sleep', 'Sleep Disorder'], y_normalisation=True)
+            X_train, y_train, X_test, y_test = preprocecing(df, ['Quality of Sleep', 'Sleep Disorder'], y_normalisation=False)
             self.learning_rate = 1e-2
+            '''
             # Transformer y_train / y_test avec QuantileTransformer
             qt = QuantileTransformer(output_distribution='normal', random_state=42, n_quantiles= 299)
             y_train = qt.fit_transform(y_train.reshape(-1, 1)).flatten()
             y_test = qt.transform(y_test.reshape(-1, 1)).flatten()
+            '''
 
         assert not np.any(np.isin(X_train.index, X_test.index))
 
@@ -61,9 +63,9 @@ class TrainingWorker(QObject):
         
         if self.bool_c:
             if self.model_type == "T":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [1024, 512, 256, 128, 64, 32, 16, 4], self.path_n, treshold_val=None)
+                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [1024, 512, 256, 128, 64, 32, 16, 3], self.path_n, treshold_val=None)
             elif self.model_type == "Q":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [128,64,32,16,1], self.path_n, treshold_val=0.5, qt=qt)
+                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [128,64,32,16,10], self.path_n, treshold_val=None)
         else: 
             self.model = model_charge(self.path_n)
 
@@ -75,9 +77,9 @@ class TrainingWorker(QObject):
 
         # affichage des performances
         if self.model_type == "T":
-            affichage_perf(X_train, y_train, X_test, y_test, self.model)
+            affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c)
         elif self.model_type == "Q":
-            affichage_perf(X_train, y_train, X_test, y_test, self.model, qt) 
+            affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c) 
             # evolution des variables modifiables pour améliorer la prédiction
             features = ["Gender", "Age", "Occupation", "Sleep Duration",
                         "Physical Activity Level", "Stress Level", "BMI Category",

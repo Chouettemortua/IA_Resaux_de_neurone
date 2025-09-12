@@ -3,7 +3,11 @@ __init__ = "training_utils"
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
+import matplotlib.pyplot as plt
+from sklearn.metrics import (
+    accuracy_score, f1_score, precision_score, 
+    recall_score, mean_squared_error, mean_absolute_error, 
+    r2_score, confusion_matrix, ConfusionMatrixDisplay)
 from skopt import gp_minimize
 from skopt.space import Real
 
@@ -65,7 +69,35 @@ def analyse_post_process(X_train, y_train, X_test, y_test):
     print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
     print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
 
-def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
+def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion', cmap=plt.cm.Blues):
+    """ Affiche la matrice de confusion """
+    cm = confusion_matrix(y_true, y_pred)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
+    disp.plot(cmap=cmap)
+    plt.title(title)
+    plt.savefig(path)
+    plt.close()
+    print("Matrice de confusion sauvegardée dans", path)
+
+def graphique_residus(y_true, y_pred, path, title='Graphique des Résidus'):
+    """
+    Affiche un graphique des résidus pour un modèle de régression.
+
+    """
+    residuals = y_true - y_pred
+    
+    plt.figure(figsize=(10, 6))
+    plt.scatter(y_pred, residuals, alpha=0.5)
+    plt.axhline(y=0, color='red', linestyle='--')
+    plt.xlabel('Valeurs Prédites')
+    plt.ylabel('Résidus (Erreurs)')
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(path)
+    plt.close()
+    print("Graphique des résidus sauvegardé dans", path)
+
+def affichage_perf(X_train, y_train, X_test, y_test, model, path, qt=None):
     """ Affiche automatiquement les métriques selon le type du modèle (régression, binaire, ou multi-classes) """
 
     y_train_true = y_train.flatten()
@@ -89,6 +121,8 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         print(f"MAE: {mean_absolute_error(y_test_true, pred_test):.4f}")
         print(f"R²:  {r2_score(y_test_true, pred_test):.4f}")
 
+        graphique_residus(y_test_true, pred_test, path.replace('curve', 'residuals_graph'), title='Graphique des Résidus - Test')
+
     # === CAS CLASSIFICATION BINAIRE ===
     elif model.nb_classes == 1:
         y_train_bin = (y_train_true >= model.treshold_val).astype(int)
@@ -105,6 +139,8 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         print(f"F1 Score:   {f1_score(y_test_bin, pred_test):.4f}")
         print(f"Precision:  {precision_score(y_test_bin, pred_test):.4f}")
         print(f"Recall:     {recall_score(y_test_bin, pred_test):.4f}")
+
+        matrice_confusion(y_test_bin, pred_test, [0, 1], f"{path.replace('curve', 'confusion_matrix')}", title='Matrice de confusion - Test')
 
     # === CAS CLASSIFICATION MULTI-CLASSES ===
     else:
@@ -124,6 +160,10 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, qt=None):
         print(f"F1 Score:   {f1_score(y_test_int, pred_test, average='weighted'):.4f}")
         print(f"Precision:  {precision_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
         print(f"Recall:     {recall_score(y_test_int, pred_test, average='weighted', zero_division=0):.4f}")
+
+        class_labels = np.unique(np.concatenate((y_test_int, pred_test)))
+        class_names = [str(c) for c in class_labels]
+        matrice_confusion(y_test_int, pred_test, class_names, f"{path.replace('curve', 'confusion_matrix')}", title='Matrice de confusion - Test')
 
 def val_evolution(model, input_row, modifiable_features, modifiable_indices, features, nb_iter=30):
     # Dictionnaire des max utilisés pour la normalisation
