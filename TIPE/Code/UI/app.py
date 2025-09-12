@@ -259,9 +259,9 @@ class MainWindow(QMainWindow):
 
             # Mapping des classes de trouble du sommeil
             labels_trouble = {
-                1: "Normal (pas de trouble)",
-                2: "Apnée du sommeil",
-                3: "Insomnie"
+                0: "Normal (pas de trouble)",
+                1: "Apnée du sommeil",
+                2: "Insomnie"
             }
 
             # Calcul de la classe dominante moyenne
@@ -271,7 +271,7 @@ class MainWindow(QMainWindow):
             QMessageBox.information(
                 self,
                 "Analyse",
-                f"Score moyen qualité de sommeil : {mean_quality * 100:.2f}%\n"
+                f"Score moyen qualité de sommeil : {mean_quality * 10:.2f}%\n"
                 f"Trouble du sommeil détecté : {label_trouble}\n"
             )
 

@@ -11,11 +11,11 @@ def preprocecing(df, on, y_normalisation=True):
     def encodage(df):
         """ Encode les variables catégorielles """
 
-        code_bmi = {'Normal':1,'Normal Weight': 1, 'Overweight': 3, 'Underweight': 4, 'Obesity': 5}
-        code_gender = {'Male': 1, 'Female': 2}
-        code_occupation = {'Software Engineer': 1, 'Doctor': 1, 'Sales Representative': 1, 'Nurse': 1, 'Teacher': 1,
-                        'Scientist': 1, 'Engineer': 1, 'Lawyer': 1, 'Accountant': 1, 'Salesperson': 1, 'Manager': 1}
-        code_sleep_disorder = {'Normal': 1, 'Sleep Apnea': 2, 'Insomnia': 3}
+        code_bmi = {'Normal':0,'Normal Weight': 0, 'Overweight': 2, 'Underweight': 3, 'Obesity': 4}
+        code_gender = {'Male': 0, 'Female': 1}
+        code_occupation = {'Software Engineer': 0, 'Doctor': 0, 'Sales Representative': 0, 'Nurse': 0, 'Teacher': 0,
+                        'Scientist': 0, 'Engineer': 0, 'Lawyer': 0, 'Accountant': 0, 'Salesperson': 0, 'Manager': 0}
+        code_sleep_disorder = {'Normal': 0, 'Sleep Apnea': 1, 'Insomnia': 2}
         
 
         df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
@@ -57,8 +57,7 @@ def preprocecing(df, on, y_normalisation=True):
         df['Blood Pressure'] = df['Blood Pressure'].div(max_values['Blood Pressure'])
         df['Heart Rate'] = df['Heart Rate'].div(max_values['Heart Rate'])
         df['Daily Steps'] = df['Daily Steps'].div(max_values['Daily Steps'])
-        if 'Quality of Sleep' in df.columns:
-            df['Quality of Sleep'] = df['Quality of Sleep'].div(max_values['Quality of Sleep'])
+
 
         return df
     
@@ -93,9 +92,9 @@ def preprocecing_user(df, on=None):
     """ Prétraite les données """
 
     def encodage(df):
-        code_bmi = {'Normal': 1, 'Normal Weight': 1, 'Overweight': 2, 'Underweight': 3, 'Obese': 4}
-        code_gender = {'Male': 1, 'Female': 2}
-        code_occupation = {'working':1, 'unemployed':2, 'student':3, 'retired':4, 'other':5}
+        code_bmi = {'Normal': 0, 'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obese': 3}
+        code_gender = {'Male': 0, 'Female': 1}
+        code_occupation = {'working':0, 'unemployed':1, 'student':2, 'retired':3, 'other':4}
 
         df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
         df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
