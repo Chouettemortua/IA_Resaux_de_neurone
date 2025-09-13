@@ -8,6 +8,8 @@ A faire :
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
+        WAITING --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test 
+        WAITING --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. 
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         PAUSED --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
         FAIT --- Mettre en place les matrice de confusion + residual graph pour évaluer les model
