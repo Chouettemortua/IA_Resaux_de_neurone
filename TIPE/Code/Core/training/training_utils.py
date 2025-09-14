@@ -17,19 +17,43 @@ from ..models.AI_Model import Resaux
 # Gestion des modèles
 
 def load(path):
-    """ Charge le dataset """
+    """ Charge le dataset 
+    args:
+        path (str): chemin du fichier CSV"""
     return pd.read_csv(path)
 
-def model_init(path_n, X_train, y_train, X_test, y_test, format, path, treshold_val=None, qt=None):
-    """ Initialise le modèle """
+def model_init(path_n, X_train, y_train, X_test, y_test, format, treshold_val=None, qt=None):
+    """ Initialise le modèle 
+    args:
+        path_n (str): chemin pour sauvegarder le modèle
+        X_train (np.array): données d'entrainement
+        y_train (np.array): labels d'entrainement
+        X_test (np.array): données de test
+        y_test (np.array): labels de test
+        format (str): type du modèle ('regression', 'binaire', 'multi-classes')
+        treshold_val (float): seuil pour la classification binaire
+        qt (QuantileTransformer): transformateur pour la régression
+        returns:
+            model (Resaux): modèle initialisé"""
     y_train = y_train.flatten()
     y_test = y_test.flatten()
-    model = Resaux(X_train, y_train, X_test, y_test, format, path, threshold_val=treshold_val, qt=qt)
+    model = Resaux(X_train, y_train, X_test, y_test, format, path_n, threshold_val=treshold_val, qt=qt)
     model.save(path_n)
     return model  
 
 def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000, learning_rate =1e-2):
-    """ Entraîne le modèle """
+    """ Entraîne le modèle 
+    args:
+        X_train (np.array): données d'entrainement
+        y_train (np.array): labels d'entrainement
+        X_test (np.array): données de test
+        y_test (np.array): labels de test
+        model (Resaux): modèle à entraîner
+        path_n (str): chemin pour sauvegarder le modèle
+        iteration (int): nombre d'itérations
+        learning_rate (float): taux d'apprentissage
+        returns:
+            model (Resaux): modèle entraîné"""
 
     y_train = y_train.flatten()
     y_test = y_test.flatten()
@@ -39,6 +63,12 @@ def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000,
     return model
 
 def model_charge(path_n):
+    """ Charge un modèle depuis un fichier
+    args:
+        path_n (str): chemin du fichier du modèle
+    returns:
+        model (Resaux): modèle chargé"""
+    
     model = Resaux()
     model.load(path_n)
     return model
@@ -48,29 +78,53 @@ def model_charge(path_n):
 def analyse_pre_process(df):
     ''' Analyse le dataset avant le prétraitement '''
     print()
+    # Affiche les premières lignes du DataFrame
     print(df.head())
     print()
+    # Affiche des informations sur le DataFrame
     print(df.info())
     print()
+    # Statistiques descriptives
     print(df.describe())
     print()
+    # Vérifie les valeurs manquantes
     print(df.isna().sum()/df.shape[0])
     print()
 
 def analyse_post_process(X_train, y_train, X_test, y_test):
-    ''' Analyse le dataset après le prétraitement '''
+    '''
+    Analyse le dataset après le prétraitement 
+    Affiche les dimensions, types de données, et quelques exemples de données.
+    args:
+        X_train (np.array): données d'entrainement 
+        y_train (np.array): labels d'entrainement
+        X_test (np.array): données de test
+        y_test (np.array): labels de test
+    '''
+    
+    # Affiche les dimensions des ensembles de données
     print("X_train shape:", X_train.shape)
     print("y_train shape:", y_train.shape)
     print("X_test shape:", X_test.shape)
     print("y_test shape:", y_test.shape)
 
+    # Affiche les types de données et quelques exemples
     print("\nX_train data types:\n", pd.DataFrame(X_train).dtypes)
     print("\nFirst 5 rows of X_train:\n", pd.DataFrame(X_train).head())
     print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
     print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
 
 def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion', cmap=plt.cm.Blues):
-    """ Affiche la matrice de confusion """
+    """ Crée et sauvegarde la matrice de confusion 
+    args:
+        y_true (np.array): labels réels
+        y_pred (np.array): labels prédits
+        classes (list): liste des classes
+        path (str): chemin pour sauvegarder la matrice
+        title (str): titre du graphique
+        cmap: colormap pour la matrice
+    """
+    # Calcul et sauvegarde de la matrice de confusion
     cm = confusion_matrix(y_true, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=classes)
     disp.plot(cmap=cmap)
@@ -82,10 +136,17 @@ def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion
 def graphique_residus(y_true, y_pred, path, title='Graphique des Résidus'):
     """
     Affiche un graphique des résidus pour un modèle de régression.
+    args:
+        y_true (np.array): valeurs réelles
+        y_pred (np.array): valeurs prédites
+        path (str): chemin pour sauvegarder le graphique
+        title (str): titre du graphique
 
     """
+    # Calcul des résidus
     residuals = y_true - y_pred
     
+    # Tracé du graphique des résidus
     plt.figure(figsize=(10, 6))
     plt.scatter(y_pred, residuals, alpha=0.5)
     plt.axhline(y=0, color='red', linestyle='--')
@@ -93,13 +154,24 @@ def graphique_residus(y_true, y_pred, path, title='Graphique des Résidus'):
     plt.ylabel('Résidus (Erreurs)')
     plt.title(title)
     plt.grid(True)
+    # Sauvegarde du graphique
     plt.savefig(path)
     plt.close()
     print("Graphique des résidus sauvegardé dans", path)
 
 def affichage_perf(X_train, y_train, X_test, y_test, model, path, qt=None):
-    """ Affiche automatiquement les métriques selon le type du modèle (régression, binaire, ou multi-classes) """
+    """ Affiche automatiquement les métriques selon le type du modèle (régression, binaire, ou multi-classes) 
+    args:
+        X_train (np.array): données d'entrainement
+        y_train (np.array): labels d'entrainement
+        X_test (np.array): données de test
+        y_test (np.array): labels de test
+        model (Resaux): modèle à évaluer
+        path (str): chemin pour sauvegarder les graphiques
+        qt (QuantileTransformer): transformateur pour la régression
+    """
 
+    # Aplatir les labels
     y_train_true = y_train.flatten()
     y_test_true = y_test.flatten()
 
@@ -166,6 +238,16 @@ def affichage_perf(X_train, y_train, X_test, y_test, model, path, qt=None):
         matrice_confusion(y_test_int, pred_test, class_names, f"{path.replace('curve', 'confusion_matrix')}", title='Matrice de confusion - Test')
 
 def val_evolution(model, input_row, modifiable_features, modifiable_indices, features, nb_iter=30):
+    """ Utilise l'optimisation bayésienne pour trouver les meilleures modifications des caractéristiques modifiables 
+        afin de maximiser la prédiction du modèle. (utilisé pour l'IA sur la qualité du sommeil)
+    args:
+        model (Resaux): modèle entraîné
+        input_row (np.array): ligne d'entrée à modifier
+        modifiable_features (list): liste des caractéristiques modifiables
+        modifiable_indices (list): indices des caractéristiques modifiables dans l'entrée
+        features (list): liste de toutes les caractéristiques
+        nb_iter (int): nombre d'itérations pour l'optimisation bayésienne
+    """
     # Dictionnaire des max utilisés pour la normalisation
     max_values = {
         'Sleep Duration': 24, 

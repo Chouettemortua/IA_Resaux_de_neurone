@@ -12,10 +12,15 @@ class TrainingWorker(QObject):
     """
     Cette classe contient la logique d'entraînement et émet le signal de progression.
     """
+    # Signal émis pour indiquer la progression de l'entraînement
     progress_updated = pyqtSignal(int)
+    # Signal émis lorsque l'entraînement est terminé
     finished = pyqtSignal()
 
     def __init__(self, model_type, bool_c, bool_t, path_n, path_c, nb_iter, verbose):
+        """
+        Initialise le worker avec les paramètres nécessaires.
+        """
         super().__init__()
         self.model_type = model_type
         self.bool_c = bool_c
@@ -43,7 +48,7 @@ class TrainingWorker(QObject):
         elif self.model_type == "Q":
             X_train, y_train, X_test, y_test = preprocecing(df, ['Quality of Sleep', 'Sleep Disorder'], y_normalisation=False)
             self.learning_rate = 1e-2
-            '''
+            ''' was used when quality of sleep was treat as a continuous variable
             # Transformer y_train / y_test avec QuantileTransformer
             qt = QuantileTransformer(output_distribution='normal', random_state=42, n_quantiles= 299)
             y_train = qt.fit_transform(y_train.reshape(-1, 1)).flatten()
@@ -57,15 +62,16 @@ class TrainingWorker(QObject):
         
         # Train the model
 
+        # Quelques architectures testées :
         # architecture = [1,30,75,500,1000,500,100,75,30,1] atteint les 0.8 
         # architecture = [1,2000,1500,1000,500,400,100,75,30,1] atteint les 0.85 mais pas stable et long -> set trop petit pour le nombre de neurones
         # architecture = [1, 64, 32, 16, 1] se stabilise à 0.5 sous apprentissage
         
         if self.bool_c:
             if self.model_type == "T":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [1024, 512, 256, 128, 64, 32, 16, 3], self.path_n, treshold_val=None)
+                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [1024, 512, 256, 128, 64, 32, 16, 3], treshold_val=None)
             elif self.model_type == "Q":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [128,64,32,16,10], self.path_n, treshold_val=None)
+                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [128,64,32,16,10], treshold_val=None)
         else: 
             self.model = model_charge(self.path_n)
 

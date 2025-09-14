@@ -6,18 +6,26 @@ from sklearn.model_selection import train_test_split
 # Pretraitement des données
 
 def preprocecing(df, on, y_normalisation=True):
-    """ Prétraite les données """
+    """ Prétraite les données pour l'entrainement et le test 
+        args:
+            df: dataframe pandas
+            on: liste des colonnes à prédire
+            y_normalisation: booléen, si True normalise y entre 0 et 1
+        returns:
+            X_train, y_train, X_test, y_test: données d'entrainement et de test
+    """
 
     def encodage(df):
         """ Encode les variables catégorielles """
 
+        # Dictionnaires de mapping
         code_bmi = {'Normal':0,'Normal Weight': 0, 'Overweight': 2, 'Underweight': 3, 'Obesity': 4}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'Software Engineer': 0, 'Doctor': 0, 'Sales Representative': 0, 'Nurse': 0, 'Teacher': 0,
                         'Scientist': 0, 'Engineer': 0, 'Lawyer': 0, 'Accountant': 0, 'Salesperson': 0, 'Manager': 0}
         code_sleep_disorder = {'Normal': 0, 'Sleep Apnea': 1, 'Insomnia': 2}
         
-
+        # Nettoyage et conversion de Blood Pressure
         df['Blood Pressure'] = df['Blood Pressure'].str.split('/').str[0].astype(int)
         df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
         
@@ -43,10 +51,12 @@ def preprocecing(df, on, y_normalisation=True):
     def normalisation(df):
         """ Normalise les données entre 0 et 1 """
 
+        # Valeurs max pour chaque feature encoder manuellement pour correspondre a des valeurs réalistes (à ajuster si besoin)
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
                       'Physical Activity Level': 200, 'Stress Level': 10, 'BMI Category': 4, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000, 'Quality of Sleep': 10}
-       
+
+        # Normalisation des colonnes
         df['Gender'] = df['Gender'].div(max_values['Gender'])
         df['Age'] = df['Age'].div(max_values['Age'])
         df['Occupation'] = df['Occupation'].div(max_values['Occupation'])
@@ -62,14 +72,20 @@ def preprocecing(df, on, y_normalisation=True):
         return df
     
     def normalisation_y(y):
+        """ Normalise y entre 0 et 1 """
+        max_value = 1  # Valeur par défaut
         if on[0] == 'Quality of Sleep':
             max_value = 10
         return y / max_value
     
     def intern(df):
+        """ Prétraite les données et sépare X et y """
+
+        # Encode categorical variables and impute missing values
         df= encodage(df)
         df = imputation(df)
 
+        # catch columns to predict
         for _ in on:
             X = df.drop(columns= on, axis=1)
         y = df[on[0]].values.reshape(-1, 1)
@@ -81,7 +97,9 @@ def preprocecing(df, on, y_normalisation=True):
             y = normalisation_y(y) 
         return X, y
 
+    # Split dataset
     trainset, testset = split_data(df)
+    # Preprocess train and test sets
     X_train, y_train = intern(trainset)
     X_test, y_test = intern(testset)
     
@@ -89,9 +107,17 @@ def preprocecing(df, on, y_normalisation=True):
     return X_train, y_train, X_test, y_test   
 
 def preprocecing_user(df, on=None):
-    """ Prétraite les données """
+    """ Prétraite les données qui proviennent de l'utilisateur
+        args:
+            df: dataframe pandas
+            on: liste des colonnes à prédire (optionnel)
+        returns:
+            df: dataframe pandas prétraitée"""
 
     def encodage(df):
+        """ Encode les variables catégorielles """
+
+        # Dictionnaires de mapping
         code_bmi = {'Normal': 0, 'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obese': 3}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'working':0, 'unemployed':1, 'student':2, 'retired':3, 'other':4}
@@ -101,6 +127,7 @@ def preprocecing_user(df, on=None):
 
 
         # Mapper les colonnes catégorielles
+        # test debug
         #print("BMI uniques reçus :", df['BMI Category'].unique())
         df['BMI Category'] = df['BMI Category'].astype(str).str.strip().map(code_bmi)
         if df['BMI Category'].isnull().any():
@@ -145,6 +172,7 @@ def preprocecing_user(df, on=None):
         return df
     
     def intern(df):
+        """ Prétraite les données """
         if on is not None:
             for col in on:
                 if col in df.columns:

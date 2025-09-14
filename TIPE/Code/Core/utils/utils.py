@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 
 
 def courbe_perf(sleep, path, bool_p=True):
-    """ Met les courbes de perte et de performance dans un fichier """
+    """ Sauvegarde les courbes de perte et de performance dans un fichier donné.
+    Args:
+        sleep: Modèle entraîné dont on veut tracer les courbes.
+        path: Chemin du fichier où sauvegarder les courbes.
+        bool_p: Booléen pour afficher un message de confirmation.
+    """
     plt.figure(figsize=(12, 4))
 
     # Titre et label dynamique selon le type de modèle
@@ -36,6 +41,7 @@ def courbe_perf(sleep, path, bool_p=True):
     plt.ylabel(acc_ylabel)
 
     plt.tight_layout()
+    # Sauvegarde et fermeture de la figure
     plt.savefig(path)
     plt.close()
 
