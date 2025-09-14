@@ -14,6 +14,8 @@ class TrainingWorker(QObject):
     """
     # Signal émis pour indiquer la progression de l'entraînement
     progress_updated = pyqtSignal(int)
+    # Signal émis quand les coubes sont sauvegardé
+    curve_save = pyqtSignal()
     # Signal émis lorsque l'entraînement est terminé
     finished = pyqtSignal()
 
@@ -77,6 +79,8 @@ class TrainingWorker(QObject):
 
         # Connecte le signal du modèle à un slot temporaire pour émettre la progression
         self.model.progress_updated.connect(self.progress_updated)
+        # Co
+        self.model.curve_save.connect(self.curve_save)
 
         if self.bool_t:
             self.model = model_train(X_train, y_train, X_test, y_test, self.model, self.path_n, self.nb_iter, learning_rate=self.learning_rate)

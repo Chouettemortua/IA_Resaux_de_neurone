@@ -262,7 +262,7 @@ def val_evolution(model, input_row, modifiable_features, modifiable_indices, fea
     # Définir les bornes réalistes (normalisées)
     bounds = {
         'Sleep Duration': (6 / 24, 9 / 24),  # 6 à 9 heures de sommeil
-        'Physical Activity Level': (20 / 200, 150 / 200),  # 20 à 150 min activité
+        'Physical Activity Level': (0 / 360, 240 / 360),  # 0 à 240 min activité
         'Stress Level': (0 / 10, 7 / 10),  # idéalement on cherche à le réduire
         'BMI Category': (1 / 4, 2 / 4),  # viser "Normal" (1) ou "Overweight" (2)
         'Daily Steps': (1000 / 50000, 30000 / 50000),  # cible santé classique

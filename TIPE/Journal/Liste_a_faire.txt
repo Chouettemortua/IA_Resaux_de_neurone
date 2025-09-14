@@ -11,7 +11,8 @@ A faire :
         WAITING --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test 
         WAITING --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. 
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
-        PAUSED --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat et apporté correction et critique aux besoin
+        FAIT --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat
+        FAIT --- Actualisation en live des courbe dans l'interface admin
         FAIT --- Mettre en place les matrice de confusion + residual graph pour évaluer les model
         FAIT --- Retirer l'Utilisation de la quality of sleep pour la prédiction des trouble (erreur de la premierère boost celle de la seconde)
         FAIT --- Améliorer l'interface admin (afficher les courbe, changer les parramètre de lancement, avoir le retour sur la fenêtre et non en shell)
@@ -37,4 +38,4 @@ A faire :
         Rendre l'ui multilingue
         passer sur gradio pour faire un app en ligne : https://www.gradio.app
         Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
-        FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)
+        FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé
