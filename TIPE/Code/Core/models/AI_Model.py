@@ -14,6 +14,7 @@ class Resaux(QObject):
     ''' Classe de géneration et d'entrainement d'un réseau de neurones MLP (regression, binaire, multiclass) lié à une interface PyQt6'''
 
     progress_updated = pyqtSignal(int) # Signal pour mettre à jour la barre de progression dans l'interface PyQt6
+    curve_save = pyqtSignal() # Signal de la sauvegarde des courbe
 
     def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], path=None, threshold_val=0.5, qt=None):
         """ Initialise le réseau de neurones avec une architecture donnée et des poids aléatoires .
@@ -39,6 +40,7 @@ class Resaux(QObject):
         self.acc = []
         self.acc_t = []
 
+        self.partialsteps = None  # Fréquence de sauvegarde du modèle et d'évaluation des métriques (régler lors du premier appel de train)
         self.threshold_val = threshold_val
 
         self.nb_classes = nb_neurone_couche[-1]  
@@ -252,6 +254,12 @@ class Resaux(QObject):
             nb_iter (int): Nombre d'itérations d'entraînement.
             partialsteps (int): Fréquence de sauvegarde du modèle et d'évaluation des métriques.
         """
+        # On règle partialsteps lors du premier appel de train (puis on empéche de le changer pour avoir un bonne affichage de la courbe de performance)
+        if self.partialsteps is None:
+            self.partialsteps = partialsteps
+        else:
+            partialsteps = self.partialsteps
+
         if nb_iter == 1:
             self.progress_updated.emit(100)
         for i in range(nb_iter):
@@ -301,9 +309,11 @@ class Resaux(QObject):
                 'threshold_val': self.threshold_val,
                 'nb_classes': self.nb_classes,
                 'qt': self.qt,
-                'is_regression': self.is_regression
+                'is_regression': self.is_regression,
+                'partialsteps': self.partialsteps
             }, f)
         courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve").replace("TIPE/Code/Saves/", "TIPE/Code/Saves_Curves/"), bool_p)
+        self.curve_save.emit()
         if bool_p:
             print(f"Modèle sauvegardé dans {filename}")
 
@@ -326,5 +336,6 @@ class Resaux(QObject):
             self.nb_classes = data['nb_classes']
             self.qt = data['qt'] if 'qt' in data else None
             self.is_regression = data['is_regression'] if 'is_regression' in data else False
+            self.partialsteps = data['partialsteps'] if 'partialsteps' in data else None
         if bool_p:
             print(f"Modèle chargé depuis {filename}")

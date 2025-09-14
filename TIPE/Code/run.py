@@ -275,14 +275,12 @@ class MainMenu(QMainWindow):
 
         self.thread.started.connect(self.worker.run)
         self.worker.progress_updated.connect(self.update_progress_bar)
+        self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
 
         self.thread.start()
-
-        # Mettre à jour l'image de courbe après l'entraînement
-        self.display_image()
 
         # Effacer les chemins si la case n'est pas cochée
         if not self.cb_keep_paths.isChecked():
@@ -317,6 +315,7 @@ class MainMenu(QMainWindow):
 
         self.thread.started.connect(self.worker.run)
         self.worker.progress_updated.connect(self.update_progress_bar)
+        self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)

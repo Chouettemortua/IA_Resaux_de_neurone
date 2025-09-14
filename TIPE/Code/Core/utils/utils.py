@@ -1,4 +1,5 @@
 import matplotlib
+import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -22,10 +23,16 @@ def courbe_perf(sleep, path, bool_p=True):
         acc_title = "Courbe d'accuracy"
         acc_ylabel = "Accuracy"
 
+    # Axe des x dépendant de partialsteps
+    if sleep.partialsteps is not None:
+        x_values = np.arange(0, len(sleep.L) * sleep.partialsteps, sleep.partialsteps)   
+    else:
+        x_values = range(len(sleep.L))
+
     # Perte (Loss)
     plt.subplot(1, 2, 1)
-    plt.plot(sleep.L, label="train loss")
-    plt.plot(sleep.L_t, label="test loss")
+    plt.plot(x_values, sleep.L, label="train loss")
+    plt.plot(x_values, sleep.L_t, label="test loss")
     plt.legend()
     plt.title("Courbe de perte")
     plt.xlabel("Itérations")
@@ -33,8 +40,8 @@ def courbe_perf(sleep, path, bool_p=True):
 
     # Performance (Accuracy ou R²)
     plt.subplot(1, 2, 2)
-    plt.plot(sleep.acc, label=f"train {acc_label}")
-    plt.plot(sleep.acc_t, label=f"test {acc_label}")
+    plt.plot(x_values, sleep.acc, label=f"train {acc_label}")
+    plt.plot(x_values, sleep.acc_t, label=f"test {acc_label}")
     plt.legend()
     plt.title(acc_title)
     plt.xlabel("Itérations")

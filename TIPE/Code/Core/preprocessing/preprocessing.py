@@ -53,7 +53,7 @@ def preprocecing(df, on, y_normalisation=True):
 
         # Valeurs max pour chaque feature encoder manuellement pour correspondre a des valeurs réalistes (à ajuster si besoin)
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
-                      'Physical Activity Level': 200, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 4, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000, 'Quality of Sleep': 10}
 
         # Normalisation des colonnes
@@ -155,7 +155,7 @@ def preprocecing_user(df, on=None):
         """ Normalise les données entre 0 et 1 """
 
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
-                      'Physical Activity Level': 200, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 4, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000}
        
         df['Gender'] = df['Gender'].div(max_values['Gender'])
