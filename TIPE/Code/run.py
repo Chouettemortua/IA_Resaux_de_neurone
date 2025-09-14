@@ -12,6 +12,7 @@ import Core.training.AI_training as AT
 import UI.app as APP
 
 class EmittingStream(QObject):
+    """ Classe pour rediriger la sortie standard vers une QTextEdit. """
     text_written = pyqtSignal(str)
 
     def write(self, text):
@@ -23,11 +24,14 @@ class EmittingStream(QObject):
 
 class MainMenu(QMainWindow):
     def __init__(self):
+        """ Initialise le menu principal de l'application. """
+
         super().__init__()
+        # Configuration de la fenêtre principale
         self.setWindowTitle("Menu Principal")
         self.setGeometry(100, 100, 1000, 800)
 
-        # Main Layout (
+        # Main Layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QHBoxLayout(central_widget)
@@ -83,11 +87,13 @@ class MainMenu(QMainWindow):
         self.line_path_n = QLineEdit()
         self.line_path_c = QLineEdit()
 
+        # Spin Box for number of iterations
         self.line_nb_iter = QSpinBox()
         self.line_nb_iter.setRange(1000, 100000)
         self.line_nb_iter.setSingleStep(1000)
         self.line_nb_iter.setValue(1000)
 
+        # Ajout les éléments au formulaire
         param_form.addRow("Création nouvelle IA:", self.cb_c)
         param_form.addRow("Mode Entraînement:", self.cb_t)
         param_form.addRow("Conserver les chemins:", self.cb_keep_paths)
@@ -105,15 +111,15 @@ class MainMenu(QMainWindow):
         right_layout.setSpacing(20)
 
         # Image Viewer
-        self.image_dir = 'TIPE/Code/Saves_Curves'
-        self.image_combo = QComboBox()
-        if os.path.exists(self.image_dir):
+        self.image_dir = 'TIPE/Code/Saves_Curves' # Répertoire des images
+        self.image_combo = QComboBox() 
+        if os.path.exists(self.image_dir): # Vérifie si le répertoire existe
             self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')])
         self.image_label = QLabel("Sélectionnez une image pour l'afficher")
-        self.image_label.setObjectName("imageLabel")
-        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_label.setObjectName("imageLabel") 
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter) 
         self.image_label.setFixedSize(600, 400)
-        self.image_combo.currentIndexChanged.connect(self.display_image)
+        self.image_combo.currentIndexChanged.connect(self.display_image) 
 
         right_layout.addWidget(self.image_combo)
         right_layout.addWidget(self.image_label)
@@ -204,6 +210,7 @@ class MainMenu(QMainWindow):
         self.progress_bar.setValue(value)
 
     def display_image(self):
+        """ Affiche l'image sélectionnée dans le QLabel. """
         selected_file = self.image_combo.currentText()
         if selected_file:
 
@@ -219,6 +226,7 @@ class MainMenu(QMainWindow):
                                                         Qt.TransformationMode.SmoothTransformation)) 
 
     def update_console(self, text):
+        """ Met à jour la console intégrée avec le texte fourni. """
         self.console_output.insertPlainText(text)
 
     def update_form_paths(self, script_type):
@@ -235,17 +243,18 @@ class MainMenu(QMainWindow):
         self.line_path_c.clear()
 
     def run_app_script(self):
-        # Lancer l'application UI et cacher le menu
+        """ Lancer l'application UI """
+        print("\nLancement de l'application UI...\n")
         app_window = APP.MainWindow()
         app_window.show()
         self.hide()
 
     def run_atq_script(self):
-        # Lancer le script de training qualité
+        """ Lancer le script de training qualité """
         self.console_output.clear()
         print("\nLancement du script ATQ...\n")
 
-        # Récupérer les valeurs du formulaire
+        # Récupérer les valeurs du formulaire 
         self.update_form_paths('quality')
         bool_c = self.cb_c.isChecked()
         bool_t = self.cb_t.isChecked()
@@ -254,10 +263,11 @@ class MainMenu(QMainWindow):
         nb_iter = self.line_nb_iter.value()
         verbose = self.cb_verbose.isChecked()
 
+        # Afficher l'image de courbe correspondante a l'IA en cours d'entrainement
         self.image_combo.setCurrentText(path_c.split('/')[-1])
         self.display_image()
         
-        # Lancer le script
+        # Lancer le script dans un thread séparé
         self.thread = QThread()
         self.worker = AT.TrainingWorker("Q", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
 
@@ -271,15 +281,18 @@ class MainMenu(QMainWindow):
 
         self.thread.start()
 
+        # Mettre à jour l'image de courbe après l'entraînement
         self.display_image()
 
+        # Effacer les chemins si la case n'est pas cochée
         if not self.cb_keep_paths.isChecked():
             self.clear_form_paths()
         
+        # Réinitialiser le nombre d'itérations
         self.line_nb_iter.setValue(1000) 
 
     def run_att_script(self):
-        # Lancer le script de training trouble
+        """ Lancer le script de training trouble """
         self.console_output.clear()
 
         # Récupérer les valeurs du formulaire
@@ -291,9 +304,11 @@ class MainMenu(QMainWindow):
         nb_iter = self.line_nb_iter.value()
         verbose = self.cb_verbose.isChecked()
 
+        # Afficher l'image de courbe correspondante a l'IA en cours d'entrainement
         self.image_combo.setCurrentText(path_c.split('/')[-1])
         self.display_image()
 
+        # Lancer le script dans un thread séparé
         print("\nLancement du script ATT...\n")
         self.thread = QThread()
         self.worker = AT.TrainingWorker("T", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
@@ -308,14 +323,18 @@ class MainMenu(QMainWindow):
 
         self.thread.start()
 
+        # Mettre à jour l'image de courbe après l'entraînement
         self.display_image()
 
+        # Effacer les chemins si la case n'est pas cochée
         if not self.cb_keep_paths.isChecked():
             self.clear_form_paths()
 
+        # Réinitialiser le nombre d'itérations
         self.line_nb_iter.setValue(1000)
 
 def run_menu():
+    """ Lance le menu principal de l'application. """
     app = QApplication(sys.argv)
     menu = MainMenu()
     menu.show()

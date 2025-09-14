@@ -11,21 +11,34 @@ from ..utils.utils import courbe_perf
 
 
 class Resaux(QObject):
+    ''' Classe de géneration et d'entrainement d'un réseau de neurones MLP (regression, binaire, multiclass) lié à une interface PyQt6'''
 
-    progress_updated = pyqtSignal(int) 
+    progress_updated = pyqtSignal(int) # Signal pour mettre à jour la barre de progression dans l'interface PyQt6
 
     def __init__(self, X=None, y=None, X_test=None, y_test=None, nb_neurone_couche=[1], path=None, threshold_val=0.5, qt=None):
-        """ Initialise le réseau de neurones """
+        """ Initialise le réseau de neurones avec une architecture donnée et des poids aléatoires .
+        Args:
+            X (np.ndarray): Données d'entrée d'entraînement de forme (n_samples, n_features).
+            y (np.ndarray): Étiquettes de sortie d'entraînement de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
+            X_test (np.ndarray): Données d'entrée de test de forme (n_samples, n_features).
+            y_test (np.ndarray): Étiquettes de sortie de test de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
+            nb_neurone_couche (list): Liste contenant le nombre de neurones par couche, incluant la couche d'entrée et la couche de sortie.
+            path (str): Chemin pour sauvegarder le modèle entraîné.
+            threshold_val (float): Seuil pour la classification binaire.
+            qt: Objet de transformation inverse pour les tâches de régression.
+        """
 
         super().__init__()
 
         self.path = path
-        self.W = None
-        self.b = None
-        self.L = []
+        self.W = None # Poids
+        self.b = None # Biais
+        # Liste des pertes et des précisions
+        self.L = []  
         self.L_t = []  
         self.acc = []
         self.acc_t = []
+
         self.threshold_val = threshold_val
 
         self.nb_classes = nb_neurone_couche[-1]  
@@ -35,28 +48,50 @@ class Resaux(QObject):
         self.is_regression = self.qt is not None and self.nb_classes == 1
 
         if self.qt is not None and nb_neurone_couche[-1] != 1:
-            raise ValueError("Régression autorisée uniquement si la dernière couche contient 1 neurone (nb_classes == 1)")
+            raise ValueError("Régression autorisée uniquement si la dernière couche contient 1 neurone.")
 
+        # Initialisation des poids et biais
         if X is not None and y is not None:
             self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
             self.W += [np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i - 1]) for i in range(1, len(nb_neurone_couche))]
             self.b = [np.random.randn(n, 1) for n in nb_neurone_couche]
 
     def MSE(self, A, y):
-        """ Calcule l'erreur quadratique moyenne """
+        """ Calcule l'erreur quadratique moyenne 
+        Args:
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
+        Returns:
+            float: Valeur de l'erreur quadratique moyenne."""
         return np.mean((A[-1].flatten() - y.flatten()) ** 2)   
     
     def softmax(self, z):
+        """ Calcule la fonction softmax pour la classification multiclasse 
+        Args:
+            z (np.ndarray): Entrée de la couche de sortie.
+            Returns:
+            np.ndarray: Probabilités normalisées pour chaque classe."""
         exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
         return exp_z / np.sum(exp_z, axis=0, keepdims=True)
 
     def log_loss(self, A, y):
-            epsilon = 1e-15
-            A = np.clip(A[-1], epsilon, 1 - epsilon)
-            return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
+        """ Calcule la fonction de perte logistique pour la classification binaire
+        Args:
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
+            Returns:
+            float: Valeur de la perte logistique."""
+        epsilon = 1e-15
+        A = np.clip(A[-1], epsilon, 1 - epsilon)
+        return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
     
     def forward_propagation(self, X):
-        """ Calcule la propagation avant du réseau de neurones """
+        """ Calcule la propagation avant du réseau de neurones en partant des données d'entrée X. 
+            (en gros on calcule les activations de chaque couche puis on les stocke dans une liste A)
+        Args:
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+            Returns:
+                list: Liste des activations de chaque couche."""
         Z = [np.dot(self.W[0], X.T) + self.b[0]]
         A = [1 / (1 + np.exp(-Z[0]))]  # Activation sigmoïde pour la première couche
 
@@ -78,7 +113,13 @@ class Resaux(QObject):
         return A
     
     def back_propagation(self, A, X, y):
-        """ Calcule les gradients de la fonction de perte par rapport aux poids et biais """
+        """ Calcule les gradients de la fonction de perte par rapport aux poids et biais 
+        Args:
+            A (list): Liste des activations de chaque couche.
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+            y (np.ndarray): Étiquettes de sortie réelles.
+            Returns:
+                tuple: Gradients des poids et des biais."""
         m = X.shape[0]
         dW = []
         db = []
@@ -111,6 +152,12 @@ class Resaux(QObject):
         return dW, db
 
     def cross_entropy_loss(self, A, y):
+        """ Calcule la fonction de perte par entropie croisée pour la classification multiclasse 
+        Args:
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
+            Returns:
+                float: Valeur de la perte par entropie croisée."""
         m = y.shape[0]
         probs = np.clip(A[-1], 1e-15, 1 - 1e-15)
 
@@ -123,7 +170,12 @@ class Resaux(QObject):
         return -np.sum(y_one_hot * np.log(probs)) / m
 
     def loss(self, A, y):
-        """ Calcule la fonction de perte logistique """
+        """ Calcule la fonction de perte adaptée selon le type de tâche (régression, binaire, multiclass)
+        Args:
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
+            Returns:
+                float: Valeur de la fonction de perte."""
         if self.is_regression:
             return self.MSE(A, y)
         elif self.nb_classes == 1:
@@ -132,8 +184,14 @@ class Resaux(QObject):
             return self.cross_entropy_loss(A, y)
 
     def update(self, dW, db, learning_rate):
-        """ Met à jour les poids et le biais """
-        '''for i in range(len(self.W)):
+        """ Met à jour les poids et le biais 
+        Args:
+            dW (list): Gradients des poids.
+            db (list): Gradients des biais.
+            learning_rate (float): Taux d'apprentissage."""
+        
+        ''' test shapes
+        for i in range(len(self.W)):
             print(f"dW[{i}].shape", dW[i].shape)
             print(f"self.W[{i}].shape", self.W[i].shape)
             print(f"db[{i}].shape", db[i].shape)
@@ -144,7 +202,11 @@ class Resaux(QObject):
             self.b[i] -= learning_rate * db[i]
     
     def predict(self, X):
-        """Prédiction sur de nouvelles données, toujours en (n_samples, n_features)."""
+        """Prédiction sur de nouvelles données, toujours en (n_samples, n_features).
+        Args:
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+            Returns:
+                np.ndarray: Prédictions du modèle."""
         # Cas vecteur 1D (un seul exemple) → on le passe en shape (1, n_features)
         if X.ndim == 1:
             X = X.reshape(1, -1)
@@ -160,6 +222,13 @@ class Resaux(QObject):
             return np.argmax(out, axis=0)
 
     def evaluate_metrics(self, y, y_pred, y_test, y_pred_test):
+        """ Évalue les métriques de performance (précision ou R²) sur les données d'entraînement et de test et les stocke dans des liste interne au model.
+        Args:
+            y (np.ndarray): Étiquettes de sortie réelles d'entraînement.
+            y_pred (np.ndarray): Prédictions du modèle sur les données d'entraînement.
+            y_test (np.ndarray): Étiquettes de sortie réelles de test.
+            y_pred_test (np.ndarray): Prédictions du modèle sur les données de test.
+        """
         if self.is_regression:
             y = self.qt.inverse_transform(y.reshape(-1, 1)).flatten()
             y_test  = self.qt.inverse_transform(y_test.reshape(-1, 1)).flatten()
@@ -173,7 +242,16 @@ class Resaux(QObject):
             self.acc_t.append(accuracy_score(y_test.flatten().astype(int), y_pred_test))
     
     def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
-        """ Entraîne le modèle sur les données d'entraînement """
+        """ Entraîne le modèle sur les données d'entraînement 
+        Args:
+            X (np.ndarray): Données d'entrée d'entraînement de forme (n_samples, n_features).
+            y (np.ndarray): Étiquettes de sortie d'entraînement de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
+            X_test (np.ndarray): Données d'entrée de test de forme (n_samples, n_features).
+            y_test (np.ndarray): Étiquettes de sortie de test de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
+            learning_rate (float): Taux d'apprentissage.
+            nb_iter (int): Nombre d'itérations d'entraînement.
+            partialsteps (int): Fréquence de sauvegarde du modèle et d'évaluation des métriques.
+        """
         if nb_iter == 1:
             self.progress_updated.emit(100)
         for i in range(nb_iter):
@@ -197,6 +275,7 @@ class Resaux(QObject):
             self.update(dW, db, learning_rate)  
 
     def get_model_type(self):
+        """ Retourne le type de modèle : régression, binaire ou multiclass """
         if self.is_regression:
             return "regression"
         elif self.nb_classes == 1:
@@ -205,7 +284,10 @@ class Resaux(QObject):
             return "multiclass"
 
     def save(self, filename, bool_p=True):
-        """ Sauvegarde du modèle dans un fichier """
+        """ Sauvegarde du modèle dans un fichier 
+        Args:
+            filename (str): Chemin du fichier de sauvegarde.
+            bool_p (bool): Si True, affiche un message de confirmation."""
         with open(filename, 'wb') as f:
             pickle.dump({
                 'W': self.W,
@@ -225,8 +307,11 @@ class Resaux(QObject):
         if bool_p:
             print(f"Modèle sauvegardé dans {filename}")
 
-    def load(self, filename):
-        """ Charge un modèle depuis un fichier """
+    def load(self, filename, bool_p=True):
+        """ Charge un modèle depuis un fichier 
+        Args:
+            filename (str): Chemin du fichier de sauvegarde.
+        """
         with open(filename, 'rb') as f:
             data = pickle.load(f)
             self.W = data['W']
@@ -241,4 +326,5 @@ class Resaux(QObject):
             self.nb_classes = data['nb_classes']
             self.qt = data['qt'] if 'qt' in data else None
             self.is_regression = data['is_regression'] if 'is_regression' in data else False
-        print(f"Modèle chargé depuis {filename}")
+        if bool_p:
+            print(f"Modèle chargé depuis {filename}")

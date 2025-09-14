@@ -27,7 +27,11 @@ os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 # Classe pour le formulaire d'ajout d'entrée
 class AddEntryFrom(QDockWidget):
+    """ Formulaire pour ajouter une entrée utilisateur. """
     def __init__(self, add_entry_callback):
+        """ Initialisation du formulaire avec les champs nécessaires. 
+        Args:
+            add_entry_callback (function): Fonction de rappel pour ajouter une entrée."""
         super().__init__()
         self.add_entry_callback = add_entry_callback
 
@@ -120,6 +124,7 @@ class AddEntryFrom(QDockWidget):
         """)
 
     def submit_entry(self):
+        """ Collecte les données du formulaire et appelle la fonction de rappel. """
         data = {}
         for key, widget in self.fields.items():
             if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
@@ -133,10 +138,17 @@ class AddEntryFrom(QDockWidget):
 
 # Fenêtre principale de l'application
 class MainWindow(QMainWindow):
+    """ Fenêtre principale de l'application. """
     def __init__(self):
+        """ Initialisation de la fenêtre principale et des composants UI. """
+
         super().__init__()
+
+        # Configuration de la fenêtre principale
         self.setWindowTitle("Sleep IA")
         self.resize(1000, 600)
+
+        # Initialisation du DataFrame
         self.df = pd.DataFrame()
         self.columns = ["Gender", "Age", "Occupation", "Sleep Duration",
         "Physical Activity Level", "Stress Level", "BMI Category",
@@ -147,10 +159,14 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        """ Initialisation de l'interface utilisateur. """
+
+        # Barre d'outils
         self.toolbar = QToolBar("Main Toolbar")
         self.toolbar.setMovable(False)  # toolbar fixe
         self.addToolBar(self.toolbar)
 
+        # Boutons de la barre d'outils
         analyse_action = QAction(QIcon(), "Analyser", self)
         analyse_action.triggered.connect(self.analyse_data)
         self.toolbar.addAction(analyse_action)
@@ -177,8 +193,10 @@ class MainWindow(QMainWindow):
         toggle_form_action.triggered.connect(self.toggle_form_visibility)
         self.toolbar.addAction(toggle_form_action)
 
+        # Splitter pour diviser la table et le formulaire
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
+        # Table pour afficher les données
         self.table = QTableWidget()
         self.refresh_table()
         self.splitter.addWidget(self.table)
@@ -190,6 +208,11 @@ class MainWindow(QMainWindow):
         self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
 
     def add_entry(self, entry_dict):
+        """ Ajoute une entrée au DataFrame et met à jour la table.
+        Args:
+            entry_dict (dict): Dictionnaire contenant les données de l'entrée. """
+        
+        # Vérification des colonnes attendues
         expected_columns = self.columns
 
         # Créer une nouvelle ligne conforme à l'ordre attendu
@@ -204,6 +227,9 @@ class MainWindow(QMainWindow):
         self.refresh_table()
 
     def refresh_table(self):
+        """ Rafraîchit l'affichage de la table avec les données du DataFrame. """
+
+        # Mise à jour de la table
         self.table.setRowCount(len(self.df))
         self.table.setColumnCount(len(self.df.columns))
         self.table.setHorizontalHeaderLabels(self.df.columns.tolist())
@@ -224,6 +250,11 @@ class MainWindow(QMainWindow):
         header.setFont(font)
 
     def toggle_form_visibility(self, checked):
+        """ Affiche ou masque le formulaire d'ajout d'entrée.
+        Args:
+            checked (bool): État du bouton toggle. """
+        
+        # Afficher ou masquer le formulaire en fonction de l'état du bouton
         if checked:
             self.add_entry_form.show()
             self.splitter.setSizes([int(self.width() * 0.75), int(self.width() * 0.25)])
@@ -232,6 +263,9 @@ class MainWindow(QMainWindow):
             self.splitter.setSizes([self.width(), 0])
 
     def analyse_data(self):
+        """ Analyse les données du DataFrame en utilisant les modèles pré-entraînés. """
+
+        # Vérification si le DataFrame est vide
         if self.df.empty:
             QMessageBox.warning(self, "Avertissement", "Aucune donnée à analyser.")
             return
@@ -246,14 +280,17 @@ class MainWindow(QMainWindow):
         try:
             # Préparation des données pour le modèle de qualité du sommeil
             df_quality = preprocecing_user(recent_entries)
-            #print("df_quality shape:", df_quality.shape)
-            #print(df_quality.head())
+            """ test de debug
+            print("df_quality shape:", df_quality.shape)
+            print(df_quality.head())
+            """
+            # Prédictions de qualité de sommeil
             pred_qualities = [model_quality.predict(row.values)[0] for _, row in df_quality.iterrows()]
-            # Filtrer les nan ou valeurs non numériques
+            # Filtrer les nan ou valeurs non numériques (au cas où)
             mean_quality = sum(pred_qualities) / len(pred_qualities)
 
             # Préparation des données pour le modèle de trouble du sommeil
-            df_trouble = df_quality.copy()
+            df_trouble = df_quality.copy() # même preprocessing
             pred_trouble = [model_trouble.predict(row.values)[0] for _, row in df_trouble.iterrows()]
             mean_trouble = sum(pred_trouble) / len(pred_trouble)
 
@@ -268,6 +305,7 @@ class MainWindow(QMainWindow):
             classe_moyenne_trouble = round(mean_trouble)
             label_trouble = labels_trouble.get(classe_moyenne_trouble, "Inconnu")
 
+            # Affichage des résultats
             QMessageBox.information(
                 self,
                 "Analyse",
@@ -275,13 +313,17 @@ class MainWindow(QMainWindow):
                 f"Trouble du sommeil détecté : {label_trouble}\n"
             )
 
+        # Gestion des erreurs
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")
        
     def load_csv(self):
+        """ Charge un fichier CSV dans le DataFrame et met à jour la table. """
+        # Ouvrir une boîte de dialogue pour sélectionner le fichier CSV
         file, _ = QFileDialog.getOpenFileName(self, "Charger un CSV")
         if file:
             try:
+                # Lire le CSV dans un DataFrame temporaire
                 temp_df = pd.read_csv(file)
 
                 # Vérification stricte des colonnes attendues
@@ -299,18 +341,23 @@ class MainWindow(QMainWindow):
                 self.df = temp_df[self.columns]  # pour garder un ordre cohérent
                 self.refresh_table()
 
+            # Gestion des erreurs
             except Exception as e:
                 QMessageBox.critical(self, "Erreur", f"Échec du chargement : {str(e)}")
 
     def save_csv(self):
+        """ Sauvegarde le DataFrame actuel dans un fichier CSV. """
+        # Ouvrir une boîte de dialogue pour sélectionner le fichier de sauvegarde
         file, _ = QFileDialog.getSaveFileName(self, "Sauvegarder CSV")
         if file:
             try:
                 self.df.to_csv(file, index=False)
+            # Gestion des erreurs
             except Exception as e:
                 QMessageBox.critical(self, "Erreur", f"Échec de la sauvegarde : {str(e)}")
 
     def clear_table(self):
+        """ Vide le DataFrame et la table. """
         self.df = pd.DataFrame(columns=self.columns)
         self.table.setRowCount(0)
         self.table.setColumnCount(0)
@@ -319,6 +366,7 @@ class MainWindow(QMainWindow):
 
 # Lancement de l'application
 def run_app():
+    """ Lance l'application principale. """
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
