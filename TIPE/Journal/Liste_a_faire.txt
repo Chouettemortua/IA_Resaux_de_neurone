@@ -39,5 +39,3 @@ A faire :
         passer sur gradio pour faire un app en ligne : https://www.gradio.app
         Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
         FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé
-
-        try
