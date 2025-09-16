@@ -1,3 +1,41 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c238e8aebdff557a0982f1c0ffdb2fe08455ee5f264ea175f879a8103d99c0cc
-size 2901
+A faire :
+
+    DEPRECATED : utile mais n'entre plus dans mon cas d'Utilisation
+    WAITING : non démarer
+    PAUSED : a été démarer mais laisser de coter
+    EN COURS : en travaille ou en cours d'implementation
+    FAIT : Implementé
+
+    Prioritaire:
+        WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
+        WAITING --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test 
+        WAITING --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. 
+        EN COURS --- Faire le retour (ce qu'il faut améliorer)
+        FAIT --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat
+        FAIT --- Actualisation en live des courbe dans l'interface admin
+        FAIT --- Mettre en place les matrice de confusion + residual graph pour évaluer les model
+        FAIT --- Retirer l'Utilisation de la quality of sleep pour la prédiction des trouble (erreur de la premierère boost celle de la seconde)
+        FAIT --- Améliorer l'interface admin (afficher les courbe, changer les parramètre de lancement, avoir le retour sur la fenêtre et non en shell)
+        FAIT --- Crée une interface admin pour lancé les script (à l'heure actuel c'est en shell et avec choix dans le code)
+        FAIT --- Peut-être faire que la normalisation soit sur des val max logique plûtot que le max du dataset de référence (beaucoup mieux adapté aux problème)
+        FAIT --- Passer les Occupation a seulement deux choix : Working, Not Working
+        FAIT --- Changement du type d'IA pour quality -> regression
+        FAIT --- Test retirer trouble de l'entrainement pour Quality, Decision il est retirer (plus logique)
+        FAIT --- Faire en sorte que le trouble soit différencié pas juste détection d'un problème
+        FAIT --- Potentielement retirer certaine variable (Blood pressure)
+        FAIT --- Avoir qq chose de fonctionel duquel on peut complexifié et optimiser/améliorer
+        DEPRECATED --- Utilisation de deux threshold pour la quality une sur la en preprocecing pour séparer les class et un pour l'IA aprés entrainement pour optimiser
+        DEPRECATED --- Optimiser le threshold pour la sortie 
+
+    Pour plus tard :
+        si on a une vrai app qu'elle conserve les dernier donné ouvert (rouvre auto) et un meilleur interface chargement et sauvgarde
+        Regarder des truc sur le fléau de la dimension
+        se renseigner sur le fetcher engineering
+        Commenter correctement tout le code
+
+    Optionel fun:
+
+        Rendre l'ui multilingue
+        passer sur gradio pour faire un app en ligne : https://www.gradio.app
+        Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
+        FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé

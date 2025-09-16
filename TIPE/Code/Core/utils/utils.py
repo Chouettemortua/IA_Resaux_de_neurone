@@ -1,3 +1,57 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f2ef5eeb81ad661e9901dbc15ddf82cd33dc4ab09c1a6590eb93ebc8e7931d92
-size 1689
+import matplotlib
+import numpy as np
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+
+def courbe_perf(sleep, path, bool_p=True):
+    """ Sauvegarde les courbes de perte et de performance dans un fichier donné.
+    Args:
+        sleep: Modèle entraîné dont on veut tracer les courbes.
+        path: Chemin du fichier où sauvegarder les courbes.
+        bool_p: Booléen pour afficher un message de confirmation.
+    """
+    plt.figure(figsize=(12, 4))
+
+    # Titre et label dynamique selon le type de modèle
+    if sleep.is_regression:
+        acc_label = "R²"
+        acc_title = "Courbe de R²"
+        acc_ylabel = "R² score"
+    else:
+        acc_label = "accuracy"
+        acc_title = "Courbe d'accuracy"
+        acc_ylabel = "Accuracy"
+
+    # Axe des x dépendant de partialsteps
+    if sleep.partialsteps is not None:
+        x_values = np.arange(0, len(sleep.L) * sleep.partialsteps, sleep.partialsteps)   
+    else:
+        x_values = range(len(sleep.L))
+
+    # Perte (Loss)
+    plt.subplot(1, 2, 1)
+    plt.plot(x_values, sleep.L, label="train loss")
+    plt.plot(x_values, sleep.L_t, label="test loss")
+    plt.legend()
+    plt.title("Courbe de perte")
+    plt.xlabel("Itérations")
+    plt.ylabel("Loss")
+
+    # Performance (Accuracy ou R²)
+    plt.subplot(1, 2, 2)
+    plt.plot(x_values, sleep.acc, label=f"train {acc_label}")
+    plt.plot(x_values, sleep.acc_t, label=f"test {acc_label}")
+    plt.legend()
+    plt.title(acc_title)
+    plt.xlabel("Itérations")
+    plt.ylabel(acc_ylabel)
+
+    plt.tight_layout()
+    # Sauvegarde et fermeture de la figure
+    plt.savefig(path)
+    plt.close()
+
+    if bool_p:
+        print("Courbes sauvegardées dans", path)
+
