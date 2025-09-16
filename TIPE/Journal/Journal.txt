@@ -1,3 +1,38 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6857a758520dd616301e810ba83a4e6937d18f077a537bda4e056b19ab8a162f
-size 1249
+Année 2025
+
+25; 26/01 : entrainement code IA
+
+27/01 : carte mentale idée TIPE 
+
+03/02 : recherche de dataset plus mini analyse avec GPT, 
+	réflexion d'un choix parmi le 5 thème trouvé, 
+	likely sleep,
+	trie de data set sur kagle arret page 4.
+
+24/02 :choix du data set -> fixé sur une IA qui determine la qualité du sommeil
+
+03/03 :avancement code -> preprocecing et résaux a 1 neurone, fontionement opérationel
+
+10/03 : blocage sur le preprocecing non fonctionel
+
+17/03 : débugage du preprocecing bug sur reshape de y
+
+19/03 : reshape de y fait, et ajout d'une normalisation temporaire
+
+.... A remplir avec les commit plus tard
+
+04/05 : Modèle multicouche fonctionel
+
+05/05 : ébauche d'interface utilisateur
+
+12/05 : entrainement résaux sur les sleep Disorder
+
+13/05 - 17/05 : Revisite de l'ui pour la rendre un peu plus propre, Prepocesing pour le coté user, lien entre l'ui et les résaux
+
+20/05 - 22/05 : amélioration des logique, planification des prochaine étape, création d'un début de beamer pour présentation
+
+01/06 : Nouveau type de medèle - regression
+
+02/06 : Changement de methode de gestion donné en preprocecing (plus Occupation mais Working ..., et max logique et plus sur le max de dataset de ref)
+
+test 2002020
