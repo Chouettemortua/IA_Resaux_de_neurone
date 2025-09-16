@@ -44,11 +44,10 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 
 ---
 title: {{App gradio Sleep IA}}
-emoji: {{emoji}}
-colorFrom: {{colorFrom}}
-colorTo: {{colorTo}}
-sdk: {{0.1}}
-sdk_version: "{{0.1}}"
+colorFrom: {{blue}}
+colorTo: {{blue}}
+sdk: {{gradio}}
+sdk_version: "{{5.45.0}}"
 app_file: app.py
 pinned: false
 ---
