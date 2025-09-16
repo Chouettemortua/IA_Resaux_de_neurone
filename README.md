@@ -41,3 +41,14 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 # Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)].
 
 ---
+
+---
+title: {{App gradio Sleep IA}}
+emoji: {{emoji}}
+colorFrom: {{colorFrom}}
+colorTo: {{colorTo}}
+sdk: {{0.1}}
+sdk_version: "{{0.1}}"
+app_file: app.py
+pinned: false
+---
