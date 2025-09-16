@@ -1,0 +1,159 @@
+[33m05306eb[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33md8e1b97[m[33m ([m[1;31mhuggingface/main[m[33m)[m Add metadata to README.md
+[33mfb95061[m[33m ([m[1;34mreplaced[m[33m)[m repair
+[33m1d1f3d2[m repair
+[33mbd08ee7[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m41060cd[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33me8db245[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m31185a8[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33me5d43bb[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m14dbb65[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33ma8a398d[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33mcbbfdd9[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33mbd1cc4b[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33md56ba95[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m3674dab[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m155bcfe[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m42c6163[m Merge branch 'main' of github.com:Chouettemortua/IA_Resaux_de_neurone
+[33m301ebf0[m test ---
+[33m8eb7410[m test ---
+[33maca9e50[m test ---
+[33mfc38a73[m test ---
+[33m4cbb9a9[m Update README.md
+[33m6119bf6[m Update README.md
+[33ma45747d[m Update README.md
+[33m89c4a3b[m Update README.md
+[33mdb001f2[m Update README.md
+[33me79a5ae[m Update README.md
+[33me48227f[m Update README.md
+[33m157a031[m Update README.md
+[33m7042c50[m Update README.md
+[33mc401b95[m Update README.md
+[33m3607316[m Update README.md
+[33m6b29d12[m Update README.md
+[33mfbf0911[m trainning IA
+[33mcaa7234[m trainning IA
+[33mfe64f1d[m trainning IA
+[33m539ca3f[m trainning IA
+[33m65d7f3b[m Update README.md
+[33mbb166bb[m Update README.md
+[33mff37f0f[m Update README.md
+[33m4a53cf5[m Update README.md
+[33md0ded10[m Update README.md
+[33m0e1e500[m Update README.md
+[33mcdb116b[m Update README.md
+[33m4468304[m Update README.md
+[33me94355a[m Update README.md
+[33mb2beb65[m Merge remote-tracking branch 'huggingface/main'
+[33m305461b[m Merge remote-tracking branch 'huggingface/main'
+[33m581bfaf[m Merge remote-tracking branch 'huggingface/main'
+[33m4460276[m Merge remote-tracking branch 'huggingface/main'
+[33m4c78cb5[m Merge remote-tracking branch 'huggingface/main'
+[33m32da010[m Merge remote-tracking branch 'huggingface/main'
+[33mbddae62[m Merge remote-tracking branch 'huggingface/main'
+[33mdd565a7[m initial commit
+[33me24b872[m initial commit
+[33m5b18f31[m initial commit
+[33mece746b[m initial commit
+[33m2faca9c[m initial commit
+[33mba1d509[m gradio app finish ?
+[33m313ce41[m gradio app finish ?
+[33mebfea80[m gradio app finish ?
+[33m18f82c8[m gradio app finish ?
+[33m2688d1a[m gradio app finish ?
+[33ma397450[m Début gradio APP
+[33mf2eaffa[m Début gradio APP
+[33m4b34f52[m Début gradio APP
+[33m48404c3[m Début gradio APP
+[33m12af88e[m delet old requirement (new in code)
+[33m3ae7260[m delet old requirement (new in code)
+[33m13674d4[m delet old requirement (new in code)
+[33m75f2b1e[m delet old requirement (new in code)
+[33mfd86484[m Merge branch 'main' of https://github.com/Chouettemortua/IA_Resaux_de_neurone
+[33md4b95b6[m Merge branch 'main' of https://github.com/Chouettemortua/IA_Resaux_de_neurone
+[33mce99c87[m Merge branch 'main' of https://github.com/Chouettemortua/IA_Resaux_de_neurone
+[33mefdccd3[m Merge branch 'main' of https://github.com/Chouettemortua/IA_Resaux_de_neurone
+[33md27313c[m supp try in journal xd
+[33m3fcb8e6[m supp try in journal xd
+[33mb7b541d[m supp try in journal xd
+[33m835f831[m supp try in journal xd
+[33m296cdbb[m Delete .github/workflows directory
+[33mf4a75df[m Delete .github/workflows directory
+[33m868cac9[m Delete .github/workflows directory
+[33me1bb6eb[m Delete .github/workflows directory
+[33mea29388[m try something
+[33m5e9fafa[m try something
+[33mf9847d9[m try something
+[33m9e66b9e[m try something
+[33m06ca520[m Create codeql.yml
+[33m22219e0[m Create codeql.yml
+[33mceea185[m Create codeql.yml
+[33mfc5ad84[m Create codeql.yml
+[33m2acc587[m live actu of curve
+[33m8d2c866[m live actu of curve
+[33m29e7878[m live actu of curve
+[33m9dc557d[m live actu of curve
+[33m338765d[m Ajout de commentaire et de doc a toute les fonctions.
+[33m1c5d370[m Ajout de commentaire et de doc a toute les fonctions.
+[33m072fa45[m Ajout de commentaire et de doc a toute les fonctions.
+[33mb9cf59b[m Ajout de commentaire et de doc a toute les fonctions.
+[33md402cb0[m requirment.txt ajout
+[33m9846377[m requirment.txt ajout
+[33md5d617f[m requirment.txt ajout
+[33m7678639[m requirment.txt ajout
+[33m0c73279[m confusion matrix + quality to a class (because [0,10] is some classification]
+[33m0e88feb[m confusion matrix + quality to a class (because [0,10] is some classification]
+[33m3c87d9a[m confusion matrix + quality to a class (because [0,10] is some classification]
+[33mec52fcb[m confusion matrix + quality to a class (because [0,10] is some classification]
+[33ma1fecbe[m blank line for count
+[33mca22365[m blank line for count
+[33m3338462[m blank line for count
+[33ma1f61f4[m blank line for count
+[33mca85cf3[m minor change affichage graphique
+[33m5bb1c7e[m minor change affichage graphique
+[33m8bb770a[m minor change affichage graphique
+[33mcd12200[m minor change affichage graphique
+[33me23bdac[m ajout bar de progresion + training dans un autre thread (garde interaction de l'interface)
+[33mc00bfbe[m ajout bar de progresion + training dans un autre thread (garde interaction de l'interface)
+[33m40609d0[m ajout bar de progresion + training dans un autre thread (garde interaction de l'interface)
+[33m8fc5d84[m ajout bar de progresion + training dans un autre thread (garde interaction de l'interface)
+[33m9453325[m Full run menu UI fait avec tout option prévu pour le moment
+[33m00b8b76[m Full run menu UI fait avec tout option prévu pour le moment
+[33m4175983[m Full run menu UI fait avec tout option prévu pour le moment
+[33m21432b6[m Full run menu UI fait avec tout option prévu pour le moment
+[33m31707ff[m minor change
+[33m7f04d21[m minor change
+[33mb1826b0[m minor change
+[33m22bcdd5[m minor change
+[33mf04119e[m mise a jour graphique de run
+[33ma0a09d2[m mise a jour graphique de run
+[33mf2ba92a[m mise a jour graphique de run
+[33mffaca46[m mise a jour graphique de run
+[33mde1595a[m reparation import relatif par un run.py a la racine (Code)
+[33m6ff6dea[m reparation import relatif par un run.py a la racine (Code)
+[33m22383f6[m reparation import relatif par un run.py a la racine (Code)
+[33mb819a9e[m reparation import relatif par un run.py a la racine (Code)
+[33mbfcaa19[m changement de import (en relatif)
+[33m0e49810[m changement de import (en relatif)
+[33m0f328f1[m changement de import (en relatif)
+[33md5a7237[m changement de import (en relatif)
+[33m083123f[m fin refactoring
+[33mda9a25d[m fin refactoring
+[33mc3f6b2c[m fin refactoring
+[33mdfdf472[m fin refactoring
+[33mbac8231[m Début refactorisation
+[33m70637c5[m Début refactorisation
+[33m1d77964[m Début refactorisation
+[33m93cfafd[m Début refactorisation
+[33m6899eec[m Fichier compressé pour le Blanc correstion fichier
+[33mdfa0632[m Fichier compressé pour le Blanc correstion fichier
+[33mc26030b[m Fichier compressé pour le Blanc correstion fichier
+[33m4d61a17[m Fichier compressé pour le Blanc correstion fichier
+[33mffe1202[m Fichier compressé pour le Blanc
+[33m7839955[m Fichier compressé pour le Blanc
+[33m9aa1432[m Fichier compressé pour le Blanc
+[33mb7f4e4b[m Fichier compressé pour le Blanc
+[33mc33b79b[m version final Slide Blanc
+[33meedadf8[m version final Slide Blanc
+[33m6723e40[m version final Slide Blanc
+[33m90bc8
