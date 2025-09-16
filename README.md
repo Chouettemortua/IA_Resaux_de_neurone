@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: TIPE_APP_SLEEP_IA
 emoji: 😴
@@ -47,3 +48,8 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 ## Contact
 
 # Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)]
+=======
+version https://git-lfs.github.com/spec/v1
+oid sha256:92c83fd71d6f8d17595585acd2c646515d6450e509b41c1fbda0d566a1bc7824
+size 280
+>>>>>>> 1e1712f (Add metadata to README.md)
