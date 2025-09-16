@@ -5,13 +5,12 @@ import pickle
 import numpy as np
 from sklearn.metrics import accuracy_score, r2_score
 from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QApplication
 
 from ..utils.utils import courbe_perf
 
 
 class Resaux(QObject):
-    ''' Classe de géneration et d'entrainement d'un réseau de neurones MLP (regression, binaire, multiclass) lié à une interface PyQt6'''
+    '''Classe de géneration et d'entrainement d'un réseau de neurones MLP (regression, binaire, multiclass) lié à une interface PyQt6'''
 
     progress_updated = pyqtSignal(int) # Signal pour mettre à jour la barre de progression dans l'interface PyQt6
     curve_save = pyqtSignal() # Signal de la sauvegarde des courbe

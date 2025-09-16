@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
 # Importation de mes modules
 import Core.training.AI_training as AT
 import UI.app as APP
+import UI.gradio_app as GRAPP
 
 class EmittingStream(QObject):
     """ Classe pour rediriger la sortie standard vers une QTextEdit. """
@@ -47,15 +48,18 @@ class MainMenu(QMainWindow):
         left_layout.addWidget(title_label)
         
         # Buttons
-        self.btn_app = QPushButton("Lancer l'Application UI")
+        self.btn_app = QPushButton("Lancer l'Application Desktop")
+        self.btn_gapp = QPushButton("Lancer l'Application gradio")
         self.btn_atq = QPushButton("Lancer le script de Training Qualité")
         self.btn_att = QPushButton("Lancer le script de Training Trouble")
 
         self.btn_app.clicked.connect(self.run_app_script)
+        self.btn_gapp.clicked.connect(self.run_app_gradio)
         self.btn_atq.clicked.connect(self.run_atq_script)
         self.btn_att.clicked.connect(self.run_att_script)
 
         left_layout.addWidget(self.btn_app)
+        left_layout.addWidget(self.btn_gapp)
         left_layout.addWidget(self.btn_atq)
         left_layout.addWidget(self.btn_att)
         left_layout.addSpacing(25)
@@ -65,12 +69,14 @@ class MainMenu(QMainWindow):
         param_form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         param_form.setFormAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         param_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
+
         
         # Checkboxes
         self.cb_c = QCheckBox()
         self.cb_t = QCheckBox()
         self.cb_keep_paths = QCheckBox()
         self.cb_verbose = QCheckBox()
+
 
         # Text fields
         self.default_paths = {
@@ -93,7 +99,8 @@ class MainMenu(QMainWindow):
         self.line_nb_iter.setSingleStep(1000)
         self.line_nb_iter.setValue(1000)
 
-        # Ajout les éléments au formulaire
+        # Ajout les éléments aux formulaires
+
         param_form.addRow("Création nouvelle IA:", self.cb_c)
         param_form.addRow("Mode Entraînement:", self.cb_t)
         param_form.addRow("Conserver les chemins:", self.cb_keep_paths)
@@ -242,9 +249,14 @@ class MainMenu(QMainWindow):
         self.line_path_n.clear()
         self.line_path_c.clear()
 
+    def run_app_gradio(self):
+        """ Lancer l'application UI Gradio """
+        print("\nLancement de l'application UI Gradio...\n")
+        GRAPP.run_gradio_app()
+
     def run_app_script(self):
         """ Lancer l'application UI """
-        print("\nLancement de l'application UI...\n")
+        print("Lancement de l'application Desktop...")
         app_window = APP.MainWindow()
         app_window.show()
         self.hide()
