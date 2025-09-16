@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b4c4e13def53bb7a813ef9f05b6f4b3216a108bd4013f22e410f61cfbbdae470
-size 172
+Gender,Age,Occupation,Sleep Duration,Physical Activity Level,Stress Level,BMI Category,Blood Pressure,Heart Rate,Daily Steps
+Male,18,working,7.0,10,3,Normal,140/90,84,5000
