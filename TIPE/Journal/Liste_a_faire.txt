@@ -1,5 +1,12 @@
 <<<<<<< HEAD
 version https://git-lfs.github.com/spec/v1
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+oid sha256:c238e8aebdff557a0982f1c0ffdb2fe08455ee5f264ea175f879a8103d99c0cc
+size 2901
+=======
+>>>>>>> bdb730a (J'ai réparer ?)
 oid sha256:a348e14c06143ad20851513343d56f283e51862f3a61d7565dc54c5b3712eae2
 size 2915
 =======
@@ -47,3 +54,7 @@ A faire :
 
         test
 >>>>>>> d92009d9428a1391c66883dc0ca9ce40ce5daeef
+<<<<<<< HEAD
+=======
+>>>>>>> b65d46c (J'ai réparer ?)
+>>>>>>> bdb730a (J'ai réparer ?)
