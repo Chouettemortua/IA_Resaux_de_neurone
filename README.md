@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-
 # Projet IA Sommeil
 
 Ce projet contient des modèles d’intelligence artificielle pour prédire la qualité du sommeil et détecter des troubles du sommeil à partir de données utilisateur.
@@ -43,9 +41,3 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 # Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)].
 
 ---
-
-## title: TIPE APP SLEEP IAemoji: 🌖colorFrom: indigocolorTo: redsdk: gradiosdk_version: 5.45.0app_file: app.pypinned: falselicense: othershort_description: An IA that predict sleep quality and trouble
-
-Check out the configuration reference at [https://huggingface.co/docs/hub/spaces-config-reference](https://huggingface.co/docs/hub/spaces-config-reference)
-
-> > > > > > > huggingface/main
