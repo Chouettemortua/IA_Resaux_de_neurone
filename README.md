@@ -41,3 +41,16 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 # Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)].
 
 ---
+<<<<<<< HEAD
+=======
+
+---
+title: {{App gradio Sleep IA}}
+colorFrom: {{blue}}
+colorTo: {{blue}}
+sdk: {{gradio}}
+sdk_version: "{{5.45.0}}"
+app_file: app.py
+pinned: false
+---
+>>>>>>> 77d2e5f27d448d8498abbfbf25baafe4e85d3c82
