@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:17ff47cc769183e1c90f120ff21e181a2a12df59e0b1761ac1015ddc8995cfb8
-size 407
+Biblio:
+
+https://theses.hal.science/tel-03642096v1/file/NGUYEN_2021_archivage.pdf , thèse sur les  det du sommeil
+https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset, dataset use
+https://www.revmed.ch/revue-medicale-suisse/2002/revue-medicale-suisse-2386/complications-cardiovasculaires-du-syndrome-d-apnees-du-sommeil, apnée du sommeil et pression sanguine on peux pas l'enlever
