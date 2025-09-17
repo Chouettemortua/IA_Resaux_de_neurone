@@ -1,11 +1,3 @@
-title: TIPE_APP_SLEEP_IA
-emoji: 😴
-colorFrom: red
-colorTo: pink
-sdk: gradio
-app_port: 7860
---------------
-
 # Projet IA Sommeil
 
 Ce projet contient des modèles d’intelligence artificielle pour prédire la qualité du sommeil et détecter des troubles du sommeil à partir de données utilisateur.
