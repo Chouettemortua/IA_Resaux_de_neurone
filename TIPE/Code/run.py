@@ -9,7 +9,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
 
 # Importation de mes modules
 import Core.training.AI_training as AT
-import UI.app as APP
+import TIPE.Code.UI.app_desk as APP
 
 class EmittingStream(QObject):
     """ Classe pour rediriger la sortie standard vers une QTextEdit. """
