@@ -1,10 +1,8 @@
-
 __init__ = "Gradio app module"
 
 import gradio as gr
 import pandas as pd
 import numpy as np
-import uvicorn
 
 from TIPE.Code.Core.training.training_utils import model_charge
 from TIPE.Code.Core.preprocessing.preprocessing import preprocecing_user
@@ -40,33 +38,30 @@ class GradioApp:
         if df.empty:
             return "Aucune donnée à analyser."
 
+        # Prendre les 5 dernières entrées ou toutes si il y en a moins de 5
         n = min(5, len(df))
         recent_entries = df.tail(n)
 
-        # Prétraitement et prédictions
         try:
-            # Préparation des données pour le modèle de qualité du sommeil
-            df_processed_q = preprocecing_user(recent_entries)
+            # Prétraitement de toutes les entrées récentes
+            df_processed = preprocecing_user(recent_entries)
             
-            # Prédictions de qualité de sommeil et calcul de la moyenne
-            pred_qualities = [self.model_Q.predict(row.values)[0] for _, row in df_processed_q.iterrows()]
+            # Prédictions et calcul des moyennes
+            pred_qualities = self.model_Q.predict(df_processed)
             mean_quality = np.mean(pred_qualities)
             
-            # Préparation des données pour le modèle de trouble du sommeil
-            df_processed_t = df_processed_q.copy
-            
-            # Prédictions de trouble du sommeil et calcul de la moyenne
-            pred_troubles = [self.model_T.predict(row.values)[0] for _, row in df_processed_t.iterrows()]
+            pred_troubles = self.model_T.predict(df_processed)
             mean_trouble = np.mean(pred_troubles)
             
             # Détermination de la classe de trouble dominante en arrondissant la moyenne
             classe_moyenne_trouble = int(round(mean_trouble))
-            classe_moyenne_quality = int(round(mean_quality)*10)
-            label_trouble = self.labels_trouble.get(classe_moyenne_trouble, "Inconnu")
+            classe_moyenne_quality = int(round(mean_quality * 10))
+            label_trouble = self.label_trouble.get(classe_moyenne_trouble, "Inconnu")
 
             return (
+                f"Analyse basée sur les {n} dernières entrées :\n"
                 f"Score moyen qualité de sommeil : {classe_moyenne_quality}%\n"
-                f"Trouble du sommeil détecté : {label_trouble}"
+                f"Trouble du sommeil dominant : {label_trouble}"
             )
 
         except Exception as e:
@@ -137,7 +132,8 @@ class GradioApp:
                 with gr.Column(scale=1):
                     gr.Markdown("### Analyse")
                     analyze_button = gr.Button("Analyser")
-                    analysis_output = gr.Textbox(label="Résultats de l'Analyse")
+                    # Ajout de lines=3 pour augmenter la hauteur de la zone de texte
+                    analysis_output = gr.Textbox(label="Résultats de l'Analyse", lines=3)
 
             # Définition des interactions
             add_button.click(
