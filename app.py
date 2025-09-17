@@ -49,22 +49,23 @@ class GradioApp:
             df_processed_q = preprocecing_user(recent_entries)
             
             # Prédictions de qualité de sommeil et calcul de la moyenne
-            pred_qualities = self.model_Q.predict(df_processed_q)
-            mean_quality = np.mean(pred_qualities) * 10
+            pred_qualities = [self.model_Q.predict(row.values)[0] for _, row in df_processed_q.iterrows()]
+            mean_quality = np.mean(pred_qualities)
             
             # Préparation des données pour le modèle de trouble du sommeil
-            df_processed_t = preprocecing_user(recent_entries)
+            df_processed_t = df_processed_q.copy
             
             # Prédictions de trouble du sommeil et calcul de la moyenne
-            pred_troubles = self.model_T.predict(df_processed_t)
+            pred_troubles = [self.model_T.predict(row.values)[0] for _, row in df_processed_t.iterrows()]
             mean_trouble = np.mean(pred_troubles)
             
             # Détermination de la classe de trouble dominante en arrondissant la moyenne
             classe_moyenne_trouble = int(round(mean_trouble))
+            classe_moyenne_quality = int(round(mean_quality)*10)
             label_trouble = self.labels_trouble.get(classe_moyenne_trouble, "Inconnu")
 
             return (
-                f"Score moyen qualité de sommeil : {mean_quality:.2f}%\n"
+                f"Score moyen qualité de sommeil : {classe_moyenne_quality}%\n"
                 f"Trouble du sommeil détecté : {label_trouble}"
             )
 
