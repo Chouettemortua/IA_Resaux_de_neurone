@@ -10,6 +10,7 @@ A faire :
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
         WAITING --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test 
         WAITING --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. 
+        WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         FAIT --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat
         FAIT --- Actualisation en live des courbe dans l'interface admin

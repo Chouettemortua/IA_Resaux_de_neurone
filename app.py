@@ -91,6 +91,19 @@ class GradioApp:
     def launch(self):
         with gr.Blocks() as demo:
             gr.Markdown("# Application d'Analyse du Sommeil")
+
+            with gr.Row():
+                with gr.Column(scale=1):
+                    gr.Markdown("### Actions sur les Fichiers")
+                    with gr.Group():
+                        load_file_button = gr.UploadButton("Charger un CSV", file_types=[".csv"])
+                        clear_button = gr.Button("Vider la table")
+                
+                with gr.Column(scale=1):
+                    gr.Markdown("### Analyse")
+                    analyze_button = gr.Button("Analyser")
+                    # Ajout de lines=3 pour augmenter la hauteur de la zone de texte
+                    analysis_output = gr.Textbox(label="Résultats de l'Analyse", lines=3)
             
             with gr.Row():
                 with gr.Column(scale=2):
@@ -122,18 +135,6 @@ class GradioApp:
                         }
                     add_button = gr.Button("Ajouter à la base")
             
-            with gr.Row():
-                with gr.Column(scale=1):
-                    gr.Markdown("### Actions sur les Fichiers")
-                    with gr.Group():
-                        load_file_button = gr.UploadButton("Charger un CSV", file_types=[".csv"])
-                        clear_button = gr.Button("Vider la table")
-                
-                with gr.Column(scale=1):
-                    gr.Markdown("### Analyse")
-                    analyze_button = gr.Button("Analyser")
-                    # Ajout de lines=3 pour augmenter la hauteur de la zone de texte
-                    analysis_output = gr.Textbox(label="Résultats de l'Analyse", lines=3)
 
             # Définition des interactions
             add_button.click(
