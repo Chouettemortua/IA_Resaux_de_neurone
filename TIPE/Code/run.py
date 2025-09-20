@@ -77,12 +77,12 @@ class MainMenu(QMainWindow):
         # Text fields
         self.default_paths = {
             'quality': {
-                'path_n': 'Saves/save_sleep_quality.pkl',
-                'path_c': 'Saves_Curves/curve_sleep_quality.png'
+                'path_n': 'TIPE/Code/Saves/save_sleep_quality.pkl',
+                'path_c': 'TIPE/Code/Saves_Curves/curve_sleep_quality.png'
                   },
             'trouble': {
-                'path_n': 'Saves/save_sleep_trouble.pkl',
-                'path_c': 'Saves_Curves/curve_sleep_trouble.png'
+                'path_n': 'TIPE/Code/Saves/save_sleep_trouble.pkl',
+                'path_c': 'TIPE/Code/Saves_Curves/curve_sleep_trouble.png'
                  }
         }
         
@@ -114,7 +114,7 @@ class MainMenu(QMainWindow):
         right_layout.setSpacing(20)
 
         # Image Viewer
-        self.image_dir = 'Saves_Curves' # Répertoire des images
+        self.image_dir = 'TIPE/Code/Saves_Curves' # Répertoire des images
         self.image_combo = QComboBox() 
         if os.path.exists(self.image_dir): # Vérifie si le répertoire existe
             self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')])
