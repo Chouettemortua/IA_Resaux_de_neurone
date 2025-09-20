@@ -277,8 +277,8 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        model_quality = model_charge("TIPE/Code/Saves/save_sleep_quality.pkl")
-        model_trouble = model_charge("TIPE/Code/Saves/save_sleep_trouble.pkl")
+        model_quality = model_charge("Saves/save_sleep_quality.pkl")
+        model_trouble = model_charge("Saves/save_sleep_trouble.pkl")
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)

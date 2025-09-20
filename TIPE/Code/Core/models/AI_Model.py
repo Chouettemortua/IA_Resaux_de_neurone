@@ -311,7 +311,7 @@ class Resaux(QObject):
                 'is_regression': self.is_regression,
                 'partialsteps': self.partialsteps
             }, f)
-        courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve").replace("TIPE/Code/Saves/", "TIPE/Code/Saves_Curves/"), bool_p)
+        courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve").replace("Saves/", "Saves_Curves/"), bool_p)
         self.curve_save.emit()
         if bool_p:
             print(f"Modèle sauvegardé dans {filename}")
