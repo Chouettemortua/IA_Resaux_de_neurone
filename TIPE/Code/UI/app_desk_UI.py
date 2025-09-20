@@ -21,8 +21,15 @@ from Core.training.training_utils import model_charge
 from Core.preprocessing.preprocessing import preprocecing_user
 
 
-# Configuration de l'environnement pour éviter les erreurs de plateforme
-os.environ["QT_QPA_PLATFORM"] = "xcb"
+if sys.platform == "win32":
+    # Pour windows
+    os.environ["QT_QPA_PLATFORM"] = "windows"
+elif sys.platform == "linux":
+    # Pour les systèmes basés sur Linux
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
+elif sys.platform == "darwin":
+    # Pour macOS
+    os.environ["QT_QPA_PLATFORM"] = "cocoa"
 
 # Classe pour le formulaire d'ajout d'entrée
 class AddEntryFrom(QDockWidget):
