@@ -6,7 +6,6 @@
 import sys
 import os
 import pandas as pd
-import numpy as np
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
