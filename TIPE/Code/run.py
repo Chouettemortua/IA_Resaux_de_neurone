@@ -284,6 +284,7 @@ class MainMenu(QMainWindow):
         self.thread.finished.connect(self.thread.deleteLater)
 
         self.thread.start()
+        self.thread.join()
 
         # Effacer les chemins si la case n'est pas cochée
         if not self.cb_keep_paths.isChecked():
