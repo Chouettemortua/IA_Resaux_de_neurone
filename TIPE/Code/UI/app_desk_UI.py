@@ -34,12 +34,13 @@ elif sys.platform == "darwin":
 # Classe pour le formulaire d'ajout d'entrée
 class AddEntryFrom(QDockWidget):
     """ Formulaire pour ajouter une entrée utilisateur. """
-    def __init__(self, add_entry_callback):
+    def __init__(self, add_entry_callback, correspondance):
         """ Initialisation du formulaire avec les champs nécessaires. 
         Args:
             add_entry_callback (function): Fonction de rappel pour ajouter une entrée."""
         super().__init__()
         self.add_entry_callback = add_entry_callback
+        self.correspondance = correspondance
 
         self.form_widget = QWidget()
         self.setWidget(self.form_widget)
@@ -60,33 +61,33 @@ class AddEntryFrom(QDockWidget):
         # Champs avec widgets appropriés
         gender = QComboBox()
         gender.addItems(["Male", "Female"])
-        add_row("Gender", gender); row += 1
+        add_row("Genre", gender); row += 1
 
         bmi = QComboBox()
-        bmi.addItems(["Normal", "Overweight", "Underweight", "Obese"])
-        add_row("BMI Category", bmi); row += 1
+        bmi.addItems(["Normal", "Surpoid", "Sous-poid", "Obese"])
+        add_row("IMC Catégorie", bmi); row += 1
 
         age = QSpinBox(); age.setRange(0, 120)
         add_row("Age", age); row += 1
 
         sleep_duration = QDoubleSpinBox(); sleep_duration.setRange(0.0, 24.0); sleep_duration.setSingleStep(1)
-        add_row("Sleep Duration", sleep_duration); row += 1
+        add_row("Durée du sommeil", sleep_duration); row += 1
 
         physical_activity = QSpinBox(); physical_activity.setRange(0, 1440)
-        add_row("Physical Activity Level", physical_activity); row += 1
+        add_row("Temps d'activité physique", physical_activity); row += 1
 
         stress = QSpinBox(); stress.setRange(1, 10)
-        add_row("Stress Level", stress); row += 1
+        add_row("Niveau de stress", stress); row += 1
 
         blood_pressure = QLineEdit()
         blood_pressure.setPlaceholderText("Ex: 120/80")
-        add_row("Blood Pressure", blood_pressure); row += 1
+        add_row("Pression sanguine", blood_pressure); row += 1
 
         heart_rate = QSpinBox(); heart_rate.setRange(30, 200)
-        add_row("Heart Rate", heart_rate); row += 1
+        add_row("BPM", heart_rate); row += 1
 
         steps = QSpinBox(); steps.setRange(0, 50000); steps.setSingleStep(1000)
-        add_row("Daily Steps", steps); row += 1
+        add_row("Pas journalier", steps); row += 1
 
         occupation = QComboBox()
         occupation.addItems(['working', 'unemployed', 'student', 'retired', 'other'])
@@ -134,11 +135,11 @@ class AddEntryFrom(QDockWidget):
         data = {}
         for key, widget in self.fields.items():
             if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
-                data[key] = widget.value()
+                data[self.correspondance[key]] = widget.value()
             elif isinstance(widget, QComboBox):
-                data[key] = widget.currentText()
+                data[self.correspondance[key]] = widget.currentText()
             elif isinstance(widget, QLineEdit):
-                data[key] = widget.text()
+                data[self.correspondance[key]] = widget.text()
         self.add_entry_callback(data)
 
 
@@ -160,6 +161,21 @@ class MainWindow(QMainWindow):
         "Physical Activity Level", "Stress Level", "BMI Category",
         "Blood Pressure", "Heart Rate", "Daily Steps"
         ]
+        self.correspondance = {
+            "Genre" : self.columns[0],
+            "IMC Catégorie" : self.columns[6],
+            "Age" : self.columns[1],
+            "Durée du sommeil" : self.columns[3],
+            "Temps d'activité physique" : self.columns[4],
+            "Niveau de stress" : self.columns[5],
+            "Pression sanguine" : self.columns[7],
+            "BPM" : self.columns[8],
+            "Pas journalier" : self.columns[9],
+            "Occupation" : self.columns[2],
+            "Surpoid" : "overweight",
+            "Sous-poid" : "underweight",
+            "Obese" : "Obese"
+        }
         self.df = pd.DataFrame(columns=self.columns)
 
         self.init_ui()
@@ -207,7 +223,8 @@ class MainWindow(QMainWindow):
         self.refresh_table()
         self.splitter.addWidget(self.table)
 
-        self.add_entry_form = AddEntryFrom(self.add_entry)
+        # Questionaire
+        self.add_entry_form = AddEntryFrom(self.add_entry, self.correspondance)
         self.splitter.addWidget(self.add_entry_form)
 
         self.setCentralWidget(self.splitter)
@@ -277,8 +294,11 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        model_quality = model_charge("Saves/save_sleep_quality.pkl")
-        model_trouble = model_charge("Saves/save_sleep_trouble.pkl")
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
+        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        model_quality = model_charge(model_quality_path)
+        model_trouble = model_charge(model_trouble_path)
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)
@@ -321,7 +341,7 @@ class MainWindow(QMainWindow):
 
         # Gestion des erreurs
         except Exception as e:
-            QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")
+            QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)} PS: MARTIN")
        
     def load_csv(self):
         """ Charge un fichier CSV dans le DataFrame et met à jour la table. """

@@ -36,7 +36,6 @@ A faire :
 
     Optionel fun:
 
-        Rendre l'ui multilingue
         FAIT --- Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
         FAIT --- Faire un app gradio pour mettre en ligne : https://www.gradio.app
         FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé

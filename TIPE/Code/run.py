@@ -75,14 +75,19 @@ class MainMenu(QMainWindow):
 
 
         # Text fields
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
+        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        model_quality_curve_path = os.path.join(parent_dir, 'Saves_Curves', 'curve_sleep_quality.png')
+        model_trouble_curve_path = os.path.join(parent_dir, 'Saves_Curves', 'curve_sleep_trouble.png')
         self.default_paths = {
             'quality': {
-                'path_n': 'TIPE/Code/Saves/save_sleep_quality.pkl',
-                'path_c': 'TIPE/Code/Saves_Curves/curve_sleep_quality.png'
+                'path_n': model_quality_path,
+                'path_c': model_quality_curve_path
                   },
             'trouble': {
-                'path_n': 'TIPE/Code/Saves/save_sleep_trouble.pkl',
-                'path_c': 'TIPE/Code/Saves_Curves/curve_sleep_trouble.png'
+                'path_n': model_trouble_path,
+                'path_c': model_trouble_curve_path
                  }
         }
         
