@@ -75,7 +75,7 @@ class MainMenu(QMainWindow):
 
 
         # Text fields
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        parent_dir = os.path.dirname(os.path.abspath(__file__))
         model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
         model_quality_curve_path = os.path.join(parent_dir, 'Saves_Curves', 'curve_sleep_quality.png')
