@@ -294,9 +294,15 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
-        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        file_dir = os.path.abspath(__file__)
+        parent_dir = os.path.dirname(os.path.dirname(file_dir))
+
+        if file_dir.split("/")[-2] == "UI" :
+            model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
+            model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        else :
+            model_quality_path = os.path.join(file_dir, 'Saves', 'save_sleep_quality.pkl')
+            model_trouble_path = os.path.join(file_dir, 'Saves', 'save_sleep_trouble.pkl')
         model_quality = model_charge(model_quality_path)
         model_trouble = model_charge(model_trouble_path)
 
@@ -342,7 +348,7 @@ class MainWindow(QMainWindow):
         # Gestion des erreurs
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)} PS: MARTIN")
-       
+
     def load_csv(self):
         """ Charge un fichier CSV dans le DataFrame et met à jour la table. """
         # Ouvrir une boîte de dialogue pour sélectionner le fichier CSV
