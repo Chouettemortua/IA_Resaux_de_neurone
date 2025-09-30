@@ -242,13 +242,14 @@ class Resaux(QObject):
             self.acc.append(accuracy_score(y.flatten().astype(int), y_pred))
             self.acc_t.append(accuracy_score(y_test.flatten().astype(int), y_pred_test))
     
-    def train(self, X, y, X_test, y_test, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
+    def train(self, X, y, X_test, y_test, curve_path, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
         """ Entraîne le modèle sur les données d'entraînement 
         Args:
             X (np.ndarray): Données d'entrée d'entraînement de forme (n_samples, n_features).
             y (np.ndarray): Étiquettes de sortie d'entraînement de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
             X_test (np.ndarray): Données d'entrée de test de forme (n_samples, n_features).
             y_test (np.ndarray): Étiquettes de sortie de test de forme (n_samples,) ou (n_samples, n_classes) pour la classification multiclasse.
+            curve_path (str): Chemin pour sauvegarder les courbes de performance.
             learning_rate (float): Taux d'apprentissage.
             nb_iter (int): Nombre d'itérations d'entraînement.
             partialsteps (int): Fréquence de sauvegarde du modèle et d'évaluation des métriques.
@@ -276,7 +277,7 @@ class Resaux(QObject):
 
             if i % (partialsteps*100) == 0:
                 if self.path is not None:
-                    self.save(self.path, bool_p=False)
+                    self.save(self.path, curve_path ,bool_p=False)
             
             dW, db = self.back_propagation(A, X, y)
             self.update(dW, db, learning_rate)  
@@ -290,10 +291,11 @@ class Resaux(QObject):
         else:
             return "multiclass"
 
-    def save(self, filename, bool_p=True):
+    def save(self, filename, curve_path, bool_p=True):
         """ Sauvegarde du modèle dans un fichier 
         Args:
             filename (str): Chemin du fichier de sauvegarde.
+            curve_path (str): Chemin pour sauvegarder les courbes de performance.
             bool_p (bool): Si True, affiche un message de confirmation."""
         with open(filename, 'wb') as f:
             pickle.dump({
@@ -311,7 +313,7 @@ class Resaux(QObject):
                 'is_regression': self.is_regression,
                 'partialsteps': self.partialsteps
             }, f)
-        courbe_perf(self, self.path.replace(".pkl", ".png").replace("save", "curve").replace("Saves/", "Saves_Curves/"), bool_p)
+        courbe_perf(self, curve_path, bool_p)
         self.curve_save.emit()
         if bool_p:
             print(f"Modèle sauvegardé dans {filename}")
