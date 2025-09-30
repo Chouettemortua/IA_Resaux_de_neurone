@@ -66,34 +66,15 @@ class MainMenu(QMainWindow):
         param_form.setFormAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         param_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        
+        # Line Edits for paths
+        self.line_path_n = QLineEdit()
+        self.line_path_c = QLineEdit()
+
         # Checkboxes
         self.cb_c = QCheckBox()
         self.cb_t = QCheckBox()
         self.cb_keep_paths = QCheckBox()
         self.cb_verbose = QCheckBox()
-
-
-        # Text fields
-        parent_dir = os.path.dirname(os.path.abspath(__file__))
-        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
-        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
-        parent_dir_im = os.path.join(parent_dir, 'Saves_Curves')
-        model_quality_curve_path = os.path.join(parent_dir_im, 'curve_sleep_quality.png')
-        model_trouble_curve_path = os.path.join(parent_dir_im, 'curve_sleep_trouble.png')
-        self.default_paths = {
-            'quality': {
-                'path_n': model_quality_path,
-                'path_c': model_quality_curve_path
-                  },
-            'trouble': {
-                'path_n': model_trouble_path,
-                'path_c': model_trouble_curve_path
-                 }
-        }
-        
-        self.line_path_n = QLineEdit()
-        self.line_path_c = QLineEdit()
 
         # Spin Box for number of iterations
         self.line_nb_iter = QSpinBox()
@@ -118,6 +99,14 @@ class MainMenu(QMainWindow):
         # --- Right Panel: Image and Console ---
         right_layout = QVBoxLayout()
         right_layout.setSpacing(20)
+
+        # Paths for models and images
+        parent_dir = os.path.dirname(os.path.abspath(__file__))
+        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
+        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        parent_dir_im = os.path.join(parent_dir, 'Saves_Curves')
+        model_quality_curve_path = os.path.join(parent_dir_im, 'curve_sleep_quality.png')
+        model_trouble_curve_path = os.path.join(parent_dir_im, 'curve_sleep_trouble.png')
 
         # Image Viewer
         self.image_dir = parent_dir_im # Répertoire des images
@@ -164,6 +153,26 @@ class MainMenu(QMainWindow):
         self.stdout_redirect = EmittingStream()
         self.stdout_redirect.text_written.connect(self.update_console)
         sys.stdout = self.stdout_redirect
+
+        # print of paths for debug
+        print(f"Debug: parent_dir = {parent_dir}")
+        print(f"Debug: parent_dir_im = {parent_dir_im}")
+        print(f"Debug: model_quality_path = {model_quality_path}")
+        print(f"Debug: model_trouble_path = {model_trouble_path}")
+        print(f"Debug: model_quality_curve_path = {model_quality_curve_path}")
+        print(f"Debug: model_trouble_curve_path = {model_trouble_curve_path}")
+
+        # Definition des chemins par défaut
+        self.default_paths = {
+            'quality': {
+                'path_n': model_quality_path,
+                'path_c': model_quality_curve_path
+                  },
+            'trouble': {
+                'path_n': model_trouble_path,
+                'path_c': model_trouble_curve_path
+                 }
+        }
 
         # --- Stylesheet ---
         self.setStyleSheet("""
