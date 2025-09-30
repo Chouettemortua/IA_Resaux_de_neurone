@@ -157,12 +157,12 @@ class MainMenu(QMainWindow):
         sys.stdout = self.stdout_redirect
 
         # print of paths for debug
-        print(f"Debug: parent_dir = {parent_dir}")
-        print(f"Debug: parent_dir_im = {parent_dir_im}")
-        print(f"Debug: model_quality_path = {model_quality_path}")
-        print(f"Debug: model_trouble_path = {model_trouble_path}")
-        print(f"Debug: model_quality_curve_path = {model_quality_curve_path}")
-        print(f"Debug: model_trouble_curve_path = {model_trouble_curve_path}")
+        #print(f"Debug: parent_dir = {parent_dir}")
+        #print(f"Debug: parent_dir_im = {parent_dir_im}")
+        #print(f"Debug: model_quality_path = {model_quality_path}")
+        #print(f"Debug: model_trouble_path = {model_trouble_path}")
+        #print(f"Debug: model_quality_curve_path = {model_quality_curve_path}")
+        #print(f"Debug: model_trouble_curve_path = {model_trouble_curve_path}")
 
         # Definition des chemins par défaut
         self.default_paths = {
