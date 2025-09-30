@@ -294,8 +294,7 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        file_dir = os.path.abspath(__file__)
-        file_dir = os.path.dirname(file_dir)
+        file_dir = os.path.dirname(os.path.abspath(__file__))
         model_quality_path = os.path.join(file_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(file_dir, 'Saves', 'save_sleep_trouble.pkl')
         model_quality = model_charge(model_quality_path)

@@ -78,8 +78,9 @@ class MainMenu(QMainWindow):
         parent_dir = os.path.dirname(os.path.abspath(__file__))
         model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
-        model_quality_curve_path = os.path.join(parent_dir, 'Saves_Curves', 'curve_sleep_quality.png')
-        model_trouble_curve_path = os.path.join(parent_dir, 'Saves_Curves', 'curve_sleep_trouble.png')
+        parent_dir_im = os.path.join(parent_dir, 'Saves_Curves')
+        model_quality_curve_path = os.path.join(parent_dir_im, 'curve_sleep_quality.png')
+        model_trouble_curve_path = os.path.join(parent_dir_im, 'curve_sleep_trouble.png')
         self.default_paths = {
             'quality': {
                 'path_n': model_quality_path,
@@ -119,7 +120,7 @@ class MainMenu(QMainWindow):
         right_layout.setSpacing(20)
 
         # Image Viewer
-        self.image_dir = 'TIPE/Code/Saves_Curves' # Répertoire des images
+        self.image_dir = parent_dir_im # Répertoire des images
         self.image_combo = QComboBox() 
         if os.path.exists(self.image_dir): # Vérifie si le répertoire existe
             self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')])
