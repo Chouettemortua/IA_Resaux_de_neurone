@@ -2,6 +2,8 @@ import matplotlib
 import numpy as np
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import os
+import sys
 
 
 def courbe_perf(sleep, path, bool_p=True):
@@ -55,3 +57,17 @@ def courbe_perf(sleep, path, bool_p=True):
     if bool_p:
         print("Courbes sauvegardées dans", path)
 
+def get_base_path(file_path=None):
+    # Vérifie si l'application est en mode "bundle" (compilée avec PyInstaller)
+    if getattr(sys, 'frozen', False):
+        # Si 'frozen' est True, on est dans l'exécutable
+        # sys._MEIPASS pointe vers le répertoire temporaire où PyInstaller a décompressé les fichiers.
+        # C'est l'emplacement pour lire les fichiers INCLUS dans le bundle.
+        return os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        # Si 'frozen' est False, on est en mode interprété normal.
+        # Retourne le répertoire du script Python en cours d'exécution.
+        if file_path is None:
+            file_path = os.path.abspath(__file__)
+        return os.path.dirname(file_path)
+    

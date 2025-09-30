@@ -17,8 +17,8 @@ from PyQt6.QtCore import Qt
 
 # Ajout du chemin pour l'importation des modules personnalisés
 from Core.training.training_utils import model_charge
-
 from Core.preprocessing.preprocessing import preprocecing_user
+from Core.utils.utils import get_base_path
 
 
 if sys.platform == "win32":
@@ -294,7 +294,8 @@ class MainWindow(QMainWindow):
             return
         
         # Chargement des modèles
-        file_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.abspath(__file__)
+        file_dir = get_base_path(file_path)  # Assure que le chemin de base est correct
         model_quality_path = os.path.join(file_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(file_dir, 'Saves', 'save_sleep_trouble.pkl')
         model_quality = model_charge(model_quality_path)

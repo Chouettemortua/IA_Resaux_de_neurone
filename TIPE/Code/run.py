@@ -10,6 +10,7 @@ from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread
 # Importation de mes modules
 import Core.training.AI_training as AT
 import app_desk as APP
+from Core.utils.utils import get_base_path
 
 class EmittingStream(QObject):
     """ Classe pour rediriger la sortie standard vers une QTextEdit. """
@@ -101,7 +102,8 @@ class MainMenu(QMainWindow):
         right_layout.setSpacing(20)
 
         # Paths for models and images
-        parent_dir = os.path.dirname(os.path.abspath(__file__))
+        file_dir = os.path.abspath(__file__)
+        parent_dir = get_base_path(file_dir)
         model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
         parent_dir_im = os.path.join(parent_dir, 'Saves_Curves')
