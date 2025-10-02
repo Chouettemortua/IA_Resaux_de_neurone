@@ -71,9 +71,9 @@ class TrainingWorker(QObject):
         
         if self.bool_c:
             if self.model_type == "T":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [2048, 1024, 512, 256, 128, 64, 32, 16, 3], treshold_val=None)
+                self.model = model_init(self.path_n, self.path_c, X_train, y_train, X_test, y_test, [2048, 1024, 512, 256, 128, 64, 32, 16, 3], treshold_val=None)
             elif self.model_type == "Q":
-                self.model = model_init(self.path_n, X_train, y_train, X_test, y_test, [128,64,32,16,10], treshold_val=None)
+                self.model = model_init(self.path_n, self.path_c, X_train, y_train, X_test, y_test, [128,64,32,16,10], treshold_val=None)
         else: 
             self.model = model_charge(self.path_n)
 

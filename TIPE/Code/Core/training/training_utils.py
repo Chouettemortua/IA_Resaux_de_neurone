@@ -22,7 +22,7 @@ def load(path):
         path (str): chemin du fichier CSV"""
     return pd.read_csv(path)
 
-def model_init(path_n, X_train, y_train, X_test, y_test, format, treshold_val=None, qt=None):
+def model_init(path_n, path_c, X_train, y_train, X_test, y_test, format, treshold_val=None, qt=None):
     """ Initialise le modèle 
     args:
         path_n (str): chemin pour sauvegarder le modèle
@@ -38,7 +38,7 @@ def model_init(path_n, X_train, y_train, X_test, y_test, format, treshold_val=No
     y_train = y_train.flatten()
     y_test = y_test.flatten()
     model = Resaux(X_train, y_train, X_test, y_test, format, path_n, threshold_val=treshold_val, qt=qt)
-    model.save(path_n)
+    model.save(path_n, path_c)
     return model  
 
 def model_train(X_train, y_train, X_test, y_test, model, path_n, path_c, iteration=1000, learning_rate =1e-2):
