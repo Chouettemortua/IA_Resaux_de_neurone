@@ -10,6 +10,7 @@ from sklearn.metrics import (
     r2_score, confusion_matrix, ConfusionMatrixDisplay)
 from skopt import gp_minimize
 from skopt.space import Real
+import os
 
 
 from ..models.AI_Model import Resaux
@@ -70,9 +71,24 @@ def model_charge(path_n):
     returns:
         model (Resaux): modèle chargé"""
     
-    model = Resaux()
-    model.load(path_n)
-    return model
+    try:
+        # Vérifier si le fichier existe et a une taille correcte
+        if not os.path.exists(path_n):
+            raise FileNotFoundError(f"Fichier {path_n} introuvable")
+        
+        file_size = os.path.getsize(path_n)
+        if file_size == 0:
+            raise ValueError(f"Fichier {path_n} est vide")
+            
+        print(f"DEBUG: Chargement depuis {path_n} (taille: {file_size} octets)")
+        
+        model = Resaux()
+        model.load(path_n)
+        return model
+        
+    except Exception as e:
+        print(f"ERREUR model_charge: {repr(e)}")
+        raise
 
 # Outils d'analyse
 

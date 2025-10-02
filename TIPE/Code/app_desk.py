@@ -298,8 +298,15 @@ class MainWindow(QMainWindow):
         file_dir = get_base_path(file_path)  # Assure que le chemin de base est correct
         model_quality_path = os.path.join(file_dir, 'Saves', 'save_sleep_quality.pkl')
         model_trouble_path = os.path.join(file_dir, 'Saves', 'save_sleep_trouble.pkl')
-        model_quality = model_charge(model_quality_path)
-        model_trouble = model_charge(model_trouble_path)
+
+        try:
+
+            model_quality = model_charge(model_quality_path)
+            model_trouble = model_charge(model_trouble_path)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Échec du chargement des modèles : {str(e)}")
+            return
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)
@@ -342,7 +349,7 @@ class MainWindow(QMainWindow):
 
         # Gestion des erreurs
         except Exception as e:
-            QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)} PS: MARTIN")
+            QMessageBox.critical(self, "Erreur", f"Échec de l'analyse : {str(e)}")
 
     def load_csv(self):
         """ Charge un fichier CSV dans le DataFrame et met à jour la table. """
