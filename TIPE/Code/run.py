@@ -79,7 +79,7 @@ class MainMenu(QMainWindow):
 
         # Spin Box for number of iterations
         self.line_nb_iter = QSpinBox()
-        self.line_nb_iter.setRange(1000, 100000)
+        self.line_nb_iter.setRange(0, 100000)
         self.line_nb_iter.setSingleStep(1000)
         self.line_nb_iter.setValue(1000)
 

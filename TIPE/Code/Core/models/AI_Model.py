@@ -312,7 +312,7 @@ class Resaux(QObject):
                 'qt': self.qt,
                 'is_regression': self.is_regression,
                 'partialsteps': self.partialsteps
-            }, f)
+            }, f, protocol=pickle.HIGHEST_PROTOCOL)
         courbe_perf(self, curve_path, bool_p)
         self.curve_save.emit()
         if bool_p:
