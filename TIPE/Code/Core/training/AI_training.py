@@ -83,7 +83,7 @@ class TrainingWorker(QObject):
         self.model.curve_save.connect(self.curve_save)
 
         if self.bool_t:
-            self.model = model_train(X_train, y_train, X_test, y_test, self.model, self.path_n, self.nb_iter, learning_rate=self.learning_rate)
+            self.model = model_train(X_train, y_train, X_test, y_test, self.model, self.path_n, self.path_c, self.nb_iter, learning_rate=self.learning_rate)
 
         # affichage des performances
         if self.model_type == "T":

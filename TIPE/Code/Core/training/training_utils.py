@@ -41,7 +41,7 @@ def model_init(path_n, X_train, y_train, X_test, y_test, format, treshold_val=No
     model.save(path_n)
     return model  
 
-def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000, learning_rate =1e-2):
+def model_train(X_train, y_train, X_test, y_test, model, path_n, path_c, iteration=1000, learning_rate =1e-2):
     """ Entraîne le modèle 
     args:
         X_train (np.array): données d'entrainement
@@ -50,6 +50,7 @@ def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000,
         y_test (np.array): labels de test
         model (Resaux): modèle à entraîner
         path_n (str): chemin pour sauvegarder le modèle
+        path_c (str): chemin pour sauvegarder les courbes
         iteration (int): nombre d'itérations
         learning_rate (float): taux d'apprentissage
         returns:
@@ -58,8 +59,8 @@ def model_train(X_train, y_train, X_test, y_test, model, path_n, iteration=1000,
     y_train = y_train.flatten()
     y_test = y_test.flatten()
 
-    model.train(X_train, y_train, X_test, y_test, learning_rate, iteration)
-    model.save(path_n)
+    model.train(X_train, y_train, X_test, y_test, path_c, learning_rate, iteration)
+    model.save(path_n, path_c)
     return model
 
 def model_charge(path_n):
