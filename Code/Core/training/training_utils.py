@@ -80,7 +80,8 @@ def model_charge(path_n, verbose=False):
         if file_size == 0:
             raise ValueError(f"Fichier {path_n} est vide")
             
-        print(f"DEBUG: Chargement depuis {path_n} (taille: {file_size} octets)")
+        if verbose:
+            print(f"DEBUG: Chargement depuis {path_n} (taille: {file_size} octets)")
         
         model = Resaux()
         model.load(path_n, verbose)
