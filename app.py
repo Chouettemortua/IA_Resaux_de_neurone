@@ -4,8 +4,8 @@ import gradio as gr
 import pandas as pd
 import numpy as np
 
-from TIPE.Code.Core.training.training_utils import model_charge
-from TIPE.Code.Core.preprocessing.preprocessing import preprocecing_user
+from Code.Core.training.training_utils import model_charge
+from Code.Core.preprocessing.preprocessing import preprocecing_user
 
 class GradioApp:
     def __init__(self):
