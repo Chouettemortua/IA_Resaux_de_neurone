@@ -38,7 +38,7 @@ Cela signifie que ce dataset est libre de droits et peut être utilisé, modifi�
 ## Documents légaux
 
 - [Conditions Générales d’Utilisation (CGU)](CGU.md)
-- [Politique de Confidentialité](PRIVACY_PRIVACY.md)
+- [Politique de Confidentialité](PRIVACY.md)
 - [Licence d’Utilisation](LICENSE.md)
 
 Ces documents contiennent les informations importantes concernant l'utilisation du logiciel, la gestion des données personnelles, ainsi que les droits et obligations de l’utilisateur.
