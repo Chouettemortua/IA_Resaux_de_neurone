@@ -9,10 +9,10 @@ A faire :
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
-        WAITING --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test 
-        WAITING --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. 
-        WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
+        FAIT&WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
+        FAIT --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test (comment: fait partiellement car switch a faire dans le code mais pas trop de difficulté)
+        FAIT --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. + nouvelle activation mieux adapté
         FAIT --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat
         FAIT --- Actualisation en live des courbe dans l'interface admin
         FAIT --- Mettre en place les matrice de confusion + residual graph pour évaluer les model
@@ -30,14 +30,14 @@ A faire :
         DEPRECATED --- Optimiser le threshold pour la sortie 
 
     Pour plus tard :
-        si on a une vrai app qu'elle conserve les dernier donné ouvert (rouvre auto) et un meilleur interface chargement et sauvgarde
-        Regarder des truc sur le fléau de la dimension
-        se renseigner sur le fetcher engineering
-        FAIT&WAITING--Commenter correctement tout le code
+        WAITING --- si on a une vrai app qu'elle conserve les dernier donné ouvert (rouvre auto) et un meilleur interface chargement et sauvgarde
+        WAITING --- Regarder des truc sur le fléau de la dimension
+        WAITING --- se renseigner sur le fetcher engineering
+        FAIT&WAITING --- Commenter correctement tout le code
 
     Optionel fun:
 
-        QQ PB --- Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
+        EN COURS --- Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
         FAIT --- Faire un app gradio pour mettre en ligne : https://www.gradio.app
         FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé
 
