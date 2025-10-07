@@ -65,15 +65,24 @@ class Resaux(QObject):
         Returns:
             float: Valeur de l'erreur quadratique moyenne."""
         return np.mean((A[-1].flatten() - y.flatten()) ** 2)   
-    
-    def softmax(self, z):
-        """ Calcule la fonction softmax pour la classification multiclasse 
+
+    def cross_entropy_loss(self, A, y):
+        """ Calcule la fonction de perte par entropie croisée pour la classification multiclasse 
         Args:
-            z (np.ndarray): Entrée de la couche de sortie.
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
             Returns:
-            np.ndarray: Probabilités normalisées pour chaque classe."""
-        exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
-        return exp_z / np.sum(exp_z, axis=0, keepdims=True)
+                float: Valeur de la perte par entropie croisée."""
+        m = y.shape[0]
+        probs = np.clip(A[-1], 1e-15, 1 - 1e-15)
+
+        if self.nb_classes != probs.shape[0]:
+            raise ValueError(f"Nombre de classes incohérent : self.nb_classes={self.nb_classes}, probs.shape={probs.shape}")
+
+        y_one_hot = np.zeros_like(probs)
+        y_one_hot[y, np.arange(m)] = 1
+
+        return -np.sum(y_one_hot * np.log(probs)) / m
 
     def log_loss(self, A, y):
         """ Calcule la fonction de perte logistique pour la classification binaire
@@ -86,6 +95,29 @@ class Resaux(QObject):
         A = np.clip(A[-1], epsilon, 1 - epsilon)
         return -np.mean(y * np.log(A) + (1 - y) * np.log(1 - A))
     
+    def loss(self, A, y):
+        """ Calcule la fonction de perte adaptée selon le type de tâche (régression, binaire, multiclass)
+        Args:
+            A (list): Liste des activations de chaque couche.
+            y (np.ndarray): Étiquettes de sortie réelles.
+            Returns:
+                float: Valeur de la fonction de perte."""
+        if self.is_regression:
+            return self.MSE(A, y)
+        elif self.nb_classes == 1:
+            return self.log_loss(A, y)
+        else:
+            return self.cross_entropy_loss(A, y)
+
+    def softmax(self, z):
+        """ Calcule la fonction softmax pour la classification multiclasse 
+        Args:
+            z (np.ndarray): Entrée de la couche de sortie.
+            Returns:
+            np.ndarray: Probabilités normalisées pour chaque classe."""
+        exp_z = np.exp(z - np.max(z, axis=0, keepdims=True))
+        return exp_z / np.sum(exp_z, axis=0, keepdims=True)
+
     def forward_propagation(self, X):
         """ Calcule la propagation avant du réseau de neurones en partant des données d'entrée X. 
             (en gros on calcule les activations de chaque couche puis on les stocke dans une liste A)
@@ -151,38 +183,6 @@ class Resaux(QObject):
                 dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # Dérivée de sigmoïde
 
         return dW, db
-
-    def cross_entropy_loss(self, A, y):
-        """ Calcule la fonction de perte par entropie croisée pour la classification multiclasse 
-        Args:
-            A (list): Liste des activations de chaque couche.
-            y (np.ndarray): Étiquettes de sortie réelles.
-            Returns:
-                float: Valeur de la perte par entropie croisée."""
-        m = y.shape[0]
-        probs = np.clip(A[-1], 1e-15, 1 - 1e-15)
-
-        if self.nb_classes != probs.shape[0]:
-            raise ValueError(f"Nombre de classes incohérent : self.nb_classes={self.nb_classes}, probs.shape={probs.shape}")
-
-        y_one_hot = np.zeros_like(probs)
-        y_one_hot[y, np.arange(m)] = 1
-
-        return -np.sum(y_one_hot * np.log(probs)) / m
-
-    def loss(self, A, y):
-        """ Calcule la fonction de perte adaptée selon le type de tâche (régression, binaire, multiclass)
-        Args:
-            A (list): Liste des activations de chaque couche.
-            y (np.ndarray): Étiquettes de sortie réelles.
-            Returns:
-                float: Valeur de la fonction de perte."""
-        if self.is_regression:
-            return self.MSE(A, y)
-        elif self.nb_classes == 1:
-            return self.log_loss(A, y)
-        else:
-            return self.cross_entropy_loss(A, y)
 
     def update(self, dW, db, learning_rate):
         """ Met à jour les poids et le biais 

@@ -3,3 +3,9 @@ Biblio:
 https://theses.hal.science/tel-03642096v1/file/NGUYEN_2021_archivage.pdf , thèse sur les  det du sommeil
 https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset, dataset use
 https://www.revmed.ch/revue-medicale-suisse/2002/revue-medicale-suisse-2386/complications-cardiovasculaires-du-syndrome-d-apnees-du-sommeil, apnée du sommeil et pression sanguine on peux pas l'enlever
+
+
+Truc en recherche:
+
+https://www.datacamp.com/fr/tutorial/multilayer-perceptrons-in-machine-learning, présentation globale de MLP et qq autre modèle
+https://www.linkedin.com/advice/3/how-can-you-optimize-ai-algorithm-weight-wc7of?lang=fr&lang=fr&originalSubdomain=fr, algo d'initialisation de poid et de bias

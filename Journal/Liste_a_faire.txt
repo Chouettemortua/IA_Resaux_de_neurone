@@ -4,6 +4,7 @@ A faire :
     WAITING : non démarer
     PAUSED : a été démarer mais laisser de coter
     EN COURS : en travaille ou en cours d'implementation
+    FAIT&WAITING : need to be done regularly or at least time to time
     FAIT : Implementé
 
     Prioritaire:
@@ -32,7 +33,7 @@ A faire :
         si on a une vrai app qu'elle conserve les dernier donné ouvert (rouvre auto) et un meilleur interface chargement et sauvgarde
         Regarder des truc sur le fléau de la dimension
         se renseigner sur le fetcher engineering
-        Commenter correctement tout le code
+        FAIT&WAITING--Commenter correctement tout le code
 
     Optionel fun:
 
