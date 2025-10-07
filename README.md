@@ -28,7 +28,7 @@ Ce projet contient des modèles d’intelligence artificielle pour prédire la q
 
 ## Dataset
 
-Le dataset utilisé pour l’entraînement est disponible dans le dossier [`TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv`](TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv).
+Le dataset utilisé pour l’entraînement est disponible dans le dossier [`TIPE/datasets/Sleep_health_and_lifestyle_dataset.csv`](Code/Data/Sleep_health_and_lifestyle_dataset.csv).
 
 Ce dataset provient de [Kaggle - Sleep Health and Lifestyle Dataset](https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset/data) et est distribué sous la licence **CC0: Public Domain**.
 Cela signifie que ce dataset est libre de droits et peut être utilisé, modifié, et partagé sans restriction.
