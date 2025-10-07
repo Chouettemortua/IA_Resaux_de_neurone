@@ -38,7 +38,7 @@ class TrainingWorker(QObject):
         """
         
         # Load the dataset
-        data = load('TIPE/Code/Data/Sleep_health_and_lifestyle_dataset.csv')
+        data = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv')
         df = data.copy()
         # Preprocessing
         # Uncomment the following line to see the dataset before preprocessing
@@ -87,6 +87,9 @@ class TrainingWorker(QObject):
                 self.model = model_train(X_train, y_train, X_test, y_test, self.model, self.path_n, self.path_c, self.nb_iter, learning_rate=self.learning_rate)
 
             # affichage des performances
+
+            self.model.summary()
+
             if self.model_type == "T":
                 affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c)
             elif self.model_type == "Q":

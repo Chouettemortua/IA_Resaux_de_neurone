@@ -23,7 +23,7 @@ def load(path):
         path (str): chemin du fichier CSV"""
     return pd.read_csv(path)
 
-def model_init(path_n, path_c, X_train, y_train, X_test, y_test, format, treshold_val=None, qt=None):
+def model_init(path_n, path_c, X_train, y_train, X_test, y_test, format, treshold_val=None, qt=None, verbose=False):
     """ Initialise le modèle 
     args:
         path_n (str): chemin pour sauvegarder le modèle
@@ -39,10 +39,10 @@ def model_init(path_n, path_c, X_train, y_train, X_test, y_test, format, treshol
     y_train = y_train.flatten()
     y_test = y_test.flatten()
     model = Resaux(X_train, y_train, X_test, y_test, format, path_n, threshold_val=treshold_val, qt=qt)
-    model.save(path_n, path_c)
+    model.save(path_n, path_c, verbose)
     return model  
 
-def model_train(X_train, y_train, X_test, y_test, model, path_n, path_c, iteration=1000, learning_rate =1e-2):
+def model_train(X_train, y_train, X_test, y_test, model, path_n, path_c, iteration=1000, learning_rate =1e-2, verbose=False):
     """ Entraîne le modèle 
     args:
         X_train (np.array): données d'entrainement
@@ -61,10 +61,10 @@ def model_train(X_train, y_train, X_test, y_test, model, path_n, path_c, iterati
     y_test = y_test.flatten()
 
     model.train(X_train, y_train, X_test, y_test, path_c, learning_rate, iteration)
-    model.save(path_n, path_c)
+    model.save(path_n, path_c, verbose)
     return model
 
-def model_charge(path_n):
+def model_charge(path_n, verbose=False):
     """ Charge un modèle depuis un fichier
     args:
         path_n (str): chemin du fichier du modèle
@@ -83,7 +83,7 @@ def model_charge(path_n):
         print(f"DEBUG: Chargement depuis {path_n} (taille: {file_size} octets)")
         
         model = Resaux()
-        model.load(path_n)
+        model.load(path_n, verbose)
         return model
         
     except Exception as e:
@@ -131,7 +131,7 @@ def analyse_post_process(X_train, y_train, X_test, y_test):
     print("\ny_train data types:\n", pd.DataFrame(y_train).dtypes)
     print("\nFirst 5 rows of y_train:\n", pd.DataFrame(y_train).head())
 
-def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion', cmap=plt.cm.Blues):
+def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion', cmap=plt.cm.Blues, verbose=False):
     """ Crée et sauvegarde la matrice de confusion 
     args:
         y_true (np.array): labels réels
@@ -148,7 +148,8 @@ def matrice_confusion(y_true, y_pred, classes, path, title='Matrice de confusion
     plt.title(title)
     plt.savefig(path)
     plt.close()
-    print("Matrice de confusion sauvegardée dans", path)
+    if verbose:
+        print("Matrice de confusion sauvegardée dans", path)
 
 def graphique_residus(y_true, y_pred, path, title='Graphique des Résidus'):
     """

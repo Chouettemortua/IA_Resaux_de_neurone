@@ -53,9 +53,76 @@ class Resaux(QObject):
 
         # Initialisation des poids et biais
         if X is not None and y is not None:
-            self.W = [np.random.randn(nb_neurone_couche[0], X.shape[1])]
-            self.W += [np.random.randn(nb_neurone_couche[i], nb_neurone_couche[i - 1]) for i in range(1, len(nb_neurone_couche))]
-            self.b = [np.random.randn(n, 1) for n in nb_neurone_couche]
+            self.init_weights(X)      
+
+    def summary(self):
+        """ Affiche un résumé de l'architecture du réseau de neurones. """
+        print("Résumé du modèle de réseau de neurones :")
+        print("--------------------------------------------------")
+        print(f"{'Couche':<10} {'Neurones':<10} {'Poids':<20} {'Biais':<20}")
+        print("--------------------------------------------------")
+        for i, (n_neurons, W, b) in enumerate(zip(self.nb_neurone_couche, self.W, self.b)):
+            print(f"{i + 1:<10} {n_neurons:<10} {str(W.shape):<20} {str(b.shape):<20}")
+        print("--------------------------------------------------")
+        model_type = self.get_model_type()
+        print(f"Type de modèle : {model_type}")
+        if model_type == "binaire":
+            print(f"Seuil de classification binaire : {self.threshold_val}")
+        print("--------------------------------------------------")
+
+    def random_weights(self, X):
+        """ Initialise les poids et biais du réseau de neurones de manière aléatoire. (a remplacer par Glorot_initialization quand elle est corrigée)"""
+        W = [np.random.randn(self.nb_neurone_couche[0], X.shape[1])]
+        W += [np.random.randn(self.nb_neurone_couche[i], self.nb_neurone_couche[i - 1]) for i in range(1, len(self.nb_neurone_couche))]
+        b = [np.random.randn(n, 1) for n in self.nb_neurone_couche]
+        return W, b
+
+    def glorot_initialization(self, X):
+        """ Initialise les poids et biais du réseau de neurones en utilisant l'initialisation de Glorot (Xavier).
+        Args:
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+        """
+        W = []
+        b = []
+        #première couche
+        limit = np.sqrt(6 / (X.shape[1] + self.nb_neurone_couche[0]))
+        W.append(np.random.uniform(-limit, limit, (self.nb_neurone_couche[0], X.shape[1])))
+        b.append(np.zeros((self.nb_neurone_couche[0], 1)))
+
+        #couche caché et de sortie
+        for i in range(1, len(self.nb_neurone_couche)):
+            limit = np.sqrt(6 / (self.nb_neurone_couche[i - 1] + self.nb_neurone_couche[i]))
+            W.append(np.random.uniform(-limit, limit, (self.nb_neurone_couche[i], self.nb_neurone_couche[i - 1])))
+            b.append(np.zeros((self.nb_neurone_couche[i], 1)))
+
+        return W, b
+
+    def he_initialization(self, X):
+        W = []
+        b = []
+
+        fan_in = X.shape[1]
+        fan_out = self.nb_neurone_couche[0]
+        limit = np.sqrt(2 / fan_in)
+        W.append(np.random.randn(fan_out, fan_in) * limit)
+        b.append(np.zeros((fan_out, 1)))
+
+        for i in range(1, len(self.nb_neurone_couche)):
+            fan_in = self.nb_neurone_couche[i - 1]
+            fan_out = self.nb_neurone_couche[i]
+            limit = np.sqrt(2 / fan_in)
+            W.append(np.random.randn(fan_out, fan_in) * limit)
+            b.append(np.zeros((fan_out, 1)))
+
+        return W, b
+
+    def init_weights(self, X):
+        """ Initialise les poids et biais du réseau de neurones.
+        Args:
+            nb_neurone_couche (list): Liste contenant le nombre de neurones par couche, incluant la couche d'entrée et la couche de sortie.
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+        """
+        self.W, self.b = self.he_initialization(X)
 
     def MSE(self, A, y):
         """ Calcule l'erreur quadratique moyenne 
@@ -126,11 +193,13 @@ class Resaux(QObject):
             Returns:
                 list: Liste des activations de chaque couche."""
         Z = [np.dot(self.W[0], X.T) + self.b[0]]
-        A = [1 / (1 + np.exp(-Z[0]))]  # Activation sigmoïde pour la première couche
+        # A = [1 / (1 + np.exp(-Z[0]))]  # Activation sigmoïde pour la première couche
+        A = [np.maximum(0, Z[0])]  # Activation ReLU pour la première couche
 
         for i in range(1, len(self.W) - 1):
             Z.append(self.W[i].dot(A[i - 1]) + self.b[i])
-            A.append(1 / (1 + np.exp(-Z[i])))
+            #A.append(1 / (1 + np.exp(-Z[i]))) # Sigmoïde pour les couches cachées
+            A.append(np.maximum(0, Z[i])) # ReLU pour les couches cachées
 
         # Dernière couche
         Z_last = self.W[-1].dot(A[-1]) + self.b[-1]
@@ -142,10 +211,11 @@ class Resaux(QObject):
             A.append(1 / (1 + np.exp(-Z_last)))  # Sigmoïde pour classification binaire
         else:
             A.append(self.softmax(Z_last))  # Softmax pour classification multiclasse
+            
 
-        return A
+        return A, Z
     
-    def back_propagation(self, A, X, y):
+    def back_propagation(self, Z, A, X, y):
         """ Calcule les gradients de la fonction de perte par rapport aux poids et biais 
         Args:
             A (list): Liste des activations de chaque couche.
@@ -180,7 +250,8 @@ class Resaux(QObject):
 
             if i > 0:
                 dA_prev = np.dot(self.W[i].T, dZ)
-                dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # Dérivée de sigmoïde
+                #dZ = dA_prev * A[i - 1] * (1 - A[i - 1])  # Dérivée de sigmoïde
+                dZ = dA_prev * (Z[i - 1] > 0) # Dérivée de ReLU
 
         return dW, db
 
@@ -212,7 +283,7 @@ class Resaux(QObject):
         if X.ndim == 1:
             X = X.reshape(1, -1)
 
-        A = self.forward_propagation(X)
+        A, _ = self.forward_propagation(X)
         out = A[-1]
         if self.is_regression:
             return self.qt.inverse_transform(out.T).flatten()
@@ -263,14 +334,15 @@ class Resaux(QObject):
         if nb_iter == 1:
             self.progress_updated.emit(100)
         for i in range(nb_iter):
-            A = self.forward_propagation(X)
+            A, Z= self.forward_propagation(X)
 
             if nb_iter > 1 :
                 self.progress_updated.emit(int((i/(nb_iter-1))*100))
 
             if i % partialsteps == 0:
                 self.L.append(self.loss(A, y))
-                self.L_t.append(self.loss(self.forward_propagation(X_test), y_test))
+                A_test, _ = self.forward_propagation(X_test)
+                self.L_t.append(self.loss(A_test, y_test))
                 y_pred_train = self.predict(X)
                 y_pred_test = self.predict(X_test)
                 self.evaluate_metrics(y, y_pred_train, y_test, y_pred_test)
@@ -279,7 +351,7 @@ class Resaux(QObject):
                 if self.path is not None:
                     self.save(self.path, curve_path ,bool_p=False)
             
-            dW, db = self.back_propagation(A, X, y)
+            dW, db = self.back_propagation(Z, A, X, y)
             self.update(dW, db, learning_rate)  
 
     def get_model_type(self):
