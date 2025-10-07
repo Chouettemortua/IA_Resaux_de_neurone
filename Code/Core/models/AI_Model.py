@@ -71,14 +71,17 @@ class Resaux(QObject):
         print("--------------------------------------------------")
 
     def random_weights(self, X):
-        """ Initialise les poids et biais du réseau de neurones de manière aléatoire. (a remplacer par Glorot_initialization quand elle est corrigée)"""
+        """ Initialise les poids et biais du réseau de neurones de manière aléatoire. (non utilisé - deprecated)
+        Args:
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+        """
         W = [np.random.randn(self.nb_neurone_couche[0], X.shape[1])]
         W += [np.random.randn(self.nb_neurone_couche[i], self.nb_neurone_couche[i - 1]) for i in range(1, len(self.nb_neurone_couche))]
         b = [np.random.randn(n, 1) for n in self.nb_neurone_couche]
         return W, b
 
     def glorot_initialization(self, X):
-        """ Initialise les poids et biais du réseau de neurones en utilisant l'initialisation de Glorot (Xavier).
+        """ Initialise les poids et biais du réseau de neurones en utilisant l'initialisation de Glorot (Xavier). (non utilisé - pas adapté pour ReLU (qui est plus optimal ici))
         Args:
             X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
         """
@@ -98,6 +101,10 @@ class Resaux(QObject):
         return W, b
 
     def he_initialization(self, X):
+        """ Initialise les poids et biais du réseau de neurones en utilisant l'initialisation de He, adaptée pour les fonctions d'activation ReLU.
+        Args:
+            X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+        """
         W = []
         b = []
 
@@ -218,6 +225,7 @@ class Resaux(QObject):
     def back_propagation(self, Z, A, X, y):
         """ Calcule les gradients de la fonction de perte par rapport aux poids et biais 
         Args:
+            Z (list): Liste des valeurs avant activation de chaque couche.
             A (list): Liste des activations de chaque couche.
             X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
             y (np.ndarray): Étiquettes de sortie réelles.
