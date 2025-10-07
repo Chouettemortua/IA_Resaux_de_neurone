@@ -47,4 +47,4 @@ Ces documents contiennent les informations importantes concernant l'utilisation 
 
 ## Contact
 
-# Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)]
+Pour toute question ou demande, contactez [[roche.ewann@gmail.com](mailto:roche.ewann@gmail.com)]
