@@ -4,8 +4,8 @@ Data set idea (kagle, data.world):
 
         https://www.kaggle.com/datasets/ankushpanday1/global-warming-dataset-195-countries-1900-2023
         https://www.kaggle.com/datasets/ayushcx/climate-change-indicators-data1900-2023
-	https://www.kaggle.com/datasets/samithsachidanandan/average-monthly-surface-temperature-1940-2024
-	https://www.kaggle.com/datasets/ashaychoudhary/europe-temperature-rise-dataset
+        https://www.kaggle.com/datasets/samithsachidanandan/average-monthly-surface-temperature-1940-2024
+        https://www.kaggle.com/datasets/ashaychoudhary/europe-temperature-rise-dataset
 
 
     Weather:
@@ -25,15 +25,15 @@ Data set idea (kagle, data.world):
     sleep cycle:
 
         https://www.kaggle.com/datasets/govindaramsriram/sleep-time-prediction
-	https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset                -- old
-	https://www.kaggle.com/datasets/sacramentotechnology/sleep-deprivation-and-cognitive-performance
+        https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset                -- old
+        https://www.kaggle.com/datasets/sacramentotechnology/sleep-deprivation-and-cognitive-performance
 
 	
 	adapter à la prédiction:
 		
 		Analyse quality sleep:
 			https://www.kaggle.com/datasets/uom190346a/sleep-and-health-metrics  
-			https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset  +sleep disorder the best for now
+			https://www.kaggle.com/datasets/uom190346a/sleep-health-and-lifestyle-dataset  + sleep disorder the best for now
 			https://www.kaggle.com/datasets/arnavsmayan/fitness-tracker-dataset
 
 		à catégoriser:

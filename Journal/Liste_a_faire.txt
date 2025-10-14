@@ -9,9 +9,9 @@ A faire :
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
-        EN COURS --- Uniformiser les langues des interface (ENG) et des comment (FR)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         FAIT&WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
+        FAIT --- Uniformiser les langues des interface (FR) et des comment (FR) (sauf header data dans le user UI)
         FAIT --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test (comment: fait partiellement car switch a faire dans le code mais pas trop de difficulté)
         FAIT --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. + nouvelle activation mieux adapté
         FAIT --- Boser l'analyse du dataset pour vérifier la pertinance de mes résultat

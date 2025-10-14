@@ -19,7 +19,11 @@ Année 2025
 
 19/03 : reshape de y fait, et ajout d'une normalisation temporaire
 
-.... A remplir avec les commit plus tard
+24/03 : un peu de biblio
+
+31/03 : début débugage de la version résaux
+
+28/04 : fenêtre app user basique et avancement sur résaux (pas encore fonctionel)
 
 04/05 : Modèle multicouche fonctionel
 
@@ -31,8 +35,59 @@ Année 2025
 
 20/05 - 22/05 : amélioration des logique, planification des prochaine étape, création d'un début de beamer pour présentation
 
-01/06 : Nouveau type de medèle - regression
+30/05 : graph d'analyse du dataset
+
+01/06 : Nouveau type de medèle - regression pour quality
 
 02/06 : Changement de methode de gestion donné en preprocecing (plus Occupation mais Working ..., et max logique et plus sur le max de dataset de ref)
 
-test 2002020
+03/06 : recherche du profil optimal en fonction de donné inchangeable
+
+22/06 : refactorisation des fichier
+
+04/09 au 10/09 : création d'un script de lancement visuel
+
+12/09 : ajout des confusion matrix et passage de quality a multiclass aprés évaluation du modèle avec un résidual graph
+
+13/09 : requirement
+
+14/09 : ajout doc et commetaire aux fonction + Actualisation live des coube sur l'app
+
+16/09 : Gradio App + battaile pour le transmettre sur hugging face 
+
+23/09 aux 02/10 : recherche pb pour compilation en desktop app (path, multithreading, missig import at compilatio)
+
+07/10 : on met en root et plus dans un folder TIPE le reste des folder + Méthode d'initialisation de poid et bias : glorot, He et passage a Relu pour couches cachées
+
+14/10 : on refait les langues et compléte le Jounal qui était en retarde de qq moins
+
+
+
+
+Résumer par évenement important :
+
+2025 :
+
+Fin janvier et fevrier : Choix du sujet + recherche global et du dataset adapter
+
+Mars : création des classe de gestion d'IA et préprocessing (unineuronal et début MLP)
+
+Avril : UI user basique
+
+début Mai : Finilisation du MLP
+
+Fin Mai : Revisite UI et lien avec les modèle entrainés + début présentation + Analyse data
+
+Début Juin : Regression + max logique en preprocess + profil opti selon certaine var fixé
+
+Fin Juin : refactorisation des fichier
+
+Juillet et Août : Recherche de meilleur dataset et réflexion général sur la progression du projet
+
+Début Septembre : Ajout script de lancement visuel
+
+Milieu Septembre : Ajout matrix de confusion + passage multiclass de quality + actu live des courbe
+
+Fin Septembre : App gradio + recherche pour compiler et faire marcher la compilation des script PyQT6 en app desktop
+
+Début Octobre : Méthode d'init poids bias: He, glorot + Passage a Relu pour couche cachées et entrée + Uniformiser le langue des interface
