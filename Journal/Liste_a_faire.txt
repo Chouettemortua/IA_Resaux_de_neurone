@@ -38,7 +38,7 @@ A faire :
 
     Optionel fun:
 
-        EN COURS --- Avoir un vrai app (Desktop, phone, online; voir ce qui est possible et plus ou moins facile)
+        EN COURS --- Avoir un vrai app (Desktop pb de compile Pyinstaller)
         FAIT --- Faire un app gradio pour mettre en ligne : https://www.gradio.app
         FAIT --- gérer les droit sur ma production (Si je pouse jusqu'a avoir un truc publiable ou juste pour le fun)  /!\ il faut l'actualisé
 
