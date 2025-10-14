@@ -60,7 +60,7 @@ class AddEntryFrom(QDockWidget):
 
         # Champs avec widgets appropriés
         gender = QComboBox()
-        gender.addItems(["Male", "Female"])
+        gender.addItems(["Homme", "Femme"])
         add_row("Genre", gender); row += 1
 
         bmi = QComboBox()
@@ -68,29 +68,35 @@ class AddEntryFrom(QDockWidget):
         add_row("IMC Catégorie", bmi); row += 1
 
         age = QSpinBox(); age.setRange(0, 120)
+        age.setValue(20)
         add_row("Age", age); row += 1
 
         sleep_duration = QDoubleSpinBox(); sleep_duration.setRange(0.0, 24.0); sleep_duration.setSingleStep(1)
+        sleep_duration.setValue(8.0)
         add_row("Durée du sommeil", sleep_duration); row += 1
 
         physical_activity = QSpinBox(); physical_activity.setRange(0, 1440)
+        physical_activity.setValue(30)
         add_row("Temps d'activité physique", physical_activity); row += 1
 
-        stress = QSpinBox(); stress.setRange(1, 10)
-        add_row("Niveau de stress", stress); row += 1
+        stress = QSpinBox(); stress.setRange(0, 10)
+        add_row("Niveau de stress (0-10)", stress); row += 1
 
         blood_pressure = QLineEdit()
         blood_pressure.setPlaceholderText("Ex: 120/80")
+        blood_pressure.setText("120/80")
         add_row("Pression sanguine", blood_pressure); row += 1
 
         heart_rate = QSpinBox(); heart_rate.setRange(30, 200)
+        heart_rate.setValue(70)
         add_row("BPM", heart_rate); row += 1
 
         steps = QSpinBox(); steps.setRange(0, 50000); steps.setSingleStep(1000)
+        steps.setValue(3000)
         add_row("Pas journalier", steps); row += 1
 
         occupation = QComboBox()
-        occupation.addItems(['working', 'unemployed', 'student', 'retired', 'other'])
+        occupation.addItems(['travaille', 'sans emploi', 'étudiant', 'retraite', 'autre'])
         add_row("Occupation", occupation); row += 1
 
         # Bouton d'enregistrement
@@ -167,17 +173,16 @@ class MainWindow(QMainWindow):
             "Age" : self.columns[1],
             "Durée du sommeil" : self.columns[3],
             "Temps d'activité physique" : self.columns[4],
-            "Niveau de stress" : self.columns[5],
+            "Niveau de stress (0-10)" : self.columns[5],
             "Pression sanguine" : self.columns[7],
             "BPM" : self.columns[8],
             "Pas journalier" : self.columns[9],
             "Occupation" : self.columns[2],
-            "Surpoid" : "overweight",
-            "Sous-poid" : "underweight",
-            "Obese" : "Obese"
         }
+        # Initialiser le DataFrame avec les bonnes colonnes
         self.df = pd.DataFrame(columns=self.columns)
 
+        # Initialisation de l'interface utilisateur
         self.init_ui()
 
     def init_ui(self):
@@ -310,7 +315,23 @@ class MainWindow(QMainWindow):
 
         n = min(5, len(self.df))
         recent_entries = self.df.tail(n)
-
+        recent_entries["BMI Category"] = recent_entries["BMI Category"].replace({
+            "Normal": "Normal",
+            "Surpoid": "overweight",
+            "Sous-poid": "underweight",
+            "Obese": "Obese"
+        })
+        recent_entries["Gender"] = recent_entries["Gender"].replace({
+            "Homme": "Male",
+            "Femme": "Female"
+        })
+        recent_entries["Occupation"] = recent_entries["Occupation"].replace({
+            "travaille": "working",
+            "sans emploi": "unemployed",
+            "étudiant": "student",
+            "retraite": "retired",
+            "autre": "other"
+        })
         try:
             # Préparation des données pour le modèle de qualité du sommeil
             df_quality = preprocecing_user(recent_entries)

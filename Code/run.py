@@ -39,10 +39,10 @@ class MainMenu(QMainWindow):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(25)
 
-        # --- Left Panel ---
+        # --- Partie Gauche: Bouton et formulaire ---
         left_layout = QVBoxLayout()
         
-        # Title
+        # Titre
         title_label = QLabel("Choisissez un script à lancer :")
         title_label.setObjectName("titleLabel")
         left_layout.addWidget(title_label)
@@ -67,7 +67,7 @@ class MainMenu(QMainWindow):
         param_form.setFormAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         param_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # Line Edits for paths
+        # Line Edits pour les chemins
         self.line_path_n = QLineEdit()
         self.line_path_c = QLineEdit()
 
@@ -77,7 +77,7 @@ class MainMenu(QMainWindow):
         self.cb_keep_paths = QCheckBox()
         self.cb_verbose = QCheckBox()
 
-        # Spin Box for number of iterations
+        # Spin Box pour le nombre d'itérations
         self.line_nb_iter = QSpinBox()
         self.line_nb_iter.setRange(0, 100000)
         self.line_nb_iter.setSingleStep(1000)
@@ -97,11 +97,11 @@ class MainMenu(QMainWindow):
         left_layout.addStretch(1)
         main_layout.addLayout(left_layout, 1)
 
-        # --- Right Panel: Image and Console ---
+        # --- Partie Droite: Image et Console ---
         right_layout = QVBoxLayout()
         right_layout.setSpacing(20)
 
-        # Paths for models and images
+        # Définition des chemins par défaut des modèles et des images
         file_dir = os.path.abspath(__file__)
         parent_dir = get_base_path(file_dir)
         model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
@@ -110,12 +110,12 @@ class MainMenu(QMainWindow):
         model_quality_curve_path = os.path.join(parent_dir_im, 'curve_sleep_quality.png')
         model_trouble_curve_path = os.path.join(parent_dir_im, 'curve_sleep_trouble.png')
 
-        # Image Viewer
+        # Visualisation des images
         self.image_dir = parent_dir_im # Répertoire des images
-        self.image_combo = QComboBox() 
+        self.image_combo = QComboBox()  # ComboBox pour sélectionner les images
         if os.path.exists(self.image_dir): # Vérifie si le répertoire existe
-            self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')])
-        self.image_label = QLabel("Sélectionnez une image pour l'afficher")
+            self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')]) # Ajoute les fichiers PNG
+        self.image_label = QLabel("Sélectionnez une image pour l'afficher") 
         self.image_label.setObjectName("imageLabel") 
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter) 
         self.image_label.setFixedSize(600, 400)
@@ -125,7 +125,7 @@ class MainMenu(QMainWindow):
         right_layout.addWidget(self.image_label)
         self.display_image()
 
-        # Progresse Bar
+        # Progression Bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
         self.progress_bar.setStyleSheet("""
@@ -334,13 +334,14 @@ class MainMenu(QMainWindow):
         self.worker.moveToThread(self.thread)
 
         self.thread.started.connect(self.worker.run)
-        self.worker.progress_updated.connect(self.update_progress_bar)
+        # Connecter les signaux du worker aux slots appropriés
+        self.worker.progress_updated.connect(self.update_progress_bar) # Mettre a jour la barre de progression
         self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
+        self.worker.finished.connect(self.thread.quit) # Quitter le thread après la fin
+        self.worker.finished.connect(self.worker.deleteLater) # Nettoyer le worker après la fin
+        self.thread.finished.connect(self.thread.deleteLater) # Nettoyer le thread après la fin
 
-        self.thread.start()
+        self.thread.start() # Démarrer le thread
 
         # Mettre à jour l'image de courbe après l'entraînement
         self.display_image()

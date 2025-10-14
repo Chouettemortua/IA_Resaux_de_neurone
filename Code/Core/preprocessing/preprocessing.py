@@ -81,25 +81,25 @@ def preprocecing(df, on, y_normalisation=True):
     def intern(df):
         """ Prétraite les données et sépare X et y """
 
-        # Encode categorical variables and impute missing values
+        # Encodage des variables catégorielles et imputation des valeurs manquantes
         df= encodage(df)
         df = imputation(df)
 
-        # catch columns to predict
+        # Séparation des features et de la target
         for _ in on:
             X = df.drop(columns= on, axis=1)
         y = df[on[0]].values.reshape(-1, 1)
 
-        # Normalize features
+        # Normalisation
         X = normalisation(X)
         if y_normalisation:
-            # Normalize target variable
+            # Normalisation de y si demandé
             y = normalisation_y(y) 
         return X, y
 
-    # Split dataset
+    # Séparation train/test
     trainset, testset = split_data(df)
-    # Preprocess train and test sets
+    # Prétraitement des données train et test
     X_train, y_train = intern(trainset)
     X_test, y_test = intern(testset)
     
@@ -127,8 +127,10 @@ def preprocecing_user(df, on=None):
 
 
         # Mapper les colonnes catégorielles
-        # test debug
+
+        # test debug (line à décommenter si besoin)
         #print("BMI uniques reçus :", df['BMI Category'].unique())
+        
         df['BMI Category'] = df['BMI Category'].astype(str).str.strip().map(code_bmi)
         if df['BMI Category'].isnull().any():
             raise ValueError("Valeur invalide dans 'BMI Category'. Vérifiez vos entrées.")

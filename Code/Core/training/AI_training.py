@@ -37,11 +37,11 @@ class TrainingWorker(QObject):
         La méthode qui lance l'entraînement.
         """
         
-        # Load the dataset
+        # Chargement du dataset
         data = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv')
         df = data.copy()
-        # Preprocessing
-        # Uncomment the following line to see the dataset before preprocessing
+        # prétraitement des données
+        # Décommenter la ligne suivante pour voir le dataset avant prétraitement
         # analyse_pre_process(df)
             
         if self.model_type == "T" :
@@ -59,7 +59,7 @@ class TrainingWorker(QObject):
 
         assert not np.any(np.isin(X_train.index, X_test.index))
 
-        # Uncomment the following line to see the dataset after preprocessing
+        # Décommenter la ligne suivante pour voir le dataset après prétraitement
         # analyse_post_process(X_train, y_train, X_test, y_test)
         
         # IA training
@@ -80,7 +80,7 @@ class TrainingWorker(QObject):
 
             # Connecte le signal du modèle à un slot temporaire pour émettre la progression
             self.model.progress_updated.connect(self.progress_updated)
-            # Co
+            # Connecte le signal du modèle à un slot temporaire pour émettre la sauvegarde des courbes
             self.model.curve_save.connect(self.curve_save)
 
             if self.bool_t:
@@ -94,7 +94,7 @@ class TrainingWorker(QObject):
                 affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c)
             elif self.model_type == "Q":
                 affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c) 
-                # evolution des variables modifiables pour améliorer la prédiction
+                # évolution des variables modifiables pour améliorer la prédiction
                 features = ["Gender", "Age", "Occupation", "Sleep Duration",
                             "Physical Activity Level", "Stress Level", "BMI Category",
                             "Blood Pressure", "Heart Rate", "Daily Steps"]
@@ -104,7 +104,7 @@ class TrainingWorker(QObject):
                 modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
                 modifiable_features = [features[i] for i in modifiable_indices]
 
-                # Ami sert de test
+                # Ami sert de test (d'ailleur tout ça devrait être dans une fonction à part)
                 ami = [0,0.3,0.2,0.47,0.11,4,0,0.88,0.89,0.5]
                 ami_in = np.array(ami).reshape(1,-1)
 
@@ -114,7 +114,7 @@ class TrainingWorker(QObject):
                     val_evolution(self.model, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
                     print(ami_in.shape)
 
-                    # explainer
+                    # Explicabilité avec SHAP
                     explainer = shap.KernelExplainer(self.model.predict, X_train)
 
                     # Calculer les valeurs SHAP
