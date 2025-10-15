@@ -257,6 +257,15 @@ class MainMenu(QMainWindow):
         if not self.line_path_c.text():
             self.line_path_c.setText(paths.get('path_c', ''))
 
+    def set_buttons_enabled(self, enabled):
+        """Active ou désactive les boutons du menu principal.
+         Args:
+             enabled (bool): True pour activer les boutons, False pour les désactiver.
+         """
+        self.btn_app.setEnabled(enabled)
+        self.btn_atq.setEnabled(enabled) 
+        self.btn_att.setEnabled(enabled)
+
     def clear_form_paths(self):
         """Efface les champs de chemin du formulaire."""
         self.line_path_n.clear()
@@ -271,6 +280,7 @@ class MainMenu(QMainWindow):
 
     def run_atq_script(self):
         """ Lancer le script de training qualité """
+        self.set_buttons_enabled(False)  # Désactive les boutons pendant l'exécution
         self.console_output.clear()
         print("\nLancement du script ATQ...\n")
 
@@ -296,9 +306,11 @@ class MainMenu(QMainWindow):
         self.thread.started.connect(self.worker.run)
         self.worker.progress_updated.connect(self.update_progress_bar)
         self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
+
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)
         self.thread.finished.connect(self.thread.deleteLater)
+        self.thread.finished.connect(lambda: self.set_buttons_enabled(True))  # Réactive les boutons après l'exécution
 
         self.thread.start()
 
@@ -311,6 +323,7 @@ class MainMenu(QMainWindow):
 
     def run_att_script(self):
         """ Lancer le script de training trouble """
+        self.set_buttons_enabled(False)  # Désactive les boutons pendant l'exécution
         self.console_output.clear()
 
         # Récupérer les valeurs du formulaire
@@ -337,9 +350,11 @@ class MainMenu(QMainWindow):
         # Connecter les signaux du worker aux slots appropriés
         self.worker.progress_updated.connect(self.update_progress_bar) # Mettre a jour la barre de progression
         self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
+        
         self.worker.finished.connect(self.thread.quit) # Quitter le thread après la fin
         self.worker.finished.connect(self.worker.deleteLater) # Nettoyer le worker après la fin
         self.thread.finished.connect(self.thread.deleteLater) # Nettoyer le thread après la fin
+        self.thread.finished.connect(lambda: self.set_buttons_enabled(True))  # Réactive les boutons après l'exécution
 
         self.thread.start() # Démarrer le thread
 
