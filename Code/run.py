@@ -350,7 +350,7 @@ class MainMenu(QMainWindow):
         # Connecter les signaux du worker aux slots appropriés
         self.worker.progress_updated.connect(self.update_progress_bar) # Mettre a jour la barre de progression
         self.worker.curve_save.connect(self.display_image) # Mettre a jour l'image a chaque fois qu'elle est sauvegarder pendant l'entrainement 
-        
+
         self.worker.finished.connect(self.thread.quit) # Quitter le thread après la fin
         self.worker.finished.connect(self.worker.deleteLater) # Nettoyer le worker après la fin
         self.thread.finished.connect(self.thread.deleteLater) # Nettoyer le thread après la fin
@@ -367,6 +367,10 @@ class MainMenu(QMainWindow):
 
         # Réinitialiser le nombre d'itérations
         self.line_nb_iter.setValue(1000)
+
+    def closeEvent(self, event):
+        sys.stdout = sys.__stdout__
+        super().closeEvent(event)
 
 def run_menu():
     """ Lance le menu principal de l'application. """

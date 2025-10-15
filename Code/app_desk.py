@@ -10,7 +10,8 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QTableWidget, QTableWidgetItem, QToolBar, QLabel, QLineEdit,
     QPushButton, QComboBox, QFileDialog, QMessageBox, QSplitter,
-    QDockWidget, QGridLayout, QSizePolicy, QDoubleSpinBox, QSpinBox, QGroupBox
+    QDockWidget, QGridLayout, QSizePolicy, QDoubleSpinBox, QSpinBox, QGroupBox,
+    QHeaderView
 )
 from PyQt6.QtGui import QIcon, QAction
 from PyQt6.QtCore import Qt
@@ -225,6 +226,8 @@ class MainWindow(QMainWindow):
 
         # Table pour afficher les données
         self.table = QTableWidget()
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.refresh_table()
         self.splitter.addWidget(self.table)
 
@@ -261,6 +264,7 @@ class MainWindow(QMainWindow):
         self.table.setRowCount(len(self.df))
         self.table.setColumnCount(len(self.df.columns))
         self.table.setHorizontalHeaderLabels(self.df.columns.tolist())
+        
 
         for row_idx, row in self.df.iterrows():
             for col_idx, val in enumerate(row):
@@ -418,6 +422,9 @@ class MainWindow(QMainWindow):
         self.table.setColumnCount(0)
         self.refresh_table()
 
+    def closeEvent(self, event):
+        sys.stdout = sys.__stdout__
+        super().closeEvent(event)
 
 # Lancement de l'application
 def run_app():
