@@ -423,7 +423,6 @@ class MainWindow(QMainWindow):
         self.refresh_table()
 
     def closeEvent(self, event):
-        sys.stdout = sys.__stdout__
         super().closeEvent(event)
 
 # Lancement de l'application

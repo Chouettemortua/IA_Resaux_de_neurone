@@ -276,6 +276,7 @@ class MainMenu(QMainWindow):
         print("Lancement de l'application Desktop...")
         app_window = APP.MainWindow()
         app_window.show()
+        sys.stdout = sys.__stdout__
         self.hide()
 
     def run_atq_script(self):
