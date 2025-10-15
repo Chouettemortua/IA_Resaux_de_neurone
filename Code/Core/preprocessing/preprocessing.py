@@ -5,12 +5,13 @@ from sklearn.model_selection import train_test_split
 
 # Pretraitement des données
 
-def preprocecing(df, on, y_normalisation=True):
+def preprocecing(df, on, y_normalisation=True, debug=False):
     """ Prétraite les données pour l'entrainement et le test 
         args:
             df: dataframe pandas
             on: liste des colonnes à prédire
             y_normalisation: booléen, si True normalise y entre 0 et 1
+            debug: booléen, si True affiche des informations de debug
         returns:
             X_train, y_train, X_test, y_test: données d'entrainement et de test
     """
@@ -74,10 +75,11 @@ def preprocecing(df, on, y_normalisation=True):
     
     def normalisation_y(y):
         """ Normalise y entre 0 et 1 """
-        max_value = 1  # Valeur par défaut
-        if on[0] == 'Quality of Sleep':
-            max_value = 10
-        return y / max_value
+        col_name = on[0]
+        max_values = {'Quality of Sleep': 10, 'Sleep Disorder': 2}
+        if col_name in max_values:
+            return y / max_values[col_name]
+        return y
     
     def intern(df):
         """ Prétraite les données et sépare X et y """
@@ -102,6 +104,10 @@ def preprocecing(df, on, y_normalisation=True):
     # Prétraitement des données train et test
     X_train, y_train = intern(trainset)
     X_test, y_test = intern(testset)
+
+    if debug:
+        print("Train size:", X_train.shape, "Test size:", X_test.shape)
+        print("Distribution:", pd.Series(y_train.flatten()).value_counts(normalize=True))
     
 
     return X_train, y_train, X_test, y_test   
@@ -120,7 +126,7 @@ def preprocecing_user(df, on=None):
         # Dictionnaires de mapping adaptés aux entrées utilisateurs
         code_bmi = {'Normal': 0, 'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obese': 3}
         code_gender = {'Male': 0, 'Female': 1}
-        code_occupation = {'working':0, 'unemployed':1, 'student':2, 'retired':3, 'other':4}
+        code_occupation = {'working':0, 'unemployed':0, 'student':0, 'retired':0, 'other':0} # tout a 0 car absence de données suffisantes (on a que des working dans le dataset initial), si nouvelle donnée a ajuster
 
         df['Blood Pressure'] = df['Blood Pressure'].astype(str).str.split('/').str[0]
         df['Blood Pressure'] = pd.to_numeric(df['Blood Pressure'], errors='coerce')
