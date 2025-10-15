@@ -370,6 +370,10 @@ class MainMenu(QMainWindow):
         self.line_nb_iter.setValue(1000)
 
     def closeEvent(self, event):
+        try:
+            sys.stdout.flush()
+        except Exception:
+            pass
         sys.stdout = sys.__stdout__
         super().closeEvent(event)
 
