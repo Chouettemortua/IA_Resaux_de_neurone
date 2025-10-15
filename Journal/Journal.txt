@@ -61,6 +61,8 @@ Année 2025
 
 14/10 : on refait les langues et compléte le Jounal qui était en retarde de qq moins
 
+15/10 : Ajout decay pour le learning rate
+
 
 
 
@@ -90,4 +92,4 @@ Milieu Septembre : Ajout matrix de confusion + passage multiclass de quality + a
 
 Fin Septembre : App gradio + recherche pour compiler et faire marcher la compilation des script PyQT6 en app desktop
 
-Début Octobre : Méthode d'init poids bias: He, glorot + Passage a Relu pour couche cachées et entrée + Uniformiser le langue des interface
+Début Octobre : Méthode d'init poids bias: He, glorot + Passage a Relu pour couche cachées et entrée + Uniformiser le langue des interface + ajout d'un décay sur le learning rate

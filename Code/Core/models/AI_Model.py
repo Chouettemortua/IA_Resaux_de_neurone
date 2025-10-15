@@ -51,6 +51,8 @@ class Resaux(QObject):
         if self.qt is not None and nb_neurone_couche[-1] != 1:
             raise ValueError("Régression autorisée uniquement si la dernière couche contient 1 neurone.")
 
+        self.iter = 0 # Compteur d'itérations d'entraînement
+
         # Initialisation des poids et biais
         if X is not None and y is not None:
             self.init_weights(X)      
@@ -321,7 +323,7 @@ class Resaux(QObject):
             self.acc.append(accuracy_score(y.flatten().astype(int), y_pred))
             self.acc_t.append(accuracy_score(y_test.flatten().astype(int), y_pred_test))
     
-    def train(self, X, y, X_test, y_test, curve_path, learning_rate=1e-2, nb_iter=10000, partialsteps=10):
+    def train(self, X, y, X_test, y_test, curve_path, learning_rate=1e-2, nb_iter=10000, partialsteps=10, decay_rate=1e-4):
         """ Entraîne le modèle sur les données d'entraînement 
         Args:
             X (np.ndarray): Données d'entrée d'entraînement de forme (n_samples, n_features).
@@ -332,6 +334,7 @@ class Resaux(QObject):
             learning_rate (float): Taux d'apprentissage.
             nb_iter (int): Nombre d'itérations d'entraînement.
             partialsteps (int): Fréquence de sauvegarde du modèle et d'évaluation des métriques.
+            decay_rate (float): Taux de décroissance du learning rate.
         """
         # On règle partialsteps lors du premier appel de train (puis on empéche de le changer pour avoir un bonne affichage de la courbe de performance)
         if self.partialsteps is None:
@@ -341,11 +344,17 @@ class Resaux(QObject):
 
         if nb_iter == 1:
             self.progress_updated.emit(100)
-        for i in range(nb_iter):
+
+        start_iter = self.iter # itérations déjà effectuées avant, car on actualise self.iter petit a petit
+
+        for i in range(start_iter ,start_iter + nb_iter):
             A, Z= self.forward_propagation(X)
 
+            # Decay learning rate
+            current_learning_rate = learning_rate / (1 + decay_rate * i)
+
             if nb_iter > 1 :
-                self.progress_updated.emit(int((i/(nb_iter-1))*100))
+                self.progress_updated.emit(int(((i - start_iter) / (nb_iter -1)) * 100))
 
             if i % partialsteps == 0:
                 self.L.append(self.loss(A, y))
@@ -360,7 +369,8 @@ class Resaux(QObject):
                     self.save(self.path, curve_path ,bool_p=False)
             
             dW, db = self.back_propagation(Z, A, X, y)
-            self.update(dW, db, learning_rate)  
+            self.update(dW, db, current_learning_rate) 
+            self.iter += 1 # Incrémenter le compteur d'itérations petit a petit pour garder avec précision le nombre total d'itérations (surtout en cas d'arrêt imprévu)
 
     def get_model_type(self):
         """ Retourne le type de modèle : régression, binaire ou multiclass """
@@ -391,7 +401,8 @@ class Resaux(QObject):
                 'nb_classes': self.nb_classes,
                 'qt': self.qt,
                 'is_regression': self.is_regression,
-                'partialsteps': self.partialsteps
+                'partialsteps': self.partialsteps,
+                'iter': self.iter,
             }, f, protocol=pickle.HIGHEST_PROTOCOL)
         courbe_perf(self, curve_path, bool_p)
         self.curve_save.emit()
@@ -407,16 +418,17 @@ class Resaux(QObject):
             data = pickle.load(f)
             self.W = data['W']
             self.b = data['b']
-            self.L = data['L']
-            self.L_t = data['L_t']
-            self.acc = data['acc']
-            self.acc_t = data['acc_t']
-            self.nb_neurone_couche = data['nb_neurone_couche']
+            self.L = data['L'] if 'L' in data else []
+            self.L_t = data['L_t'] if 'L_t' in data else []
+            self.acc = data['acc'] if 'acc' in data else []
+            self.acc_t = data['acc_t'] if 'acc_t' in data else []
+            self.nb_neurone_couche = data['nb_neurone_couche'] 
             self.path = data['path']
             self.threshold_val = data['threshold_val']
             self.nb_classes = data['nb_classes']
             self.qt = data['qt'] if 'qt' in data else None
             self.is_regression = data['is_regression'] if 'is_regression' in data else False
             self.partialsteps = data['partialsteps'] if 'partialsteps' in data else None
+            self.iter = data['iter'] if 'iter' in data else len(self.L) * (self.partialsteps if self.partialsteps is not None else 0)
         if bool_p:
             print(f"Modèle chargé depuis {filename}")
