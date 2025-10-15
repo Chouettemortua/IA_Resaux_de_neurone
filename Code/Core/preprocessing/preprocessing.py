@@ -18,7 +18,7 @@ def preprocecing(df, on, y_normalisation=True):
     def encodage(df):
         """ Encode les variables catégorielles """
 
-        # Dictionnaires de mapping
+        # Dictionnaires de mapping adaptés au dataset initial (entrainement)
         code_bmi = {'Normal':0,'Normal Weight': 0, 'Overweight': 2, 'Underweight': 3, 'Obesity': 4}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'Software Engineer': 0, 'Doctor': 0, 'Sales Representative': 0, 'Nurse': 0, 'Teacher': 0,
@@ -30,10 +30,10 @@ def preprocecing(df, on, y_normalisation=True):
         df['Sleep Disorder'] = df['Sleep Disorder'].apply(lambda x: x if x in ['Sleep Apnea', 'Insomnia'] else 'Normal')
         
         # Mapper les colonnes catégorielles
-        df['BMI Category'] = df['BMI Category'].map(code_bmi).fillna(-1).astype(int)
-        df['Gender'] = df['Gender'].map(code_gender).fillna(-1).astype(int)
-        df['Occupation'] = df['Occupation'].map(code_occupation).fillna(-1).astype(int)
-        df['Sleep Disorder'] = df['Sleep Disorder'].map(code_sleep_disorder).fillna(-1).astype(int)
+        df['BMI Category'] = df['BMI Category'].map(code_bmi).fillna(0).astype(int)
+        df['Gender'] = df['Gender'].map(code_gender).fillna(0).astype(int)
+        df['Occupation'] = df['Occupation'].map(code_occupation).fillna(0).astype(int)
+        df['Sleep Disorder'] = df['Sleep Disorder'].map(code_sleep_disorder).fillna(0).astype(int)
 
         return df
 
@@ -51,7 +51,8 @@ def preprocecing(df, on, y_normalisation=True):
     def normalisation(df):
         """ Normalise les données entre 0 et 1 """
 
-        # Valeurs max pour chaque feature encoder manuellement pour correspondre a des valeurs réalistes (à ajuster si besoin)
+        # Valeurs max pour chaque feature encoder manuellement pour correspondre a des valeurs physiologique réalistes (à ajuster si besoin)
+        # pour assurer une meilleure généralisation du modèle
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
                       'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 4, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000, 'Quality of Sleep': 10}
@@ -86,8 +87,7 @@ def preprocecing(df, on, y_normalisation=True):
         df = imputation(df)
 
         # Séparation des features et de la target
-        for _ in on:
-            X = df.drop(columns= on, axis=1)
+        X = df.drop(columns= on, axis=1)
         y = df[on[0]].values.reshape(-1, 1)
 
         # Normalisation
@@ -110,14 +110,14 @@ def preprocecing_user(df, on=None):
     """ Prétraite les données qui proviennent de l'utilisateur
         args:
             df: dataframe pandas
-            on: liste des colonnes à prédire (optionnel)
+            on: liste des colonnes à prédire (optionnel car les données utilisateur peuvent ne pas les contenir) 
         returns:
             df: dataframe pandas prétraitée"""
 
     def encodage(df):
         """ Encode les variables catégorielles """
 
-        # Dictionnaires de mapping
+        # Dictionnaires de mapping adaptés aux entrées utilisateurs
         code_bmi = {'Normal': 0, 'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obese': 3}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'working':0, 'unemployed':1, 'student':2, 'retired':3, 'other':4}
@@ -176,13 +176,11 @@ def preprocecing_user(df, on=None):
     def intern(df):
         """ Prétraite les données """
         if on is not None:
-            for col in on:
-                if col in df.columns:
-                    df.drop(columns=on, axis=1)
-        else:
-            df= encodage(df)
-            df = imputation(df)
-            df = normalisation(df) 
+            df.drop(columns=on, axis=1, inplace=True)
+        
+        df= encodage(df)
+        df = imputation(df)
+        df = normalisation(df) 
         return df
 
     return intern(df)
