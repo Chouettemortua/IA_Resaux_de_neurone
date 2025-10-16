@@ -93,3 +93,5 @@ Milieu Septembre : Ajout matrix de confusion + passage multiclass de quality + a
 Fin Septembre : App gradio + recherche pour compiler et faire marcher la compilation des script PyQT6 en app desktop
 
 Début Octobre : Méthode d'init poids bias: He, glorot + Passage a Relu pour couche cachées et entrée + Uniformiser le langue des interface + ajout d'un décay sur le learning rate
+
+Fin Octobre : Mise en place de Shap pour tout ce qui est le retour et analyse d'impacte des variable.

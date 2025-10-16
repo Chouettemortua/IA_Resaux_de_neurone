@@ -70,7 +70,7 @@ class Resaux(QObject):
         print(f"Type de modèle : {model_type}")
         if model_type == "binaire":
             print(f"Seuil de classification binaire : {self.threshold_val}")
-        print("--------------------------------------------------")
+        print("--------------------------------------------------\n")
 
     def random_weights(self, X):
         """ Initialise les poids et biais du réseau de neurones de manière aléatoire. (non utilisé - deprecated)
