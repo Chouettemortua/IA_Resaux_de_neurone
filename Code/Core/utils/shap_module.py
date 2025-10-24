@@ -136,7 +136,7 @@ def plot_force(explainer, shap_values, X_sample, index=0, save_path=None, show=F
         print(f"[SHAP] Erreur lors du tracé du force plot : {e}")
         
 
-def shap_analysis(model, X, save_dir, sample_size=None, verbose=True, immutable_features=None):
+def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable_features=None):
     """
     Lance une analyse SHAP complète (summary + dépendance + force plot) pour un modèle donné.
 

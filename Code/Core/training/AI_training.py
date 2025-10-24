@@ -7,6 +7,7 @@ import shap
 from ..preprocessing.preprocessing import preprocecing
 from .training_utils import model_charge, load, model_init, model_train, affichage_perf, val_evolution
 from ..utils.utils import courbe_perf
+from ..utils.shap_module import shap_analysis
 
 class TrainingWorker(QObject):
     """
@@ -19,7 +20,7 @@ class TrainingWorker(QObject):
     # Signal émis lorsque l'entraînement est terminé
     finished = pyqtSignal()
 
-    def __init__(self, model_type, bool_c, bool_t, path_n, path_c, nb_iter, verbose):
+    def __init__(self, model_type, bool_c, bool_t, path_n, path_c, nb_iter, verbose=False, do_shap=False):
         """
         Initialise le worker avec les paramètres nécessaires.
         """
@@ -31,6 +32,7 @@ class TrainingWorker(QObject):
         self.path_c = path_c
         self.nb_iter = nb_iter
         self.verbose = verbose
+        self.do_shap = do_shap
 
     def run(self):
         """
@@ -101,31 +103,11 @@ class TrainingWorker(QObject):
                 
                 non_modifiables = ["Quality of Sleep", "Sleep Disorder", 'Age', 'Occupation', 'Gender', 'Heart Rate', 'Blood Pressure']
 
-                modifiable_indices = [i for i, f in enumerate(features) if f not in non_modifiables]
-                modifiable_features = [features[i] for i in modifiable_indices]
-
-                # Ami sert de test (d'ailleur tout ça devrait être dans une fonction à part)
-                ami = [0,0.3,0.2,0.47,0.11,4,0,0.88,0.89,0.5]
-                ami_in = np.array(ami).reshape(1,-1)
-
-                if self.verbose:
+                if self.do_shap:
                     print("")
                     print("Evolution des variables modifiables pour améliorer la prédiction :")
-                    val_evolution(self.model, ami_in, modifiable_features, modifiable_indices, features, nb_iter=30)
-                    print(ami_in.shape)
-
-                    # Explicabilité avec SHAP
-                    explainer = shap.KernelExplainer(self.model.predict, X_train)
-
-                    # Calculer les valeurs SHAP
-                    shap_values = explainer.shap_values(ami_in, nsamples=100)
-
-                    # Visualiser
-                    shap.initjs()
-                    shap.force_plot(explainer.expected_value, shap_values, ami_in)
-                    shap.summary_plot(shap_values, features=features, feature_names=features, show=False)
-                    #plt.savefig('TIPE/Code/Saves_Curve/values.png', bbox_inches='tight')
-                    #plt.close()
+                    # Shap analysis
+                    shap_analysis(self.model, X_train, "./Code/Saves_Curves", verbose=self.verbose, immutable_features=non_modifiables)
                     
         except Exception as e:
             print(f"ERREUR TrainingWorker run: {repr(e)}")
