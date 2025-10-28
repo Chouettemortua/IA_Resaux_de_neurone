@@ -75,6 +75,7 @@ class MainMenu(QMainWindow):
         self.cb_c = QCheckBox()
         self.cb_t = QCheckBox()
         self.cb_keep_paths = QCheckBox()
+        self.cb_shap = QCheckBox()
         self.cb_verbose = QCheckBox()
 
         # Spin Box pour le nombre d'itérations
@@ -88,6 +89,7 @@ class MainMenu(QMainWindow):
         param_form.addRow("Création nouvelle IA:", self.cb_c)
         param_form.addRow("Mode Entraînement:", self.cb_t)
         param_form.addRow("Conserver les chemins:", self.cb_keep_paths)
+        param_form.addRow("Analyse SHAP:", self.cb_shap)
         param_form.addRow("Verbose:", self.cb_verbose)
         param_form.addRow("Nombres d'iteration d'entrainement", self.line_nb_iter)
         param_form.addRow("Chemin de sauvegarde:", self.line_path_n)
@@ -292,6 +294,7 @@ class MainMenu(QMainWindow):
         path_n = self.line_path_n.text()
         path_c = self.line_path_c.text()
         nb_iter = self.line_nb_iter.value()
+        shap = self.cb_shap.isChecked()
         verbose = self.cb_verbose.isChecked()
 
         # Afficher l'image de courbe correspondante a l'IA en cours d'entrainement
@@ -300,7 +303,7 @@ class MainMenu(QMainWindow):
         
         # Lancer le script dans un thread séparé
         self.thread = QThread()
-        self.worker = AT.TrainingWorker("Q", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
+        self.worker = AT.TrainingWorker("Q", bool_c, bool_t, path_n, path_c, nb_iter, verbose, shap)
 
         self.worker.moveToThread(self.thread)
 
@@ -334,6 +337,7 @@ class MainMenu(QMainWindow):
         path_n = self.line_path_n.text()
         path_c = self.line_path_c.text()
         nb_iter = self.line_nb_iter.value()
+        shap = self.cb_shap.isChecked()
         verbose = self.cb_verbose.isChecked()
 
         # Afficher l'image de courbe correspondante a l'IA en cours d'entrainement
@@ -343,7 +347,7 @@ class MainMenu(QMainWindow):
         # Lancer le script dans un thread séparé
         print("\nLancement du script ATT...\n")
         self.thread = QThread()
-        self.worker = AT.TrainingWorker("T", bool_c, bool_t, path_n, path_c, nb_iter, verbose)
+        self.worker = AT.TrainingWorker("T", bool_c, bool_t, path_n, path_c, nb_iter, verbose, shap)
 
         self.worker.moveToThread(self.thread)
 

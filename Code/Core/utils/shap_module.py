@@ -20,7 +20,7 @@ def init_explainer(model, X_ref, verbose=False):
     """
     if verbose: print("[SHAP] Initialisation de l'explainer...")
     try:
-        explainer = shap.Explainer(model, X_ref)
+        explainer = shap.Explainer(lambda X : model.predict(X), X_ref)
         if verbose: print("[SHAP] Explainer initialisé avec succès.")
         return explainer
     except Exception as e:
@@ -28,7 +28,7 @@ def init_explainer(model, X_ref, verbose=False):
         return None
 
 
-def shap_values(explainer, X_sample, sample_size=None, verbose=False):
+def compute_shap_values(explainer, X_sample, sample_size=None, verbose=False):
     """
     Calcule les valeurs SHAP pour un échantillon.
 
@@ -103,35 +103,41 @@ def plot_dependence(feature_name, shap_values, X_sample, save_path=None, show=Fa
     plt.close()
 
 
-def plot_force(explainer, shap_values, X_sample, index=0, save_path=None, show=False, verbose=False):
-    """
-    Crée un force plot SHAP (local) pour un exemple donné.
-
+def plot_force(explainer, shap_values, X, index=0, save_path=None, show=False, verbose=False):
+    """Trace un force plot SHAP pour une ligne donnée.
     Args:
-        explainer: Explainer shap
+        explainer: Explainer SHAP utilisé pour générer les valeurs
         shap_values: Valeurs SHAP calculées
-        X_sample: Données d'entrée
-        index (int): Index de l'échantillon à visualiser
+        X (pd.DataFrame): Données associées
+        index (int): Index de la ligne à visualiser
         save_path (str): Chemin du fichier PNG à sauvegarder
-        show (bool): Si True, ouvre le graphique dans une fenêtre
-        verbose (bool): Si True, affiche des messages de progression
+        show (bool): Si True, affiche le graphique
     """
-    if verbose: print(f"[SHAP] Génération du force plot pour l'exemple #{index}...")
+
     try:
-        shap.plots.force(
-            explainer.expected_value,
+        # Récupération de expected_value
+        expected_value = getattr(explainer, "expected_value", None)
+        if expected_value is None:
+            expected_value = getattr(explainer, "expected_values", None)
+
+        if expected_value is None:
+            if verbose: print("[SHAP] Avertissement : impossible de récupérer expected_value.")
+            expected_value = 0  # fallback neutre si expected_value absent
+
+        # Création du graphique
+        shap_fig = shap.force_plot(
+            expected_value,
             shap_values.values[index, :],
-            X_sample.iloc[index, :],
-            matplotlib=True,
-            show=False
+            X.iloc[index, :],
+            matplotlib=True
         )
+
         if save_path:
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            plt.savefig(save_path, bbox_inches="tight", dpi=300)
-            if verbose: print(f"[SHAP] Force plot sauvegardé à : {save_path}")
+            plt.savefig(save_path, bbox_inches="tight")
+            plt.close()
         if show:
             plt.show()
-        plt.close()
+
     except Exception as e:
         print(f"[SHAP] Erreur lors du tracé du force plot : {e}")
         
@@ -168,7 +174,7 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         return None
 
     # Calcul des valeurs SHAP
-    shap_values = shap_values(explainer, X_sample)
+    shap_values = compute_shap_values(explainer, X_sample)
 
     # Exclure les features inchangeables si demandées
     if immutable_features is not None:
@@ -176,7 +182,7 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         X_display = X_sample[valid_features]
         shap_display = shap_values[:, [i for i, c in enumerate(X_sample.columns) if c in valid_features]]
         if verbose:
-            print(f"[SHAP] {len(immutable_features)} features inchangeables exclues de l’affichage.")
+            print(f"[SHAP] {len(immutable_features)} features inchangeables exclues de l'affichage.")
     else:
         X_display = X_sample
         shap_display = shap_values
@@ -196,7 +202,7 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         print(f"[SHAP] Erreur lors du tracé des dépendances : {e}")
 
     # Force plot pour la première ligne (visualisation locale complète)
-    force_path = os.path.join(save_dir, "shap_force_example0.png")
+    force_path = os.path.join(save_dir, "shap_force.png")
     plot_force(explainer, shap_values, X_sample, index=0, save_path=force_path, show=False)
 
     if verbose:

@@ -1,11 +1,11 @@
 
 import numpy as np
-from sklearn.preprocessing import QuantileTransformer # utile en cas de régression
+from sklearn.preprocessing import QuantileTransformer # utile en cas de régression (non utilisé ici)
 from PyQt6.QtCore import QObject, pyqtSignal
-import shap
+import os
 
 from ..preprocessing.preprocessing import preprocecing
-from .training_utils import model_charge, load, model_init, model_train, affichage_perf, val_evolution
+from .training_utils import model_charge, load, model_init, model_train, affichage_perf, analyse_pre_process, analyse_post_process
 from ..utils.utils import courbe_perf
 from ..utils.shap_module import shap_analysis
 
@@ -43,8 +43,8 @@ class TrainingWorker(QObject):
         data = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv')
         df = data.copy()
         # prétraitement des données
-        # Décommenter la ligne suivante pour voir le dataset avant prétraitement
-        # analyse_pre_process(df)
+        # analyse dataset avant prétraitement
+        if self.verbose: analyse_pre_process(df)
             
         if self.model_type == "T" :
             X_train, y_train, X_test, y_test = preprocecing(df, ['Sleep Disorder', 'Quality of Sleep'], y_normalisation=False)
@@ -61,8 +61,8 @@ class TrainingWorker(QObject):
 
         assert not np.any(np.isin(X_train.index, X_test.index))
 
-        # Décommenter la ligne suivante pour voir le dataset après prétraitement
-        # analyse_post_process(X_train, y_train, X_test, y_test)
+        # analyse dataset après prétraitement
+        if self.verbose: analyse_post_process(X_train, y_train, X_test, y_test)
         
         # IA training
         
@@ -96,18 +96,21 @@ class TrainingWorker(QObject):
                 affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c)
             elif self.model_type == "Q":
                 affichage_perf(X_train, y_train, X_test, y_test, self.model, self.path_c) 
-                # évolution des variables modifiables pour améliorer la prédiction
-                features = ["Gender", "Age", "Occupation", "Sleep Duration",
+            
+            # évolution des variables modifiables pour améliorer la prédiction
+            features = ["Gender", "Age", "Occupation", "Sleep Duration",
                             "Physical Activity Level", "Stress Level", "BMI Category",
                             "Blood Pressure", "Heart Rate", "Daily Steps"]
                 
-                non_modifiables = ["Quality of Sleep", "Sleep Disorder", 'Age', 'Occupation', 'Gender', 'Heart Rate', 'Blood Pressure']
+            non_modifiables = ["Sleep Disorder", 'Age', 'Occupation', 'Gender', 'Heart Rate', 'Blood Pressure']
 
-                if self.do_shap:
-                    print("")
-                    print("Evolution des variables modifiables pour améliorer la prédiction :")
-                    # Shap analysis
-                    shap_analysis(self.model, X_train, "./Code/Saves_Curves", verbose=self.verbose, immutable_features=non_modifiables)
+            if self.do_shap:
+                print("")
+                print("Lancement de l'analyse SHAP...\n")
+                # Shap analysis
+                save_dir = os.path.dirname(self.path_c)
+                shap_analysis(self.model, X_train, save_dir, verbose=self.verbose, immutable_features=non_modifiables)
+                print("Analyse SHAP terminée.\n")
                     
         except Exception as e:
             print(f"ERREUR TrainingWorker run: {repr(e)}")

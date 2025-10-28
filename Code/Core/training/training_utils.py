@@ -121,10 +121,10 @@ def analyse_post_process(X_train, y_train, X_test, y_test):
     '''
     
     # Affiche les dimensions des ensembles de données
-    print("X_train shape:", X_train.shape)
-    print("y_train shape:", y_train.shape)
-    print("X_test shape:", X_test.shape)
-    print("y_test shape:", y_test.shape)
+    print("X_train shape:", X_train.shape, "\n")
+    print("y_train shape:", y_train.shape, "\n")
+    print("X_test shape:", X_test.shape, "\n")
+    print("y_test shape:", y_test.shape, "\n")
 
     # Affiche les types de données et quelques exemples
     print("\nX_train data types:\n", pd.DataFrame(X_train).dtypes)
