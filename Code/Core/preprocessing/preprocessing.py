@@ -20,7 +20,7 @@ def preprocecing(df, on, y_normalisation=True, debug=False):
         """ Encode les variables catégorielles """
 
         # Dictionnaires de mapping adaptés au dataset initial (entrainement)
-        code_bmi = {'Normal':0,'Normal Weight': 0, 'Overweight': 2, 'Underweight': 3, 'Obesity': 4}
+        code_bmi = {'Normal':1,'Normal Weight': 1, 'Overweight': 2, 'Underweight': 0, 'Obesity': 3}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'Software Engineer': 0, 'Doctor': 0, 'Sales Representative': 0, 'Nurse': 0, 'Teacher': 0,
                         'Scientist': 0, 'Engineer': 0, 'Lawyer': 0, 'Accountant': 0, 'Salesperson': 0, 'Manager': 0}
@@ -55,7 +55,7 @@ def preprocecing(df, on, y_normalisation=True, debug=False):
         # Valeurs max pour chaque feature encoder manuellement pour correspondre a des valeurs physiologique réalistes (à ajuster si besoin)
         # pour assurer une meilleure généralisation du modèle
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
-                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 3, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000, 'Quality of Sleep': 10}
 
         # Normalisation des colonnes
@@ -124,7 +124,7 @@ def preprocecing_user(df, on=None):
         """ Encode les variables catégorielles """
 
         # Dictionnaires de mapping adaptés aux entrées utilisateurs
-        code_bmi = {'Normal': 0, 'Normal Weight': 0, 'Overweight': 1, 'Underweight': 2, 'Obese': 3}
+        code_bmi = {'Normal': 1, 'Normal Weight': 1, 'Overweight': 2, 'Underweight': 0, 'Obese': 3}
         code_gender = {'Male': 0, 'Female': 1}
         code_occupation = {'working':0, 'unemployed':0, 'student':0, 'retired':0, 'other':0} # tout a 0 car absence de données suffisantes (on a que des working dans le dataset initial), si nouvelle donnée a ajuster
 
@@ -163,7 +163,7 @@ def preprocecing_user(df, on=None):
         """ Normalise les données entre 0 et 1 """
 
         max_values = {'Gender': 2, 'Age': 130, 'Occupation': 5, 'Sleep Duration': 24, 
-                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 4, 
+                      'Physical Activity Level': 360, 'Stress Level': 10, 'BMI Category': 3, 
                       'Blood Pressure': 200, 'Heart Rate': 200, 'Daily Steps': 50000}
        
         df['Gender'] = df['Gender'].div(max_values['Gender'])

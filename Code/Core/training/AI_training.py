@@ -52,7 +52,7 @@ class TrainingWorker(QObject):
         elif self.model_type == "Q":
             X_train, y_train, X_test, y_test = preprocecing(df, ['Quality of Sleep', 'Sleep Disorder'], y_normalisation=False)
             self.learning_rate = 1e-2
-            ''' was used when quality of sleep was treat as a continuous variable
+            ''' était utilisé pour la régression (quand la Quality of Sleep était considéré comme une valeur continue)
             # Transformer y_train / y_test avec QuantileTransformer
             qt = QuantileTransformer(output_distribution='normal', random_state=42, n_quantiles= 299)
             y_train = qt.fit_transform(y_train.reshape(-1, 1)).flatten()
@@ -109,7 +109,7 @@ class TrainingWorker(QObject):
                 print("Lancement de l'analyse SHAP...\n")
                 # Shap analysis
                 save_dir = os.path.dirname(self.path_c)
-                shap_analysis(self.model, X_train, save_dir, verbose=self.verbose, immutable_features=non_modifiables)
+                shap_analysis(self.model, X_train, save_dir, self.model_type, verbose=self.verbose, immutable_features=non_modifiables)
                 print("Analyse SHAP terminée.\n")
                     
         except Exception as e:

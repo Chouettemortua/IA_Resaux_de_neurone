@@ -106,17 +106,44 @@ class MainMenu(QMainWindow):
         # Définition des chemins par défaut des modèles et des images
         file_dir = os.path.abspath(__file__)
         parent_dir = get_base_path(file_dir)
-        model_quality_path = os.path.join(parent_dir, 'Saves', 'save_sleep_quality.pkl')
-        model_trouble_path = os.path.join(parent_dir, 'Saves', 'save_sleep_trouble.pkl')
+        save_dir = os.path.join(parent_dir, 'Saves')
+        model_quality_path = os.path.join(save_dir, 'save_sleep_quality.pkl')
+        model_trouble_path = os.path.join(save_dir, 'save_sleep_trouble.pkl')
         parent_dir_im = os.path.join(parent_dir, 'Saves_Curves')
-        model_quality_curve_path = os.path.join(parent_dir_im, 'curve_sleep_quality.png')
-        model_trouble_curve_path = os.path.join(parent_dir_im, 'curve_sleep_trouble.png')
+        parent_dir_im_q = os.path.join(parent_dir_im, 'Quality')
+        parent_dir_im_t = os.path.join(parent_dir_im, 'Trouble')
+        model_quality_curve_path = os.path.join(parent_dir_im_q, 'curve_sleep_quality.png')
+        model_trouble_curve_path = os.path.join(parent_dir_im_t, 'curve_sleep_trouble.png')
+
+        os.makedirs(save_dir, exist_ok=True)
+        os.makedirs(parent_dir_im, exist_ok=True)
+        os.makedirs(parent_dir_im_q, exist_ok=True)
+        os.makedirs(parent_dir_im_t, exist_ok=True)
 
         # Visualisation des images
         self.image_dir = parent_dir_im # Répertoire des images
         self.image_combo = QComboBox()  # ComboBox pour sélectionner les images
         if os.path.exists(self.image_dir): # Vérifie si le répertoire existe
-            self.image_combo.addItems([f for f in os.listdir(self.image_dir) if f.endswith('.png')]) # Ajoute les fichiers PNG
+            png_files = []
+            
+            # Utilisation de os.walk pour parcourir les sous-répertoires
+            # root: chemin actuel du répertoire
+            # dirs: liste des sous-répertoires dans root
+            # files: liste des fichiers dans root
+            for root, _, files in os.walk(self.image_dir):
+                for f in files:
+                    if f.endswith('.png'):
+                        # On met le chemin relatif pour garder la structure des sous-dossiers
+                        full_path = os.path.join(root, f)
+                        relative_path = os.path.relpath(full_path, self.image_dir)
+                        png_files.append(relative_path)
+            
+            # Trier la liste complète (y compris les chemins des sous-dossiers)
+            png_files_sorted = sorted(png_files)
+            
+            # Ajouter les fichiers triés à la ComboBox
+            self.image_combo.addItems(png_files_sorted)
+
         self.image_label = QLabel("Sélectionnez une image pour l'afficher") 
         self.image_label.setObjectName("imageLabel") 
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter) 

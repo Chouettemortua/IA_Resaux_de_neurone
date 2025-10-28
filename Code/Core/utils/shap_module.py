@@ -125,7 +125,7 @@ def plot_force(explainer, shap_values, X, index=0, save_path=None, show=False, v
             expected_value = 0  # fallback neutre si expected_value absent
 
         # Création du graphique
-        shap_fig = shap.force_plot(
+        shap.force_plot(
             expected_value,
             shap_values.values[index, :],
             X.iloc[index, :],
@@ -142,7 +142,7 @@ def plot_force(explainer, shap_values, X, index=0, save_path=None, show=False, v
         print(f"[SHAP] Erreur lors du tracé du force plot : {e}")
         
 
-def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable_features=None):
+def shap_analysis(model, X, save_dir, model_type="default", sample_size=None, verbose=False, immutable_features=None):
     """
     Lance une analyse SHAP complète (summary + dépendance + force plot) pour un modèle donné.
 
@@ -150,11 +150,13 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         model: Modèle IA (déjà entraîné)
         X (pd.DataFrame): Données d'entrée pour le calcul SHAP
         save_dir (str): Répertoire de sauvegarde des graphes
+        model_type (str): Type de modèle ("T", "Q", etc.) pour ajuster les paths
         sample_size (int | None): Taille max de l'échantillon pour accélérer le calcul (None = tout)
         verbose (bool): Afficher les logs dans la console
         immutable_features (list[str] | None): Liste des variables inchangeables à exclure des graphes
     """
     os.makedirs(save_dir, exist_ok=True)
+    model_type = model_type.replace(" ", "_").replace("/", "_") # Nettoyage du nom pour les fichiers
 
     if verbose:
         print("\n[SHAP] === Début de l'analyse SHAP ===")
@@ -188,7 +190,7 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         shap_display = shap_values
 
     # Tracé et sauvegarde des graphes
-    summary_path = os.path.join(save_dir, "shap_summary.png")
+    summary_path = os.path.join(save_dir, f"shap_summary_{model_type}.png")
     plot_summary(shap_display, X_display, save_path=summary_path, show=False)
 
     # Deux plots de dépendance sur les features les plus importantes (hors inchangeables)
@@ -196,14 +198,15 @@ def shap_analysis(model, X, save_dir, sample_size=None, verbose=False, immutable
         feature_importance = np.abs(shap_display.values).mean(axis=0)
         top_features = pd.Series(feature_importance, index=X_display.columns).sort_values(ascending=False).head(2)
         for feat in top_features.index:
-            dep_path = os.path.join(save_dir, f"shap_dependence_{feat}.png")
+            safe_feat = feat.replace(" ", "_").replace("/", "_") # Nettoyage du nom pour le fichier
+            dep_path = os.path.join(save_dir, f"shap_dependence_{safe_feat}_{model_type}.png")
             plot_dependence(feat, shap_display, X_display, save_path=dep_path, show=False)
     except Exception as e:
         print(f"[SHAP] Erreur lors du tracé des dépendances : {e}")
 
     # Force plot pour la première ligne (visualisation locale complète)
-    force_path = os.path.join(save_dir, "shap_force.png")
-    plot_force(explainer, shap_values, X_sample, index=0, save_path=force_path, show=False)
+    force_path = os.path.join(save_dir, f"shap_force_{model_type}.png")
+    plot_force(explainer, shap_display, X_display, index=0, save_path=force_path, show=False)
 
     if verbose:
         print("[SHAP] === Analyse SHAP terminée avec succès ===\n")
