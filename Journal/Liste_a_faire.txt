@@ -9,8 +9,10 @@ A faire :
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
+        WAITING --- Refaire proprement la présentation (schéma simple explicatif -> principe MLP et par bloc pour la chaine de traitement)
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         FAIT&WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
+        FAIT --- Implementé l'analyse SHAP sur le dataset (pour analyse)
         FAIT --- Uniformiser les langues des interface (FR) et des comment (FR) (sauf header data dans le user UI)
         FAIT --- ajout d'autre fonction d'activation (code fait pour switch facilement) + test (comment: fait partiellement car switch a faire dans le code mais pas trop de difficulté)
         FAIT --- IMPLEM d'un meilleur manière d'initialiser les poid et bia. + nouvelle activation mieux adapté

@@ -63,6 +63,8 @@ Année 2025
 
 15/10 : Ajout decay pour le learning rate
 
+27/10 : traitement SHAP pour analyse
+
 
 
 
@@ -94,4 +96,4 @@ Fin Septembre : App gradio + recherche pour compiler et faire marcher la compila
 
 Début Octobre : Méthode d'init poids bias: He, glorot + Passage a Relu pour couche cachées et entrée + Uniformiser le langue des interface + ajout d'un décay sur le learning rate
 
-Fin Octobre : Mise en place de Shap pour tout ce qui est le retour et analyse d'impacte des variable.
+Fin Octobre : Mise en place de Shap pour analyse de l'impacte des variable.
