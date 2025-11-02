@@ -68,7 +68,7 @@ def plot_summary(shap_values, X_sample, save_path=None, show=False, max_display=
     shap.summary_plot(shap_values, X_sample, show=False, max_display=max_display)
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, bbox_inches="tight", dpi=300)
+        plt.savefig(save_path, bbox_inches="tight", dpi=100)
         if verbose: print(f"[SHAP] Summary plot sauvegardé à : {save_path}")
     if show:
         plt.show()
@@ -96,7 +96,7 @@ def plot_dependence(feature_name, shap_values, X_sample, save_path=None, show=Fa
     shap.dependence_plot(feature_name, shap_values.values, X_sample, show=False)
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        plt.savefig(save_path, bbox_inches="tight", dpi=300)
+        plt.savefig(save_path, bbox_inches="tight", dpi=100)
         if verbose: print(f"[SHAP] Dependence plot sauvegardé à : {save_path}")
     if show:
         plt.show()
