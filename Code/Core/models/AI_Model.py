@@ -106,6 +106,8 @@ class Resaux(QObject):
         """ Initialise les poids et biais du réseau de neurones en utilisant l'initialisation de He, adaptée pour les fonctions d'activation ReLU.
         Args:
             X (np.ndarray): Données d'entrée de forme (n_samples, n_features).
+        Returns:
+            tuple: Poids et biais initialisés.
         """
         W = []
         b = []
