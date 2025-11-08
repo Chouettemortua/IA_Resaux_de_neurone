@@ -220,7 +220,7 @@ def shap_analysis(model, X, save_dir, model_type="default", sample_size=None, ve
     }
 
 
-def suggest_improvements(explainer, shap_values, X, index=-1, immutable_features=None, top_n=3, feature_directions=None, verbose=True):
+def suggest_improvements(shap_values, X, index=-1, immutable_features=None, top_n=3, feature_directions=None, verbose=True):
     """
     Génère des conseils personnalisés à partir des valeurs SHAP d'un individu.
 

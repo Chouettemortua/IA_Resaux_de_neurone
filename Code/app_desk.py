@@ -20,6 +20,7 @@ from PyQt6.QtCore import Qt
 from Core.training.training_utils import model_charge
 from Core.preprocessing.preprocessing import preprocecing_user
 from Core.utils.utils import get_base_path
+from Core.utils.shap_module import suggest_improvements, init_explainer, compute_shap_values
 
 
 if sys.platform == "win32":
@@ -371,6 +372,32 @@ class MainWindow(QMainWindow):
                 f"Score moyen qualité de sommeil : {mean_quality * 10:.2f}%\n"
                 f"Trouble du sommeil détecté : {label_trouble}\n"
             )
+
+            # Suggestions d'amélioration
+            explainer = init_explainer(model_quality, df_quality)
+            shap_values = compute_shap_values(explainer, df_quality)
+            suggestions = suggest_improvements(
+                shap_values,
+                df_quality,
+                index=-1,
+                immutable_features=["Gender", "Age", "Occupation", "Blood Pressure", "Heart Rate"],
+                top_n=3,
+                feature_directions={
+                    "Sleep Duration": "higher",
+                    "Physical Activity Level": "higher",
+                    "Stress Level": "lower",
+                    "BMI Category": "lower",
+                    "Daily Steps": "higher"
+                },
+                verbose=False
+            )
+            suggestions_text ="\n".join([f"  • {s['advice']} | Impact {s['impact']:+.3f}" for s in suggestions])
+            QMessageBox.information(
+                self,
+                "Suggestions d'amélioration",
+                f"Suggestions pour améliorer la qualité du sommeil :\n{suggestions_text}"
+            )
+        
 
         # Gestion des erreurs
         except Exception as e:
