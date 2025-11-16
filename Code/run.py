@@ -8,8 +8,12 @@ from PyQt6.QtGui import QPixmap, QIcon, QFont, QFontMetrics
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread, QSize, QRect
 
 # Importation de mes modules
-import Core.training.AI_training as AT
+
 import app_desk as APP
+import Core.training.AI_training as AT
+from Core.training.training_utils import load
+from Core.preprocessing.preprocessing import preprocecing
+from Core.training.gradient_visu_widget import GradientVisuWidget
 from Core.utils.utils import get_base_path
 
 class EmittingStream(QObject):
@@ -51,14 +55,20 @@ class MainMenu(QMainWindow):
         self.btn_app = QPushButton("Lancer l'Application Desktop")
         self.btn_atq = QPushButton("Lancer le script de Training Qualité")
         self.btn_att = QPushButton("Lancer le script de Training Trouble")
+        self.btn_gradient_q = QPushButton("Lancer le script de Visualisation Gradient Norm (Qualité)")
+        self.btn_gradient_t = QPushButton("Lancer le script de Visualisation Gradient Norm (Trouble)")
 
         self.btn_app.clicked.connect(self.run_app_script)
         self.btn_atq.clicked.connect(self.run_atq_script)
         self.btn_att.clicked.connect(self.run_att_script)
+        self.btn_gradient_q.clicked.connect(lambda: self.run_gradient_norm("Q"))
+        self.btn_gradient_t.clicked.connect(lambda: self.run_gradient_norm("T"))
 
         left_layout.addWidget(self.btn_app)
         left_layout.addWidget(self.btn_atq)
         left_layout.addWidget(self.btn_att)
+        left_layout.addWidget(self.btn_gradient_q)
+        left_layout.addWidget(self.btn_gradient_t)
         left_layout.addSpacing(25)
 
         # Form Layout
@@ -226,7 +236,6 @@ class MainMenu(QMainWindow):
             # Sélectionner le premier élément
             if self.image_list.count() > 0:
                 self.image_list.setCurrentRow(0)
-
 
         self.image_label = QLabel("Sélectionnez une image pour l'afficher") 
         self.image_label.setObjectName("imageLabel") 
@@ -522,6 +531,43 @@ class MainMenu(QMainWindow):
 
         # Réinitialiser le nombre d'itérations
         self.line_nb_iter.setValue(1000)
+
+    def run_gradient_norm(self, visu_type: str):
+        """Ouvre la fenêtre de visualisation Gradient Norm Surface."""
+
+        self.set_buttons_enabled(False)
+        self.console_output.clear()
+
+        print("\nChargement du dataset...\n")
+        df = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv')
+
+        if visu_type == "Q":
+            print("\n→ Visualisation Qualité du sommeil\n")
+            _, _, X_test, y_test = preprocecing(
+                df,
+                ['Quality of Sleep', 'Sleep Disorder'],
+                y_normalisation=False
+            )
+            model_path = self.default_paths["quality"]["path_n"]
+
+        else:
+            print("\n→ Visualisation Troubles du sommeil\n")
+            _, _, X_test, y_test = preprocecing(
+                df,
+                ['Sleep Disorder', 'Quality of Sleep'],
+                y_normalisation=False
+            )
+            model_path = self.default_paths["trouble"]["path_n"]
+
+        # --- Création et affichage de la fenêtre ---
+        self.gradient_window = GradientVisuWidget(model_path, X_test, y_test)
+        self.gradient_window.setWindowTitle(
+            "Gradient Norm Surface - " +
+            ("Qualité du sommeil" if visu_type == "Q" else "Troubles du sommeil")
+        )
+        self.gradient_window.show()
+
+        self.set_buttons_enabled(True)
 
     def closeEvent(self, event):
         try:
