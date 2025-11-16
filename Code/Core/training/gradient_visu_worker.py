@@ -10,7 +10,7 @@ class GradientVisuWorker(QObject):
     def __init__(self, model_path, X, y, steps=25, scale=1.0):
         """ Initialise le Worker thread pour calculer les norme du gradient sur un cadrillage dans l'espace des paramètres.
         Args:
-            model: Le modèle de réseau de neurones.
+            model_path: Le path de la sauvegarde du modèle de réseau de neurones.
             X: Les données d'entrée.
             y: Les étiquettes cibles.
             steps: Nombre de points par axe dans le cadrillage.

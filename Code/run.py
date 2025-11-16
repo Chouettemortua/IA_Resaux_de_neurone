@@ -3,12 +3,11 @@ import os
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, 
     QLabel, QHBoxLayout, QTextEdit, QCheckBox, QLineEdit, 
-    QFormLayout, QSpinBox, QProgressBar, QListWidget, QListWidgetItem)
+    QFormLayout, QSpinBox, QProgressBar, QListWidget, QListWidgetItem, QDialog)
 from PyQt6.QtGui import QPixmap, QIcon, QFont, QFontMetrics
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QThread, QSize, QRect
 
 # Importation de mes modules
-
 import app_desk as APP
 import Core.training.AI_training as AT
 from Core.training.training_utils import load
@@ -539,10 +538,10 @@ class MainMenu(QMainWindow):
         self.console_output.clear()
 
         print("\nChargement du dataset...\n")
-        df = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv')
+        df = load('Code/Data/Sleep_health_and_lifestyle_dataset.csv') # path du dataset en brut (pas ouf mais fonctionnel pour l'instant)
 
         if visu_type == "Q":
-            print("\n→ Visualisation Qualité du sommeil\n")
+            print("Visualisation Qualité du sommeil \n")
             _, _, X_test, y_test = preprocecing(
                 df,
                 ['Quality of Sleep', 'Sleep Disorder'],
@@ -551,7 +550,7 @@ class MainMenu(QMainWindow):
             model_path = self.default_paths["quality"]["path_n"]
 
         else:
-            print("\n→ Visualisation Troubles du sommeil\n")
+            print("Visualisation Troubles du sommeil \n")
             _, _, X_test, y_test = preprocecing(
                 df,
                 ['Sleep Disorder', 'Quality of Sleep'],
@@ -560,13 +559,14 @@ class MainMenu(QMainWindow):
             model_path = self.default_paths["trouble"]["path_n"]
 
         # --- Création et affichage de la fenêtre ---
-        self.gradient_window = GradientVisuWidget(model_path, X_test, y_test)
-        self.gradient_window.setWindowTitle(
+        dialog = GradientVisuWidget(model_path, X_test, y_test, self)
+        dialog.setWindowTitle(
             "Gradient Norm Surface - " +
             ("Qualité du sommeil" if visu_type == "Q" else "Troubles du sommeil")
         )
-        self.gradient_window.show()
-
+        dialog.setWindowModality(Qt.WindowModality.ApplicationModal)
+        dialog.exec()
+        print("Fermeture de la visualisation Gradient Norm Surface.\n")
         self.set_buttons_enabled(True)
 
     def closeEvent(self, event):

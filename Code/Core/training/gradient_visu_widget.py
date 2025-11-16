@@ -1,22 +1,18 @@
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtCore, QtWidgets
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from .gradient_visu_worker import GradientVisuWorker
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib
-matplotlib.use("QtAgg")
-
 import numpy as np
 
-class GradientVisuWidget(QtWidgets.QWidget):
-    def __init__(self, model_path, X, y):
+class GradientVisuWidget(QtWidgets.QDialog):
+    def __init__(self, model_path, X, y, parent=None):
         """ Widget pour visualiser la norme du gradient dans l'espace des paramètres du modèle.
         Args:
             model: Le path de la sauvegarde du modèle de réseau de neurones.
             X: Les données d'entrée.
             y: Les étiquettes cibles.
         """
-        super().__init__()
+        super().__init__(parent)
         self.model_path = model_path
         self.X = X
         self.y = y
@@ -35,8 +31,8 @@ class GradientVisuWidget(QtWidgets.QWidget):
 
         self.scale_slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
         self.scale_slider.setMinimum(1)
-        self.scale_slider.setMaximum(100)
-        self.scale_slider.setValue(10)
+        self.scale_slider.setMaximum(1000)
+        self.scale_slider.setValue(500)
         control_layout.addWidget(QtWidgets.QLabel("Scale"))
         control_layout.addWidget(self.scale_slider)
 
@@ -55,7 +51,7 @@ class GradientVisuWidget(QtWidgets.QWidget):
     def start_worker(self):
         """ Démarre le thread de calcul pour la norme du gradient. """
         steps = self.steps_slider.value()
-        scale = self.scale_slider.value() / 10.0
+        scale = self.scale_slider.value()/100.0
 
         # Désactiver bouton pour éviter double click
         self.calc_button.setEnabled(False)
