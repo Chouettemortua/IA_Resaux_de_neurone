@@ -21,9 +21,9 @@ def courbe_perf(sleep, path, bool_p=True):
         acc_title = "Courbe de R²"
         acc_ylabel = "R² score"
     else:
-        acc_label = "accuracy"
-        acc_title = "Courbe d'accuracy"
-        acc_ylabel = "Accuracy"
+        acc_label = "Précision"
+        acc_title = "Courbe de Précision"
+        acc_ylabel = "Précision (%)"
 
     # Axe des x dépendant de partialsteps
     if sleep.partialsteps is not None:
@@ -33,17 +33,17 @@ def courbe_perf(sleep, path, bool_p=True):
 
     # Perte (Loss)
     plt.subplot(1, 2, 1)
-    plt.plot(x_values, sleep.L, label="train loss")
-    plt.plot(x_values, sleep.L_t, label="test loss")
+    plt.plot(x_values, sleep.L, label="Perte d'entraînement")
+    plt.plot(x_values, sleep.L_t, label="Perte de test")
     plt.legend()
     plt.title("Courbe de perte")
     plt.xlabel("Itérations")
-    plt.ylabel("Loss")
+    plt.ylabel("Perte (écart label-prédiction)")
 
     # Performance (Accuracy ou R²)
     plt.subplot(1, 2, 2)
-    plt.plot(x_values, sleep.acc, label=f"train {acc_label}")
-    plt.plot(x_values, sleep.acc_t, label=f"test {acc_label}")
+    plt.plot(x_values, sleep.acc, label=f"Entraînement {acc_label}")
+    plt.plot(x_values, sleep.acc_t, label=f"Test {acc_label}")
     plt.legend()
     plt.title(acc_title)
     plt.xlabel("Itérations")
