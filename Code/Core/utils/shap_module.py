@@ -20,7 +20,7 @@ def init_explainer(model, X_ref, verbose=False):
     """
     if verbose: print("[SHAP] Initialisation de l'explainer...")
     try:
-        explainer = shap.Explainer(lambda X : model.predict(X), X_ref)
+        explainer = shap.Explainer(model.predict, X_ref)
         if verbose: print("[SHAP] Explainer initialisé avec succès.")
         return explainer
     except Exception as e:
