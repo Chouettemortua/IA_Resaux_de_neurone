@@ -5,11 +5,11 @@ A faire :
     PAUSED : a été démarer mais laisser de coter
     EN COURS : en travaille ou en cours d'implementation
     FAIT&WAITING : need to be done regularly or at least time to time
-    FAIT : Implementé
+    FAIT : Implementé / Réalisé
 
     Prioritaire:
         WAITING --- Equiliber les donné pour la qualité du sommeil (ou autre solution)
-        WAITING --- présentation tableau, le coeur (retro propa (en annex ?), méthode d'entrainement (choix tech sur l'architecture), 
+        EN COURS --- présentation tableau, le coeur (retro propa (en annex ?), méthode d'entrainement (choix tech sur l'architecture), 
                     explcativité Shap), jsutifié le choix du score de qualité. Moins de texte et ortographe -> tableau pour les valeur.
         EN COURS --- Faire le retour (ce qu'il faut améliorer)
         FAIT&WAITING --- mettre a jour le README (orga, instalation, version, commande pour requirement)
