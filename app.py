@@ -3,14 +3,16 @@ __init__ = "Gradio app module"
 import gradio as gr
 import pandas as pd
 import numpy as np
+import tempfile
+import os
 
 from Code.Core.training.training_utils import model_charge
 from Code.Core.preprocessing.preprocessing import preprocecing_user
 
 class GradioApp:
     def __init__(self):
-        self.model_T = model_charge('TIPE/Code/Saves/save_sleep_trouble.pkl')
-        self.model_Q = model_charge('TIPE/Code/Saves/save_sleep_quality.pkl')
+        self.model_T = model_charge('Code/Saves/save_sleep_trouble.pkl')
+        self.model_Q = model_charge('Code/Saves/save_sleep_quality.pkl')
 
         self.columns = [
             "Gender", "Age", "Occupation", "Sleep Duration", "Physical Activity Level",
@@ -84,7 +86,20 @@ class GradioApp:
         except Exception as e:
             gr.Error(f"Erreur lors du chargement du fichier : {e}")
             return self.df
+
+    def save_csv(self, df_data):
+        # On s'assure que c'est un DataFrame
+        df = pd.DataFrame(df_data, columns=self.columns)
         
+        # On crée un chemin de fichier temporaire
+        file_path = os.path.join(tempfile.gettempdir(), "sleep_data_export.csv")
+        
+        # Sauvegarde réelle sur le disque du serveur
+        df.to_csv(file_path, index=False)
+        
+        # On retourne le chemin : Gradio comprend qu'il doit envoyer ce fichier
+        return file_path
+
     def clear_data(self):
         return pd.DataFrame(columns=self.columns)
 
@@ -97,7 +112,9 @@ class GradioApp:
                     gr.Markdown("### Actions sur les Fichiers")
                     with gr.Group():
                         load_file_button = gr.UploadButton("Charger un CSV", file_types=[".csv"])
+                        save_file_button = gr.DownloadButton("Sauvegarder en CSV")
                         clear_button = gr.Button("Vider la table")
+                        
                 
                 with gr.Column(scale=1):
                     gr.Markdown("### Analyse")
@@ -148,11 +165,17 @@ class GradioApp:
                 inputs=table,
                 outputs=analysis_output
             )
+
+            save_file_button.click(
+                fn=self.save_csv,
+                inputs=[table],
+                outputs=save_file_button
+            )
             
             load_file_button.upload(
                 fn=self.load_csv,
                 inputs=load_file_button,
-                outputs=table
+                outputs=save_file_button
             )
             
             clear_button.click(
