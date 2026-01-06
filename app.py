@@ -70,34 +70,37 @@ class GradioApp:
             gr.Error(f"Échec de l'analyse : {str(e)}")
             return f"Échec de l'analyse : {str(e)}"
         
-    def load_csv(self, file_path):
-        if file_path is None:
-            return self.df
+    def load_csv(self, file):
+        if file is None:
+            return pd.DataFrame(columns=self.columns)
         
         try:
-            df_loaded = pd.read_csv(file_path.name)
+            # Gradio passe un objet tempfile, on accède au chemin via .name
+            df_loaded = pd.read_csv(file.name)
             
-            # Vérification des colonnes
-            if set(df_loaded.columns) != set(self.columns):
-                gr.Warning("Le fichier CSV ne contient pas les colonnes attendues. La table n'a pas été mise à jour.")
-                return self.df
+            # On s'assure que les colonnes matchent, sinon on réordonne/complète
+            for col in self.columns:
+                if col not in df_loaded.columns:
+                    df_loaded[col] = np.nan
             
             return df_loaded[self.columns]
         except Exception as e:
-            gr.Error(f"Erreur lors du chargement du fichier : {e}")
-            return self.df
+            raise gr.Error(f"Erreur de lecture : {e}")
 
     def save_csv(self, df_data):
-        # On s'assure que c'est un DataFrame
+        # 1. Vérification : si df_data est vide ou None
+        if df_data is None or (isinstance(df_data, pd.DataFrame) and df_data.empty):
+            # On peut renvoyer None ou un fichier vide pour éviter le crash
+            return None 
+
+        # 2. Conversion explicite en DataFrame au cas où Gradio envoie une liste
         df = pd.DataFrame(df_data, columns=self.columns)
         
-        # On crée un chemin de fichier temporaire
+        # 3. Création du fichier temporaire
         file_path = os.path.join(tempfile.gettempdir(), "sleep_data_export.csv")
-        
-        # Sauvegarde réelle sur le disque du serveur
         df.to_csv(file_path, index=False)
         
-        # On retourne le chemin : Gradio comprend qu'il doit envoyer ce fichier
+        # 4. On retourne UNIQUEMENT le string du chemin
         return file_path
 
     def clear_data(self):
@@ -168,14 +171,14 @@ class GradioApp:
 
             save_file_button.click(
                 fn=self.save_csv,
-                inputs=[table],
+                inputs=[table],      
                 outputs=save_file_button
             )
             
             load_file_button.upload(
                 fn=self.load_csv,
-                inputs=load_file_button,
-                outputs=save_file_button
+                inputs=[load_file_button],
+                outputs=[table]
             )
             
             clear_button.click(
